@@ -378,9 +378,12 @@ document
 
             // If chair exists
             if (chairContainer) {
-                const chairText = chairContainer.querySelector(
+                const chairTextElement = chairContainer.querySelector(
                     ".chair-text-in-grid"
-                ).textContent;
+                );
+                const chairText = chairTextElement
+                    ? chairTextElement.textContent
+                    : "";
                 const chairImage =
                     chairContainer.querySelector(".chair-in-grid");
                 const rotation = chairImage.dataset.rotation || 0;
