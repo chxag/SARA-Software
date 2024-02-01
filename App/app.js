@@ -22,8 +22,26 @@ function createGrid(rows, columns) {
     }
 }
 
+function updateGridCentering() {
+    // Calculate the total grid width
+    const totalGridWidth = columns * gridSize;
+    const gridContainer = document.querySelector(".grid-container");
+
+    // Check if the grid overflows the viewport width
+    if (totalGridWidth > window.innerWidth) {
+        // Grid overflows, set justify-content to flex-start
+        gridContainer.style.justifyContent = "flex-start";
+    } else {
+        // No overflow, center the grid
+        gridContainer.style.justifyContent = "center";
+    }
+}
+
+window.addEventListener("resize", updateGridCentering);
+
 // Populate the grid
 createGrid(rows, columns);
+updateGridCentering();
 
 // Zoom button functionality
 const zoomInButton = document.getElementById("zoom-in");
@@ -36,6 +54,9 @@ function adjustGridSize(change) {
     gridSize = Math.max(30, Math.min(gridSize + change, 100)); // Min 30px and max 100px
     gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
     gridContainer.style.gridTemplateRows = `repeat(${rows}, ${gridSize}px)`;
+
+    // Update the grid based on the new size
+    updateGridCentering();
 
     // Calculate and update the font size for chair text based on the new grid size
     const newFontSize = calculateFontSize(gridSize);
@@ -403,7 +424,9 @@ document
                         .forEach((cChairText) => {
                             // Check if the chair text includes the current stack's ID and it's not the stack itself
                             if (
-                                cChairText.textContent.includes(chairText) &&
+                                cChairText.textContent.includes(
+                                    `(${chairText})`
+                                ) &&
                                 cChairText !== chairTextElement
                             ) {
                                 // Includes both image and text
