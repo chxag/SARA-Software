@@ -2,14 +2,14 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-map_image = cv2.imread( r'C:\Maps\map.pgm', cv2.IMREAD_GRAYSCALE)
+map_image = cv2.imread( r'C:\Maps\cropped_map.png', cv2.IMREAD_GRAYSCALE)
 
 map_image = cv2.resize(map_image, (1800, 1600))
 
 map_image = cv2.GaussianBlur(map_image, (5, 5), 0)
 map_image = cv2.addWeighted(map_image, 1.5, np.zeros(map_image.shape, map_image.dtype), 0, 0)
 
-pixel_size = 50
+pixel_size = 100
 
 image_with_grid = map_image.copy()
 
