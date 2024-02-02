@@ -23,3 +23,7 @@ plt.imshow(cv2.cvtColor(image_with_grid, cv2.COLOR_BGR2RGB))
 plt.show()
 
 
+
+
+
+
