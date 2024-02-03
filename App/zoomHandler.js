@@ -8,7 +8,6 @@ zoomOutButton.addEventListener("click", () => adjustGridSize(-10)); // Decrease 
 function adjustGridSize(change) {
     gridSize = Math.max(30, Math.min(gridSize + change, 100)); // Min 30px and max 100px
     gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
-    gridContainer.style.gridTemplateRows = `repeat(${rows}, ${gridSize}px)`;
 
     // Update the grid based on the new size
     updateGridCentering();
