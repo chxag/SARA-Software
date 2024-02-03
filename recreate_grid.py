@@ -4,7 +4,7 @@ import json
 
 # Load the JSON data from the file
 with open(r'C:\Maps\grid_data.json', 'r') as f:
-    cell_intensities = json.load(f)
+    grid_data = json.load(f)
 
 # Set parameters
 pixel_size = 25
@@ -15,10 +15,10 @@ height = 800
 recreated_grid = np.zeros((height, width), dtype=np.uint8)
 
 # Iterate over each cell in the grid
-for x in range(0, width, pixel_size):
-    for y in range(0, height, pixel_size):
-        # Get the intensity value from the cell_intensities list
-        cell_intensity = cell_intensities.pop(0)
+for y in range(0, height, pixel_size):
+    for x in range(0, width, pixel_size):
+        # Get the intensity value from the grid_data list
+        cell_intensity = grid_data[y // pixel_size][x // pixel_size]
         # Fill the corresponding cell in the recreated grid
         recreated_grid[y:y + pixel_size, x:x + pixel_size] = cell_intensity
 

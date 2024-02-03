@@ -35,23 +35,27 @@ for x in range(0, map_image.shape[1], pixel_size):
 # Define the threshold for "close to black" based on intensity
 threshold_intensity = 254  # Adjust this value based on your needs
 
-# Create an empty list to store the intensity values of each cell
-cell_intensities = []
+# Create an empty list to store the rows
+grid = []
 
 # Iterate over each cell in the grid
-for x in range(0, map_image.shape[1], pixel_size):
-    for y in range(0, map_image.shape[0], pixel_size):
+for y in range(0, map_image.shape[0], pixel_size):
+    # Create an empty list for this row
+    row = []
+    for x in range(0, map_image.shape[1], pixel_size):
         # Get the intensity value of the cell
         cell_intensity = int(map_image[y:y + pixel_size, x:x + pixel_size].mean())
         # Check if the cell is "close to black" based on the threshold
-        if cell_intensity < threshold_intensity:
+        if cell_intensity <= threshold_intensity:
             # Set the intensity value to 0 for cells "close to black"
             cell_intensity = 0
-        # Append the intensity value to the cell_intensities list
-        cell_intensities.append(cell_intensity)
+        # Append the intensity value to the row list
+        row.append(cell_intensity)
+    # Append the row list to the grid list
+    grid.append(row)
 
-# Convert the cell_intensities list to a JSON string
-json_data = json.dumps(cell_intensities, indent=4)
+# Convert the grid list to a JSON string
+json_data = json.dumps(grid, indent=4)
 
 # Write the JSON string to a file
 with open(r'C:\Maps\grid_data.json', 'w') as f: #change this so you can use the maps in the subdirectory
