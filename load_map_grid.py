@@ -10,7 +10,7 @@ map_image = cv2.resize(map_image, (1800, 1600))
 map_image = cv2.GaussianBlur(map_image, (5, 5), 0)
 map_image = cv2.addWeighted(map_image, 1.5, np.zeros(map_image.shape, map_image.dtype), 0, 0)
 
-pixel_size = 65
+pixel_size = 50
 
 image_with_grid = map_image.copy()
 
