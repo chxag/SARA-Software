@@ -1,3 +1,5 @@
+// This file is not included in the HTML files, it's just all the JavaScript code in one file (may not be updated).
+
 let gridSize = 50; // Initial grid size in pixels
 
 // Initialise default values and query URL parameters
@@ -113,6 +115,37 @@ function calculateFontSize(gridSize) {
     return gridSize * 0.17;
 }
 
+// Grid, stack, chair numbering data
+const gridContainer = document.querySelector(".grid-container");
+let selectedStack = null;
+
+// Stack/chair number calculation
+const allocatedCNumbersByStack = {}; // for C chairs (chairs associated with stacks, e.g. C1 (S1), C2 (S2))
+const allocatedNumbers = new Set(); // for stacks
+
+// Increase number from 1 until non-taken number (for stacks)
+function getLowestAvailableNumber() {
+    let num = 1;
+    while (allocatedNumbers.has(num)) {
+        num++;
+    }
+    return num;
+}
+
+// Increase number from 1 until non-taken number (for C chairs)
+function getLowestAvailableCNumber(stackId) {
+    if (!allocatedCNumbersByStack[stackId]) {
+        // Add new set in array if stack doesn't have its set of chairs yet
+        allocatedCNumbersByStack[stackId] = new Set();
+    }
+    let num = 1;
+    while (allocatedCNumbersByStack[stackId].has(num)) {
+        num++;
+    }
+    allocatedCNumbersByStack[stackId].add(num); // Used C number for this stack
+    return num;
+}
+
 // Modes
 let currentMode = null;
 const modes = ["stack", "place", "rotate", "delete", "robot"];
@@ -123,10 +156,6 @@ const modeLogos = {
     delete: document.getElementById("delete-logo"),
     robot: document.getElementById("robot-logo"),
 };
-
-// Grid, stack, chair numbering data
-const gridContainer = document.querySelector(".grid-container");
-let selectedStack = null;
 
 // When any mode logo is clicked, call toggleMode
 Object.keys(modeLogos).forEach((mode) => {
@@ -215,33 +244,6 @@ function handleGridClick(event) {
     }
 
     lastGridItem = gridItem;
-}
-
-// Stack/chair number calculation
-const allocatedCNumbersByStack = {}; // for C chairs (chairs associated with stacks, e.g. C1 (S1), C2 (S2))
-const allocatedNumbers = new Set(); // for stacks
-
-// Increase number from 1 until non-taken number
-function getLowestAvailableNumber() {
-    let num = 1;
-    while (allocatedNumbers.has(num)) {
-        num++;
-    }
-    return num;
-}
-
-// Increase number from 1 until non-taken number
-function getLowestAvailableCNumber(stackId) {
-    if (!allocatedCNumbersByStack[stackId]) {
-        // Add new set in array if stack doesn't have its set of chairs yet
-        allocatedCNumbersByStack[stackId] = new Set();
-    }
-    let num = 1;
-    while (allocatedCNumbersByStack[stackId].has(num)) {
-        num++;
-    }
-    allocatedCNumbersByStack[stackId].add(num); // Used C number for this stack
-    return num;
 }
 
 function addStack(gridItem) {

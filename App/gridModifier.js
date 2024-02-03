@@ -1,0 +1,87 @@
+let gridSize = 50; // Initial grid size in pixels
+
+// Initialise default values and query URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+let rows = parseInt(urlParams.get("rows"));
+let columns = parseInt(urlParams.get("columns"));
+
+function createGridFromData(gridData) {
+    const gridContainer = document.querySelector(".grid-container");
+    gridContainer.innerHTML = ""; // Clear existing grid items
+
+    // Update rows and columns based on gridData dimensions
+    rows = gridData.length;
+    columns = gridData[0].length;
+    gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
+
+    for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+        for (let columnIndex = 0; columnIndex < columns; columnIndex++) {
+            const cell = gridData[rowIndex][columnIndex];
+            const gridItem = document.createElement("div");
+            gridItem.className = "grid-item" + (cell === 0 ? " black" : ""); // black class for cells with value 0
+            gridItem.id = `item-${rowIndex + 1}-${columnIndex + 1}`; // Location of grid item
+            gridContainer.appendChild(gridItem);
+        }
+    }
+}
+
+function createGridFromDimensions(rows, columns) {
+    const gridContainer = document.querySelector(".grid-container");
+    gridContainer.innerHTML = ""; // Clear existing grid items
+    gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
+
+    for (let row = 1; row <= rows; row++) {
+        for (let column = 1; column <= columns; column++) {
+            const gridItem = document.createElement("div");
+            gridItem.className = "grid-item";
+            gridItem.id = `item-${row}-${column}`; // Location of grid item
+            gridContainer.append(gridItem);
+        }
+    }
+}
+
+function updateGridCentering() {
+    // Calculate the total grid width
+    const totalGridWidth = columns * gridSize;
+    const gridContainer = document.querySelector(".grid-container");
+
+    // Check if the grid overflows the viewport width
+    if (totalGridWidth > window.innerWidth) {
+        // Grid overflows, set justify-content to flex-start
+        gridContainer.style.justifyContent = "flex-start";
+    } else {
+        // No overflow, center the grid
+        gridContainer.style.justifyContent = "center";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Check for query parameters first
+    if (rows && columns) {
+        createGridFromDimensions(rows, columns);
+        localStorage.removeItem("gridData");
+    } else {
+        // Retrieve grid data from localStorage if no query parameters are found
+        const gridDataJson = localStorage.getItem("gridData");
+        if (gridDataJson && gridDataJson !== "null") {
+            try {
+                const gridData = JSON.parse(gridDataJson);
+                createGridFromData(gridData);
+            } catch (error) {
+                console.error(
+                    "Error parsing grid data from localStorage:",
+                    error
+                );
+                alert("Invalid grid data. Using fallback grid size.");
+                createGridFromDimensions(5, 5); // Use fallback grid size if data is invalid
+            }
+        } else {
+            createGridFromDimensions(5, 5); // Use default grid size if no data is found
+        }
+    }
+
+    // Update grid centering
+    updateGridCentering();
+});
+
+window.addEventListener("resize", updateGridCentering);
