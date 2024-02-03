@@ -54,9 +54,9 @@ def auto_cropper_png(png_path, cropped_png_path):
 
 def main():
     # Convert the PGM file to a PNG file
-    pgm_path = r'C:\Maps\map.pgm'  # Use raw string or double backslashes
-    png_path = r'C:\Maps\map.png'  # Use raw string or double backslashes
-    cropped_png_path = r'C:\Maps\cropped_map.png'  # Use raw string or double backslashes
+    pgm_path = r'C:\Maps\map.pgm'  # #change this so you can use the maps in the subdirectory
+    png_path = r'C:\Maps\map.png'  # #change this so you can use the maps in the subdirectory
+    cropped_png_path = r'C:\Maps\cropped_map.png'  # #change this so you can use the maps in the subdirectory
     convert_pgm_to_png(pgm_path, png_path)
     auto_cropper_png(png_path, cropped_png_path)
 

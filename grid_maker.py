@@ -1,17 +1,9 @@
 import cv2
 import numpy as np
 
-def read_pgm(file_path):
-    # Read PGM file
-    with open(file_path, 'rb') as f:
-        # Skip PGM header
-        next(f)  # Skip P5
-        next(f)  # Skip comment
-        width, height = map(int, next(f).split())
-
-        # Read image data
-        img = np.fromfile(f, dtype=np.uint8, count=width * height).reshape((height, width))
-
+def read_png(file_path):
+    # Read PNG file
+    img = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
     return img
 
 def overlay_grid(image, grid_size):
@@ -44,12 +36,12 @@ def display_detected_colors(image, colors, grid_size):
     cv2.waitKey(0)
 
 def main():
-    # Read the PGM file
-    pgm_path = r'C:\Maps\map.pgm'  # Use raw string or double backslashes
-    img = read_pgm(pgm_path)
+    # Read the PNG file
+    png_path = r'C:\Maps\cropped_map.png'  # Use raw string or double backslashes
+    img = read_png(png_path)
 
     # Set the grid size
-    grid_size = 10
+    grid_size = 3
 
     # Overlay the grid
     overlay_grid(img, grid_size)
@@ -58,7 +50,7 @@ def main():
     cv2.imshow('Image with Grid Overlay', img)
     cv2.waitKey(0)
 
-    # Extract colors from the PGM image
+    # Extract colors from the PNG image
     colors = extract_colors(img, grid_size)
 
     # Sort colors based on intensity or any other criteria
