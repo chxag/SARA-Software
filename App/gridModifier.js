@@ -1,6 +1,6 @@
 let gridSize = 50; // Initial grid size in pixels
 
-// Initialise default values and query URL parameters
+// Query URL parameters
 const urlParams = new URLSearchParams(window.location.search);
 let rows = parseInt(urlParams.get("rows"));
 let columns = parseInt(urlParams.get("columns"));
