@@ -2,21 +2,39 @@ let gridSize = 50; // Initial grid size in pixels
 
 // Initialise default values and query URL parameters
 const urlParams = new URLSearchParams(window.location.search);
-const rows = parseInt(urlParams.get("rows")) || 5; // Default to 5 if not provided
-const columns = parseInt(urlParams.get("columns")) || 5; // Default to 5 if not provided
+let rows = parseInt(urlParams.get("rows"));
+let columns = parseInt(urlParams.get("columns"));
 
-// Function to create and adjust the grid based on rows and columns
-function createGrid(rows, columns) {
+function createGridFromData(gridData) {
     const gridContainer = document.querySelector(".grid-container");
-    gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
     gridContainer.innerHTML = ""; // Clear existing grid items
 
-    // Populate the grid with items
+    // Update rows and columns based on gridData dimensions
+    rows = gridData.length;
+    columns = gridData[0].length;
+    gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
+
+    for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+        for (let columnIndex = 0; columnIndex < columns; columnIndex++) {
+            const cell = gridData[rowIndex][columnIndex];
+            const gridItem = document.createElement("div");
+            gridItem.className = "grid-item" + (cell === 0 ? " black" : ""); // black class for cells with value 0
+            gridItem.id = `item-${rowIndex + 1}-${columnIndex + 1}`; // Location of grid item
+            gridContainer.appendChild(gridItem);
+        }
+    }
+}
+
+function createGridFromDimensions(rows, columns) {
+    const gridContainer = document.querySelector(".grid-container");
+    gridContainer.innerHTML = ""; // Clear existing grid items
+    gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
+
     for (let row = 1; row <= rows; row++) {
         for (let column = 1; column <= columns; column++) {
             const gridItem = document.createElement("div");
             gridItem.className = "grid-item";
-            gridItem.id = `item-${row}-${column}`; // location of grid item
+            gridItem.id = `item-${row}-${column}`; // Location of grid item
             gridContainer.append(gridItem);
         }
     }
@@ -37,11 +55,36 @@ function updateGridCentering() {
     }
 }
 
-window.addEventListener("resize", updateGridCentering);
+document.addEventListener("DOMContentLoaded", function () {
+    // Check for query parameters first
+    if (rows && columns) {
+        createGridFromDimensions(rows, columns);
+        localStorage.removeItem("gridData");
+    } else {
+        // Retrieve grid data from localStorage if no query parameters are found
+        const gridDataJson = localStorage.getItem("gridData");
+        if (gridDataJson && gridDataJson !== "null") {
+            try {
+                const gridData = JSON.parse(gridDataJson);
+                createGridFromData(gridData);
+            } catch (error) {
+                console.error(
+                    "Error parsing grid data from localStorage:",
+                    error
+                );
+                alert("Invalid grid data. Using fallback grid size.");
+                createGridFromDimensions(5, 5); // Use fallback grid size if data is invalid
+            }
+        } else {
+            createGridFromDimensions(5, 5); // Use default grid size if no data is found
+        }
+    }
 
-// Populate the grid
-createGrid(rows, columns);
-updateGridCentering();
+    // Update grid centering
+    updateGridCentering();
+});
+
+window.addEventListener("resize", updateGridCentering);
 
 // Zoom button functionality
 const zoomInButton = document.getElementById("zoom-in");
@@ -203,6 +246,7 @@ function getLowestAvailableCNumber(stackId) {
 
 function addStack(gridItem) {
     if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
+    if (gridItem.classList.contains("black")) return; // Skip if there's an obstacle
 
     const chairContainer = gridItem.querySelector(".chair-container-in-grid"); // Check if there's a chair on grid item
     if (chairContainer) return; // Skip if there is a chair already
@@ -246,6 +290,7 @@ function handlePlaceMode(gridItem) {
     // If stack selected already and clicked grid item is not a chair
     if (!isChairContainer && selectedStack) {
         if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
+        if (gridItem.classList.contains("black")) return; // Skip if there's an obstacle
 
         const stackText = selectedStack.querySelector(
             ".chair-text-in-grid"
@@ -355,6 +400,7 @@ function deleteChair(gridItem) {
 
 function addOrRemoveRobot(gridItem) {
     if (gridItem.querySelector(".chair-container-in-grid")) return; // Skip if there's a chair
+    if (gridItem.classList.contains("black")) return; // Skip if there's an obstacle
 
     const hasRobot = gridItem.querySelector(".robot-in-grid"); // Check if there's a robot on grid item
 
@@ -383,6 +429,7 @@ document
             dimensions: { rows, columns },
             robot: null,
             stacks: [],
+            obstacles: [],
         };
 
         // Robot location
@@ -391,8 +438,14 @@ document
             gridData.robot = robotElement.parentElement.id.replace("item-", ""); // Remove 'item-' prefix to get the location
         }
 
-        // Iterate through all grid items to find stacks and chairs
+        // Iterate through all grid items to find stacks, chairs, and obstacles
         document.querySelectorAll(".grid-item").forEach((item) => {
+            // Check for obstacles
+            if (item.classList.contains("black")) {
+                const obstacleLocation = item.id.replace("item-", ""); // Remove 'item-' prefix to get the location
+                gridData.obstacles.push(obstacleLocation); // Add to obstacles list
+            }
+
             const chairContainer = item.querySelector(
                 ".chair-container-in-grid"
             );

@@ -30,9 +30,7 @@
                 <div class="collapse navbar-collapse" id="navbarText">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="input.html"
-                                >Enter Dimensions</a
-                            >
+                            <a class="nav-link" href="input.html">Input Data</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Scan New Room</a>
@@ -45,13 +43,49 @@
             </div>
         </nav>
 
-        <form id="input" action="app.html" method="GET">
-            <label for="columns">Columns: </label>
-            <input type="number" name="columns" min="1" />
-            <label for="rows">Rows: </label>
-            <input type="number" name="rows" min="1" />
-            <button type="submit">Generate Grid</button>
-        </form>
+        <div id="input">
+            <h2>Dimensions</h2>
+            <form action="app.html" method="GET">
+                <div id="dimensions">
+                    <label for="columns">Columns:</label>
+                    <input type="number" name="columns" min="1" />
+                    <label for="rows">Rows:</label>
+                    <input type="number" name="rows" min="1" />
+                    <button type="submit">Generate Grid</button>
+                </div>
+            </form>
+
+            <h2>JSON</h2>
+            <textarea
+                id="jsonData"
+                rows="10"
+                cols="40"
+                placeholder="Paste JSON data here"
+            ></textarea>
+            <br />
+            <button id="saveData">Generate Grid</button>
+        </div>
+
+        <script>
+            document
+                .getElementById("saveData")
+                .addEventListener("click", function () {
+                    const jsonData = document.getElementById("jsonData").value;
+                    try {
+                        // Parse to ensure valid JSON
+                        const parsedData = JSON.parse(jsonData);
+                        // Save to localStorage
+                        localStorage.setItem(
+                            "gridData",
+                            JSON.stringify(parsedData)
+                        );
+                        // Redirect to app.html
+                        window.location.href = "app.html";
+                    } catch (error) {
+                        alert("Invalid JSON data.");
+                    }
+                });
+        </script>
 
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
