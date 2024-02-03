@@ -10,7 +10,7 @@ map_image = cv2.resize(map_image, (1800, 1600))
 map_image = cv2.GaussianBlur(map_image, (5, 5), 0)
 map_image = cv2.addWeighted(map_image, 1.5, np.zeros(map_image.shape, map_image.dtype), 0, 0)
 
-pixel_size = 50
+pixel_size = 65
 
 image_with_grid = map_image.copy()
 
@@ -32,19 +32,26 @@ for x in range(0, map_image.shape[1], pixel_size):
             # Draw a black rectangle on the corresponding cell in the grid image
             cv2.rectangle(image_with_grid, (x, y), (x+pixel_size, y+pixel_size), (0, 0, 0), -1)
 
-# Create an empty list to store the color values of each cell
-cell_colors = []
+# Define the threshold for "close to black" based on intensity
+threshold_intensity = 254  # Adjust this value based on your needs
+
+# Create an empty list to store the intensity values of each cell
+cell_intensities = []
 
 # Iterate over each cell in the grid
 for x in range(0, map_image.shape[1], pixel_size):
     for y in range(0, map_image.shape[0], pixel_size):
-        # Get the color values of the cell as a list
-        cell_color = image_with_grid[y, x].tolist()
-        # Append the list to the cell_colors list
-        cell_colors.append(cell_color)
+        # Get the intensity value of the cell
+        cell_intensity = int(map_image[y:y + pixel_size, x:x + pixel_size].mean())
+        # Check if the cell is "close to black" based on the threshold
+        if cell_intensity < threshold_intensity:
+            # Set the intensity value to 0 for cells "close to black"
+            cell_intensity = 0
+        # Append the intensity value to the cell_intensities list
+        cell_intensities.append(cell_intensity)
 
-# Convert the cell_colors list to a JSON string
-json_data = json.dumps(cell_colors, indent=4)
+# Convert the cell_intensities list to a JSON string
+json_data = json.dumps(cell_intensities, indent=4)
 
 # Write the JSON string to a file
 with open(r'C:\Maps\grid_data.json', 'w') as f: #change this so you can use the maps in the subdirectory
