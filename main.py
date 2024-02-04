@@ -17,7 +17,7 @@ def main():
     
     png_to_grid.create_grid(cropped_png_path, grid_data_path)
     
-    #recreate_grid.recreateFromJson(grid_data_path)
+    recreate_grid.recreateFromJson(grid_data_path)
 
 if __name__ == "__main__":
     main()

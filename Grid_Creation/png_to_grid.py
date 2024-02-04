@@ -52,8 +52,37 @@ def create_grid(cropped_png_path, grid_data_path):
                 cell_intensity = 0
             # Append the intensity value to the row list
             row.append(cell_intensity)
+        
+        # Create two pointers, one at the start and one at the end
+        start, end = 0, len(row) - 1
+
+        # Move the start pointer towards the right until it encounters a cell "close to black"
+        while start < len(row) and row[start] != 0:
+            row[start] = 0
+            start += 1
+
+        # Move the end pointer towards the left until it encounters a cell "close to black"
+        while end >= 0 and row[end] != 0:
+            row[end] = 0
+            end -= 1
+
         # Append the row list to the grid list
         grid.append(row)
+        
+    # Iterate over each column in the grid
+    for x in range(len(grid[0])):
+    # Create two pointers, one at the top and one at the bottom
+        top, bottom = 0, len(grid) - 1
+
+        # Move the top pointer downwards until it encounters a cell "close to black"
+        while top < len(grid) and grid[top][x] != 0:
+            grid[top][x] = 0
+            top += 1
+
+        # Move the bottom pointer upwards until it encounters a cell "close to black"
+        while bottom >= 0 and grid[bottom][x] != 0:
+            grid[bottom][x] = 0
+            bottom -= 1
 
     # Convert the grid list to a JSON string
     json_data = json.dumps(grid, indent=4)
