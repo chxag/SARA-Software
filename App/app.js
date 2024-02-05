@@ -373,6 +373,8 @@ function addOrRemoveRobot(gridItem) {
     }
 }
 
+let gridDataJsonToServer = null;
+
 // JSON Output
 document
     .getElementById("output-json") // if button is clicked
@@ -465,4 +467,26 @@ document
 
         // Output the JSON string
         console.log(gridDataJson); // Log to the console (inspect in Google Chrome)
+        
+        // Set the data that is sent to the server
+        gridDataJsonToServer = gridDataJson;
     });
+    
+const sendData = () => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost:8082');
+
+    xhr.responseType = 'json';
+    xhr.onload = () => {
+        if (xhr.readyState == 4 && xhr.status == 201) {
+            console.log('no');
+          } else {
+            console.log(`Error: ${xhr.status}`);
+          }
+    };
+    xhr.send(gridDataJsonToServer);
+    console.log("Grid JSON data sent to server.");
+};
+
+document.getElementById("send-json").addEventListener('click', sendData);
+
