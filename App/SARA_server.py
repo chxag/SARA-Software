@@ -2,6 +2,8 @@ import os
 import sys
 import http.server
 import socketserver
+from GridJSON import Grid # For JSON deserialisation
+import json
 
 PORT = 8082
 
@@ -26,14 +28,22 @@ class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         if content_length != 0:
             print("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
                 str(self.path), str(self.headers), decoded_post_msg)
-            target_pose_x, target_pose_y, target_pose_z = compute_target_pose(decoded_post_msg)
+            
+            # Convert received string to JSON object
+            post_json = json.loads(decoded_post_msg)
+            print("Converting JSON object...\n")
+            # Convert the JSON object to an instance of Grid
+            grid_data = Grid(**post_json)
+            print("Conversion succeeded.'n")
+            
+            target_pose_x, target_pose_y, target_pose_z = compute_target_pose(grid_data)
             target_orient_x, target_orient_y, target_orient_z, target_orient_w = compute_target_orient(decoded_post_msg)
             
             execute_sara(target_pose_x, target_pose_y, target_pose_z, target_orient_x, target_orient_y, target_orient_z, target_orient_w)
         else:
             print("No grid data was received.\n")
         
-def compute_target_pose(decoded_post_msg):
+def compute_target_pose(grid_data):
 	return 0, 1, 2
 	
 def compute_target_orient(decoded_post_msg):
