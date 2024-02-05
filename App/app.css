@@ -149,6 +149,7 @@
     cursor: pointer;
 }
 
+/* For JSON output and send buttons */
 #output-json {
     margin: auto;
     width: 25%;
@@ -156,6 +157,16 @@
 }
 
 #output-div {
+    margin: 20px auto 55px auto;
+}
+
+#send-json {
+    margin: auto;
+    width: 25%;
+    display: block;
+}
+
+#send-div {
     margin: 20px auto 55px auto;
 }
 
