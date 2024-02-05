@@ -36,21 +36,27 @@ class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             grid_data = Grid(**post_json)
             print("Conversion succeeded.'n")
             
-            target_pose_x, target_pose_y, target_pose_z = compute_target_pose(grid_data)
-            target_orient_x, target_orient_y, target_orient_z, target_orient_w = compute_target_orient(decoded_post_msg)
-            
-            execute_sara(target_pose_x, target_pose_y, target_pose_z, target_orient_x, target_orient_y, target_orient_z, target_orient_w)
+            execute_sara(grid_data)
         else:
             print("No grid data was received.\n")
-        
-def compute_target_pose(grid_data):
-	return 0, 1, 2
-	
-def compute_target_orient(decoded_post_msg):
-	return 0, 1, 2, 3
            
-def execute_sara(t_p_x, t_p_y, t_p_z, t_o_x, t_o_y, t_o_z, t_o_w):
-    print("SARA is on its way!\n")
+def execute_sara(grid_data):
+    if grid_data.robot == None:
+    	print("The position of SARA has not been set yet!")
+    else:
+        print("SARA is on its way!\n")
+        task_no = len(grid_data.stacks)
+        robot_x = ord(grid_data.robot[0]) - ord('0')
+        robot_y = ord(grid_data[-1]) - ord('0')
+        
+        for i in range(task_no):
+            goal_pose = grid_data.stacks[i]
+            goal_pose_loc = goal_pose.location
+            
+            # Convert location indices from str to int
+            goal_pose_x = ord(goal_pose_loc[0]) - ord('0')
+            goal_pose_y = ord(goal_pose_loc[-1]) - ord('0')
+            
 
 def server(port):
     httpd = socketserver.TCPServer(('', port), HTTPRequestHandler)
