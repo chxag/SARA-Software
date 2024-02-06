@@ -8,6 +8,7 @@ class Chair:
     rotation: int
     chairs: List[int]
 
+
 @dataclass
 class Dimension:
     rows: int
@@ -18,6 +19,7 @@ class Grid:
     dimensions: Dimension
     robot: str
     stacks: List[Chair]
+    obstacles: List[str]
 
     def __post_init__(self):
         self.stacks = [Chair(**chair) for chair in self.stacks]

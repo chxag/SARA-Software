@@ -161,16 +161,6 @@
     cursor: pointer;
 }
 
-#output-json {
-    margin: auto;
-    width: 25%;
-    display: block;
-}
-
-#output-div {
-    margin: 20px auto 55px auto;
-}
-
 #send-json {
     margin: auto;
     width: 25%;
