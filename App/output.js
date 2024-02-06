@@ -8,7 +8,7 @@ document
             dimensions: { rows, columns },
             robot: null,
             stacks: [],
-            obstacles: [],
+            // obstacles: [],
         };
 
         // Robot location
@@ -19,11 +19,11 @@ document
 
         // Iterate through all grid items to find stacks, chairs, and obstacles
         document.querySelectorAll(".grid-item").forEach((item) => {
-            // Check for obstacles
-            if (item.classList.contains("black")) {
-                const obstacleLocation = item.id.replace("item-", ""); // Remove 'item-' prefix to get the location
-                gridData.obstacles.push(obstacleLocation); // Add to obstacles list
-            }
+            // // Check for obstacles
+            // if (item.classList.contains("black")) {
+            //     const obstacleLocation = item.id.replace("item-", ""); // Remove 'item-' prefix to get the location
+            //     gridData.obstacles.push(obstacleLocation); // Add to obstacles list
+            // }
 
             const chairContainer = item.querySelector(
                 ".chair-container-in-grid"
@@ -97,6 +97,9 @@ document
 
         // Output the JSON string
         console.log(gridDataJson); // Log to the console (inspect in Google Chrome)
+
+        // Set the data that is sent to the server
+        gridDataJsonToServer = gridDataJson;
     });
 
 let gridDataJsonToServer = null;
