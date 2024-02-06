@@ -4,6 +4,7 @@ import http.server
 import socketserver
 from GridJSON import Grid # For JSON deserialisation
 import json
+import subprocess
 
 PORT = 8082
 
@@ -46,8 +47,15 @@ def execute_sara(grid_data):
     else:
         print("SARA is on its way!\n")
         task_no = len(grid_data.stacks)
+        center_x = grid_data.dimensions.columns // 2 + grid_data.dimensions.columns % 2
+        center_y = grid_data.dimensions.rows // 2 + grid_data.dimensions.rows % 2
+        
         robot_x = ord(grid_data.robot[0]) - ord('0')
-        robot_y = ord(grid_data[-1]) - ord('0')
+        robot_y = ord(grid_data.robot[-1]) - ord('0')
+        
+        # Calculate the relative coordinates of robot position
+        rel_robot_pos_x = robot_x - center_x
+        rel_robot_pos_y = robot_y - center_y
         
         for i in range(task_no):
             goal_pose = grid_data.stacks[i]
@@ -57,6 +65,14 @@ def execute_sara(grid_data):
             goal_pose_x = ord(goal_pose_loc[0]) - ord('0')
             goal_pose_y = ord(goal_pose_loc[-1]) - ord('0')
             
+            # Calculate the relative coordinates of goal positions
+            rel_goal_pose_x = goal_pose_x - center_x
+            rel_goal_pose_y = goal_pose_y - center_y
+            
+            to_goal = str(rel_goal_pose_x) + ' '+ str(rel_goal_pose_y)
+            robot_goal = str(rel_robot_pos_x) + ' '+ str(rel_robot_pos_y)
+            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_goal.encode('utf-8'))
+            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=robot_goal.encode('utf-8'))
 
 def server(port):
     httpd = socketserver.TCPServer(('', port), HTTPRequestHandler)
