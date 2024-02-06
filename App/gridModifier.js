@@ -61,6 +61,8 @@ document.addEventListener("DOMContentLoaded", function () {
         createGridFromDimensions(rows, columns);
         localStorage.removeItem("gridData");
     } else {
+        rows = 5;
+        columns = 5;
         // Retrieve grid data from localStorage if no query parameters are found
         const gridDataJson = localStorage.getItem("gridData");
         if (gridDataJson && gridDataJson !== "null") {
@@ -73,10 +75,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     error
                 );
                 alert("Invalid grid data. Using fallback grid size.");
-                createGridFromDimensions(5, 5); // Use fallback grid size if data is invalid
+                createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
             }
         } else {
-            createGridFromDimensions(5, 5); // Use default grid size if no data is found
+            createGridFromDimensions(rows, columns); // Use default grid size if no data is found
         }
     }
 
