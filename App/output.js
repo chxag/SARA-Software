@@ -99,6 +99,8 @@ document
         console.log(gridDataJson); // Log to the console (inspect in Google Chrome)
     });
 
+let gridDataJsonToServer = null;
+
 const sendData = () => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "http://localhost:8082");
