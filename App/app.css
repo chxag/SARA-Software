@@ -171,6 +171,16 @@
     margin: 20px auto 55px auto;
 }
 
+#send-json {
+    margin: auto;
+    width: 25%;
+    display: block;
+}
+
+#send-div {
+    margin: 20px auto 55px auto;
+}
+
 /* For smaller screens */
 @media (max-width: 580px) {
     .mode-logo {
