@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import glob
+import pickle
 
 def calibrateCamera():
     # 设置寻找亚像素角点的参数，采用的停止准则是最大循环次数30和最大误差容限0.001
@@ -50,3 +51,9 @@ def calibrateCamera():
     print('正在计算')
 
     return [cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None), u,v]
+
+def calibrationResults():
+    """Store camera calibration results as an external binary file."""
+    results = calibrateCamera()
+    resultsfile = open("calibrationResults.pickle", "wb")
+    pickle.dump(results, resultsfile)

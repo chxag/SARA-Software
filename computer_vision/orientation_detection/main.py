@@ -3,6 +3,7 @@ import numpy as np
 import math
 import cameraCalibration
 import glob
+import pickle
 
 # Get a list of file names of all image files in the folder
 fileName = input("please enter the file name:\n")
@@ -10,8 +11,9 @@ image_files = glob.glob("./" + fileName +"/*.jpg")  # Modify file extension acco
 if(image_files == None):
     raise ("wrong file name")
 
-#Call the camera calibration function and get the calibration results
-calibrationResults = cameraCalibration.calibrateCamera()
+#Read in camera calibration results from binary file
+calibrationResultsFile = open("calibrationResults.pickle", "rb")
+calibrationResults = pickle.load(calibrationResultsFile)
 ret, mtx, dist, rvecs, tvecs = calibrationResults[0]
 u = calibrationResults[1]
 v = calibrationResults[2]
