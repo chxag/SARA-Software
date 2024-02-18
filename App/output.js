@@ -1,10 +1,4 @@
 // JSON Output
-// document
-//     .getElementById("output-json") // if button is clicked
-//     .addEventListener("click", function (event) {
-//         event.preventDefault(); // Prevent any default button action
-
-// JSON Output
 function generateGridDataJson() {
     const gridData = {
         dimensions: { rows, columns },

@@ -2,7 +2,7 @@
 
 let gridSize = 50; // Initial grid size in pixels
 
-// Initialise default values and query URL parameters
+// Query URL parameters
 const urlParams = new URLSearchParams(window.location.search);
 let rows = parseInt(urlParams.get("rows"));
 let columns = parseInt(urlParams.get("columns"));
@@ -63,6 +63,8 @@ document.addEventListener("DOMContentLoaded", function () {
         createGridFromDimensions(rows, columns);
         localStorage.removeItem("gridData");
     } else {
+        rows = 5;
+        columns = 5;
         // Retrieve grid data from localStorage if no query parameters are found
         const gridDataJson = localStorage.getItem("gridData");
         if (gridDataJson && gridDataJson !== "null") {
@@ -75,10 +77,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     error
                 );
                 alert("Invalid grid data. Using fallback grid size.");
-                createGridFromDimensions(5, 5); // Use fallback grid size if data is invalid
+                createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
             }
         } else {
-            createGridFromDimensions(5, 5); // Use default grid size if no data is found
+            createGridFromDimensions(rows, columns); // Use default grid size if no data is found
         }
     }
 
@@ -98,7 +100,6 @@ zoomOutButton.addEventListener("click", () => adjustGridSize(-10)); // Decrease 
 function adjustGridSize(change) {
     gridSize = Math.max(30, Math.min(gridSize + change, 100)); // Min 30px and max 100px
     gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
-    gridContainer.style.gridTemplateRows = `repeat(${rows}, ${gridSize}px)`;
 
     // Update the grid based on the new size
     updateGridCentering();
