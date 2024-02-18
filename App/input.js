@@ -20,11 +20,33 @@ document.getElementById("uploadData").addEventListener("click", function () {
 
     // Use FileReader to read the file content
     const reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = async function (e) {
         const pgm_file = e.target.result; // This is the content of the PGM file
         // Perform your actions with the PGM file content here
         // For example, you can store it in localStorage (if it's not too large)
         // localStorage.setItem("pgmFileData", pgm_file);
+        const scriptResponse = await fetch('../main.py');
+        const scriptContent = await scriptResponse.text();
+
+        const pyodide = window.pyodide;
+        const pythonCode = `${scriptContent}`;
+
+        const result = pyodide.runPython(pythonCode);
+
+        console.log(result);
+
+            // previous code
+        const jsonData = result; // replace, return json input into here
+        try {
+        // Parse to ensure valid JSON
+            const parsedData = JSON.parse(jsonData);
+        // Save to localStorage
+            localStorage.setItem("gridData", JSON.stringify(parsedData));
+        // Redirect to index.html
+            window.location.href = "index.html";
+        }  catch (error) {
+            alert("Invalid JSON data.");
+    }
 
         // Assuming you want to redirect after successful upload and processing
         // window.location.href = "index.html";
@@ -36,16 +58,5 @@ document.getElementById("uploadData").addEventListener("click", function () {
     // Read the file as text (or as ArrayBuffer/BinaryString based on PGM content handling)
     reader.readAsText(file);
 
-    // previous code
-    const jsonData = null; // replace, return json input into here
-    try {
-        // Parse to ensure valid JSON
-        const parsedData = JSON.parse(jsonData);
-        // Save to localStorage
-        localStorage.setItem("gridData", JSON.stringify(parsedData));
-        // Redirect to index.html
-        window.location.href = "index.html";
-    } catch (error) {
-        alert("Invalid JSON data.");
-    }
+
 });
