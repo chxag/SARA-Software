@@ -26,24 +26,41 @@ document.getElementById("uploadData").addEventListener("click", function () {
         // For example, you can store it in localStorage (if it's not too large)
         // localStorage.setItem("pgmFileData", pgm_file);
 
-        //New 
-        const scriptPath = '../main.py';
+        const pyodide = window.pyodide;
 
-        const scriptResponse = await fetch(scriptPath, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ pgm_file }),
-        });
-        const result = await scriptResponse.json();
+        const scriptResponse = await fetch('../main.py');
+        const scriptContent = await scriptResponse.text();
 
+        const pythonCode = `
+        ${scriptContent}
+
+        result = main("${pgm_file}")
+        `;
+
+        const result = pyodide.runPython(pythonCode);
         console.log(result);
 
         window.location.href = "index.html";
 
+        //another version 
+        // const scriptPath = '../main.py';
+
+        // const scriptResponse = await fetch(scriptPath, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({ pgm_file }),
+        // });
+        // const result = await scriptResponse.json();
+
+        // console.log(result);
+
+        // window.location.href = "index.html";
+
         // Assuming you want to redirect after successful upload and processing
         // window.location.href = "index.html";
+
     };
     reader.onerror = function () {
         alert("Error reading file.");
