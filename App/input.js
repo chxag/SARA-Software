@@ -25,28 +25,22 @@ document.getElementById("uploadData").addEventListener("click", function () {
         // Perform your actions with the PGM file content here
         // For example, you can store it in localStorage (if it's not too large)
         // localStorage.setItem("pgmFileData", pgm_file);
-        const scriptResponse = await fetch('../main.py');
-        const scriptContent = await scriptResponse.text();
 
-        const pyodide = window.pyodide;
-        const pythonCode = `${scriptContent}`;
+        //New 
+        const scriptPath = '../main.py';
 
-        const result = pyodide.runPython(pythonCode);
+        const scriptResponse = await fetch(scriptPath, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ pgm_file }),
+        });
+        const result = await scriptResponse.json();
 
         console.log(result);
 
-            // previous code
-        const jsonData = result; // replace, return json input into here
-        try {
-        // Parse to ensure valid JSON
-            const parsedData = JSON.parse(jsonData);
-        // Save to localStorage
-            localStorage.setItem("gridData", JSON.stringify(parsedData));
-        // Redirect to index.html
-            window.location.href = "index.html";
-        }  catch (error) {
-            alert("Invalid JSON data.");
-    }
+        window.location.href = "index.html";
 
         // Assuming you want to redirect after successful upload and processing
         // window.location.href = "index.html";

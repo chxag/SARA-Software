@@ -1,15 +1,24 @@
 from Grid_Creation import pgm_to_png, autocrop, recreate_grid, png_to_grid
 import os
+import json
+import sys
 
-def main():
+def main(pgm_file_path):
+    request_data = json.loads(sys.stdin.read())
+    pgm_file_data = request_data.get('pgmFileData', '')
+
     # Get the current script's directory
     script_dir = os.path.dirname(os.path.realpath(__file__))
     map_dir = os.path.join(script_dir, 'Maps')
 
-    pgm_path = os.path.join(map_dir, 'map.pgm')
-    png_path = os.path.join(map_dir, 'map.png')
+    #pgm_path = os.path.join(map_dir, 'map.pgm') generalise this to the file that the user uploads
+    pgm_path = os.path.join(map_dir, 'uploaded_map.pgm')
+    png_path = os.path.join(map_dir, 'map.png') 
     cropped_png_path = os.path.join(map_dir, 'map_cropped.png')
     grid_data_path = os.path.join(map_dir, 'grid_data.json')
+
+    with open(pgm_path, 'w') as pgm_file:
+            pgm_file.write(pgm_file_data)
 
     # Convert the PGM file to a PNG file and crop it
     pgm_to_png.convert_pgm_to_png(pgm_path, png_path)
