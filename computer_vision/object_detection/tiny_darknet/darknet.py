@@ -2,6 +2,8 @@ from ctypes import *
 import math
 import random
 
+import os  # For getting current filepath
+
 def sample(probs):
     s = sum(probs)
     probs = [a/s for a in probs]
@@ -45,7 +47,8 @@ class METADATA(Structure):
     
 
 #lib = CDLL("/home/pjreddie/documents/darknet/libdarknet.so", RTLD_GLOBAL)
-lib = CDLL("libdarknet.so", RTLD_GLOBAL)
+lib_filepath = os.getcwd()+"/computer_vision/object_detection/tiny_darknet/libdarknet.so"
+lib = CDLL(lib_filepath, RTLD_GLOBAL)
 lib.network_width.argtypes = [c_void_p]
 lib.network_width.restype = c_int
 lib.network_height.argtypes = [c_void_p]
