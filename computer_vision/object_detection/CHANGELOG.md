@@ -8,3 +8,4 @@
 - Refactor to cleanly toggle between YOLOv3 and Tiny YOLO by changing boolean constant
 - Colourblind friendly bounding box colouration
 - Option to resize image to Xinxian's desired dimensions
+- Method to return a 2D array of coordinates of the top left and bottom right corners of the bounding boxes
