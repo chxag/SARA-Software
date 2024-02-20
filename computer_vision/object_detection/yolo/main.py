@@ -39,7 +39,7 @@ def detect_chairs(filepath="data/chair.jpg"):
     boxes = []
     for category, score, bounds in results:
         if category == "chair":
-            x, y, w, h = bounds  # Midpoint x and y, width and height
+            x, y, w, h = bounds  # Midpoint x and y coordinates, width and height
             boxes.append([x, y, w, h])
     return boxes
 
@@ -48,28 +48,33 @@ def visualisation(filepath="data/chair.jpg", writeto="detected.jpg"):
     img = prepare_image(filepath)
     boxes = detect_chairs(filepath)
     for box in boxes:
+        # Calculate parameters for visualisation
         x, y, w, h = box
         thickness = 5 if RESIZE else 10
         font_scale = w / 100
         font_thickness = 1 if RESIZE else 5
-        cv2.rectangle(img, (int(x - (w / 2)), int(y - (h / 2))), (int(x + (w / 2)), int(y + (h / 2))), BLUE, thickness=thickness)
-        cv2.putText(img, "chair", (int(x),int(y)), cv2.FONT_HERSHEY_PLAIN, font_scale, BLUE, font_thickness)
+        # Draw bounding box and "chair" label on image
+        cv2.rectangle(img, _corners(box)[0], _corners(box)[1], BLUE, thickness=thickness)
+        cv2.putText(img, "chair", (int(x), int(y)), cv2.FONT_HERSHEY_PLAIN, font_scale, BLUE, font_thickness)
     cv2.imwrite(writeto, img)
 
 def get_box_corners(filepath="data/chair.jpg"):
     """Returns a list of coordinates of the top left and bottom right corners of bounding boxes for an image."""
     boxes = detect_chairs(filepath)
-    corners = []
-    for box in boxes:
-        x, y, w, h = box
-        upper_left_x = x - (w / 2)
-        upper_left_y = y - (h / 2)
-        lower_right_x = x + (w / 2)
-        lower_right_y = y + (h / 2)
-        corners.append([(upper_left_x, upper_left_y), (lower_right_x, lower_right_y)])
-    return corners
+    return [_corners(box) for box in boxes]
+
+def _corners(box):
+    """Helper method that finds the top left and bottom right corners of a supplied bounding box."""
+    x, y, w, h = box
+    upper_left_x = int(x - (w / 2))
+    upper_left_y = int(y - (h / 2))
+    lower_right_x = int(x + (w / 2))
+    lower_right_y = int(y + (h / 2))
+    return [(upper_left_x, upper_left_y), (lower_right_x, lower_right_y)]
 
 
 # Test Outputs
 visualisation()
+print(get_box_corners())
 visualisation("data/chairs.jpg", "detected_multiple.jpg")
+print(get_box_corners("data/chairs.jpg"))
