@@ -35,7 +35,7 @@ class HTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             print("Converting JSON object...\n")
             # Convert the JSON object to an instance of Grid
             grid_data = Grid(**post_json)
-            print("Conversion succeeded.'n")
+            print("Conversion succeeded.\n")
             
             execute_sara(grid_data)
         else:
