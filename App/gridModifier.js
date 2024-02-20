@@ -16,18 +16,48 @@ function createGrid() {
     } else {
         rows = 5;
         columns = 5;
-        // Retrieve grid data from server if no query parameters are found
-        fetch('Maps/grid_data.json')
-            .then(response => response.json())
-            .then(gridData => {
-                console.log(gridData);
+        // Retrieve grid data from localStorage if no query parameters are found
+        const gridDataJson = localStorage.getItem("gridData");
+        if (gridDataJson && gridDataJson !== "null") {
+            try {
+                const gridData = JSON.parse(gridDataJson);
                 createGridFromData(gridData);
-            })
-            .catch(error => {
-                console.error("Error fetching grid data from server:", error);
-                alert("Invalid grid data. Using fallback grid size.");
-                createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
-            });
+            } catch (error) {
+                console.error(
+                    "Error parsing grid data from localStorage:",
+                    error
+                );
+                // Retrieve grid data from server if parsing fails
+                fetch("Maps/grid_data.json")
+                    .then((response) => response.json())
+                    .then((gridData) => {
+                        createGridFromData(gridData);
+                    })
+                    .catch((error) => {
+                        console.error(
+                            "Error fetching grid data from server:",
+                            error
+                        );
+                        alert("Invalid grid data. Using fallback grid size.");
+                        createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
+                    });
+            }
+        } else {
+            // Fetch grid data from server if no data is found in localStorage
+            fetch("Maps/grid_data.json")
+                .then((response) => response.json())
+                .then((gridData) => {
+                    createGridFromData(gridData);
+                })
+                .catch((error) => {
+                    console.error(
+                        "Error fetching grid data from server:",
+                        error
+                    );
+                    alert("Invalid grid data. Using fallback grid size.");
+                    createGridFromDimensions(rows, columns); // Use default grid size if no data is found
+                });
+        }
     }
 }
 
