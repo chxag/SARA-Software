@@ -18,6 +18,7 @@ function addStack(gridItem) {
     chairImage.alt = "Chair";
     chairImage.className = "chair-in-grid";
     chairImage.style.transform = `rotate(${defaultRotationDegree}deg)`; // Apply the default rotation degree
+    chairImage.dataset.rotation = defaultRotationDegree;
     // chairImage.draggable = false;
 
     // Chair text
@@ -65,6 +66,7 @@ function handlePlaceMode(gridItem) {
         chairImage.alt = "Chair";
         chairImage.className = "chair-in-grid";
         chairImage.style.transform = `rotate(${defaultRotationDegree}deg)`; // Apply the default rotation degree
+        chairImage.dataset.rotation = defaultRotationDegree;
         // chairImage.draggable = false;
 
         // Chair text
@@ -99,20 +101,14 @@ function rotateChair(gridItem, isQuickClick) {
     if (!chairContainer) return; // Exit if there's no chair container
 
     const chairImage = chairContainer.querySelector(".chair-in-grid");
+    if (!chairImage) return; // Exit if there's no chair image
 
     if (isQuickClick) {
         // For a quick click, rotate the chair image by 90 degrees immediately
-        let currentRotation =
-            parseInt(chairImage.dataset.rotation) || defaultRotationDegree;
+        let currentRotation = parseInt(chairImage.dataset.rotation); // Directly use dataset.rotation which should always be set
         currentRotation = (currentRotation + 90) % 360; // Increment by 90 degrees, wrap around at 360
-        chairImage.dataset.rotation = currentRotation;
+        chairImage.dataset.rotation = currentRotation; // Update rotation in dataset
         chairImage.style.transform = `rotate(${currentRotation}deg)`;
-        if (selectedRotatingChair) {
-            selectedRotatingChair.classList.remove("highlighted-yellow");
-            document.getElementById("rotateControlPanel").style.display =
-                "none";
-            selectedRotatingChair = null;
-        }
     } else {
         // For holding, show the rotation control panel and highlight the chair
         if (chairContainer !== selectedRotatingChair) {
@@ -127,15 +123,13 @@ function rotateChair(gridItem, isQuickClick) {
             const rotationRange = document.getElementById("rotationRange");
             const rotationDegree = document.getElementById("rotationDegree");
 
-            // Set the initial value and text
-            rotationRange.value =
-                chairImage.dataset.rotation || defaultRotationDegree;
+            rotationRange.value = chairImage.dataset.rotation; // Use the rotation value from dataset
             rotationDegree.textContent = `${rotationRange.value}°`;
 
             rotationRange.oninput = function () {
                 rotationDegree.textContent = `${this.value}°`;
                 chairImage.style.transform = `rotate(${this.value}deg)`;
-                chairImage.dataset.rotation = this.value;
+                chairImage.dataset.rotation = this.value; // Update rotation in dataset
             };
         } else {
             selectedRotatingChair.classList.remove("highlighted-yellow");
@@ -162,7 +156,7 @@ function moveChair(gridItem) {
         }
         chairContainer.classList.add("highlighted-yellow");
         selectedMovingChair = chairContainer;
-    } else {
+    } else if (selectedMovingChair) {
         selectedMovingChair.classList.remove("highlighted-yellow");
         selectedMovingChair = null;
     }

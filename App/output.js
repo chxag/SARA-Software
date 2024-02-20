@@ -87,6 +87,12 @@ function generateGridDataJson() {
 }
 
 const sendData = () => {
+    const invalidChair = document.querySelector(".highlighted-red");
+    if (invalidChair) {
+        alert("Invalid chairs present in grid.");
+        return;
+    }
+
     const gridDataJson = generateGridDataJson();
     console.log(gridDataJson);
 

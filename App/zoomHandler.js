@@ -17,11 +17,6 @@ function adjustGridSize(change) {
     document.querySelectorAll(".chair-text-in-grid").forEach((element) => {
         element.style.fontSize = `${newFontSize}px`;
     });
-
-    // Reposition the rotation control if a chair is currently active
-    if (activeChair) {
-        positionRotationControl(activeChair);
-    }
 }
 
 // Calculation of font size for chair text based on the new grid size
