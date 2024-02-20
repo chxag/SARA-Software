@@ -6,3 +6,5 @@
 
 # Further Additions
 - Refactor to cleanly toggle between YOLOv3 and Tiny YOLO by changing boolean constant
+- Colourblind friendly bounding box colouration
+- Option to resize image to Xinxian's desired dimensions
