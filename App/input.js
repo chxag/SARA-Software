@@ -1,5 +1,3 @@
-// This is only used in input.html
-
 document.getElementById("uploadData").addEventListener("click", function () {
     const fileInput = document.getElementById("fileInput");
     const file = fileInput.files[0]; // Get the first file from the file input
@@ -18,34 +16,38 @@ document.getElementById("uploadData").addEventListener("click", function () {
         return;
     }
 
-    // Use FileReader to read the file content
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        const pgm_file = e.target.result; // This is the content of the PGM file
-        // Perform your actions with the PGM file content here
-        // For example, you can store it in localStorage (if it's not too large)
-        // localStorage.setItem("pgmFileData", pgm_file);
+    // Create a new FormData object and append the file
+    const formData = new FormData();
+    formData.append('file', file);
 
-        // Assuming you want to redirect after successful upload and processing
-        // window.location.href = "index.html";
-    };
-    reader.onerror = function () {
-        alert("Error reading file.");
-    };
-
-    // Read the file as text (or as ArrayBuffer/BinaryString based on PGM content handling)
-    reader.readAsText(file);
-
-    // previous code
-    const jsonData = null; // replace, return json input into here
-    try {
-        // Parse to ensure valid JSON
-        const parsedData = JSON.parse(jsonData);
-        // Save to localStorage
-        localStorage.setItem("gridData", JSON.stringify(parsedData));
-        // Redirect to index.html
-        window.location.href = "index.html";
-    } catch (error) {
-        alert("Invalid JSON data.");
-    }
+    // Send the file to the server
+    fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log(result);
+        // After the file is uploaded, process it
+        return fetch('http://localhost:5000/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({fileName: fileName})
+        });
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log(result);
+        try {
+            window.location.href = "index.html";
+        } catch (error) {
+            alert("error");
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error during server communication.');
+    });
 });
