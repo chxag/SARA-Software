@@ -1,10 +1,11 @@
 // Modes
 let currentMode = null;
-const modes = ["stack", "place", "rotate", "delete", "robot"];
+const modes = ["stack", "place", "rotate", "move", "delete", "robot"];
 const modeLogos = {
     stack: document.getElementById("stack-logo"),
     place: document.getElementById("place-logo"),
     rotate: document.getElementById("rotate-logo"),
+    move: document.getElementById("move-logo"),
     delete: document.getElementById("delete-logo"),
     robot: document.getElementById("robot-logo"),
 };
@@ -15,13 +16,19 @@ Object.keys(modeLogos).forEach((mode) => {
 });
 
 function toggleMode(selectedMode) {
+    // Clear any highlights when a mode is selected
+    document
+        .querySelectorAll(".highlighted-yellow, .highlighted-blue")
+        .forEach((el) =>
+            el.classList.remove("highlighted-yellow", "highlighted-blue")
+        );
     currentMode = currentMode === selectedMode ? null : selectedMode; // If selected mode is the current mode, current mode becomes nothing
     updateUIModes();
-    if (selectedStack) {
-        // If stack was selected in place mode, remove selection
-        selectedStack.classList.remove("selected-in-grid");
-        selectedStack = null;
-    }
+
+    // If stack was selected in place mode, remove selection
+    selectedStack = null;
+    selectedRotatingChair = null;
+    selectedMovingChair = null;
 }
 
 // Function for green border around mode logo, and also for which mode is active

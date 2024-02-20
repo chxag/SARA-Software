@@ -20,47 +20,14 @@ document.getElementById("uploadData").addEventListener("click", function () {
 
     // Use FileReader to read the file content
     const reader = new FileReader();
-    reader.onload = async function (e) {
+    reader.onload = function (e) {
         const pgm_file = e.target.result; // This is the content of the PGM file
         // Perform your actions with the PGM file content here
         // For example, you can store it in localStorage (if it's not too large)
         // localStorage.setItem("pgmFileData", pgm_file);
 
-        const pyodide = window.pyodide;
-
-        const scriptResponse = await fetch('../main.py');
-        const scriptContent = await scriptResponse.text();
-
-        const pythonCode = `
-        ${scriptContent}
-
-        result = main("${pgm_file}")
-        `;
-
-        const result = pyodide.runPython(pythonCode);
-        console.log(result);
-
-        window.location.href = "index.html";
-
-        //another version 
-        // const scriptPath = '../main.py';
-
-        // const scriptResponse = await fetch(scriptPath, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({ pgm_file }),
-        // });
-        // const result = await scriptResponse.json();
-
-        // console.log(result);
-
-        // window.location.href = "index.html";
-
         // Assuming you want to redirect after successful upload and processing
         // window.location.href = "index.html";
-
     };
     reader.onerror = function () {
         alert("Error reading file.");
@@ -69,5 +36,16 @@ document.getElementById("uploadData").addEventListener("click", function () {
     // Read the file as text (or as ArrayBuffer/BinaryString based on PGM content handling)
     reader.readAsText(file);
 
-
+    // previous code
+    const jsonData = null; // replace, return json input into here
+    try {
+        // Parse to ensure valid JSON
+        const parsedData = JSON.parse(jsonData);
+        // Save to localStorage
+        localStorage.setItem("gridData", JSON.stringify(parsedData));
+        // Redirect to index.html
+        window.location.href = "index.html";
+    } catch (error) {
+        alert("Invalid JSON data.");
+    }
 });

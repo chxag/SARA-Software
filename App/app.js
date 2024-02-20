@@ -7,10 +7,38 @@ const urlParams = new URLSearchParams(window.location.search);
 let rows = parseInt(urlParams.get("rows"));
 let columns = parseInt(urlParams.get("columns"));
 
-function createGridFromData(gridData) {
+function createGrid() {
     const gridContainer = document.querySelector(".grid-container");
     gridContainer.innerHTML = ""; // Clear existing grid items
 
+    // Check for query parameters first
+    if (rows && columns) {
+        createGridFromDimensions(rows, columns);
+        localStorage.removeItem("gridData");
+    } else {
+        rows = 5;
+        columns = 5;
+        // Retrieve grid data from localStorage if no query parameters are found
+        const gridDataJson = localStorage.getItem("gridData");
+        if (gridDataJson && gridDataJson !== "null") {
+            try {
+                const gridData = JSON.parse(gridDataJson);
+                createGridFromData(gridData);
+            } catch (error) {
+                console.error(
+                    "Error parsing grid data from localStorage:",
+                    error
+                );
+                alert("Invalid grid data. Using fallback grid size.");
+                createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
+            }
+        } else {
+            createGridFromDimensions(rows, columns); // Use default grid size if no data is found
+        }
+    }
+}
+
+function createGridFromData(gridData) {
     // Update rows and columns based on gridData dimensions
     rows = gridData.length;
     columns = gridData[0].length;
@@ -28,8 +56,6 @@ function createGridFromData(gridData) {
 }
 
 function createGridFromDimensions(rows, columns) {
-    const gridContainer = document.querySelector(".grid-container");
-    gridContainer.innerHTML = ""; // Clear existing grid items
     gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
 
     for (let row = 1; row <= rows; row++) {
@@ -58,37 +84,21 @@ function updateGridCentering() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Check for query parameters first
-    if (rows && columns) {
-        createGridFromDimensions(rows, columns);
-        localStorage.removeItem("gridData");
-    } else {
-        rows = 5;
-        columns = 5;
-        // Retrieve grid data from localStorage if no query parameters are found
-        const gridDataJson = localStorage.getItem("gridData");
-        if (gridDataJson && gridDataJson !== "null") {
-            try {
-                const gridData = JSON.parse(gridDataJson);
-                createGridFromData(gridData);
-            } catch (error) {
-                console.error(
-                    "Error parsing grid data from localStorage:",
-                    error
-                );
-                alert("Invalid grid data. Using fallback grid size.");
-                createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
-            }
-        } else {
-            createGridFromDimensions(rows, columns); // Use default grid size if no data is found
-        }
-    }
-
-    // Update grid centering
+    createGrid();
     updateGridCentering();
 });
 
 window.addEventListener("resize", updateGridCentering);
+
+document.getElementById("clear-layout").addEventListener("click", function () {
+    createGrid();
+    updateGridCentering();
+    allocatedNumbers.clear();
+    defaultRotationDegree = 0;
+    Object.keys(allocatedCNumbersByStack).forEach((key) => {
+        delete allocatedCNumbersByStack[key];
+    });
+});
 
 // Zoom button functionality
 const zoomInButton = document.getElementById("zoom-in");
@@ -109,6 +119,11 @@ function adjustGridSize(change) {
     document.querySelectorAll(".chair-text-in-grid").forEach((element) => {
         element.style.fontSize = `${newFontSize}px`;
     });
+
+    // Reposition the rotation control if a chair is currently active
+    if (activeChair) {
+        positionRotationControl(activeChair);
+    }
 }
 
 // Calculation of font size for chair text based on the new grid size
@@ -118,9 +133,11 @@ function calculateFontSize(gridSize) {
 
 // Grid, stack, chair numbering data
 const gridContainer = document.querySelector(".grid-container");
-let selectedStack = null;
-
-// Stack/chair number calculation
+let selectedStack = null; // Stack mode
+let selectedMovingChair = null; // Move mode
+let selectedRotatingChair = null; // Rotate mode
+let defaultRotationDegree = 0; // Default rotation degree for new chairs
+const maxChairsPerStack = 3; // Maximum C chairs per stack
 const allocatedCNumbersByStack = {}; // for C chairs (chairs associated with stacks, e.g. C1 (S1), C2 (S2))
 const allocatedNumbers = new Set(); // for stacks
 
@@ -133,27 +150,25 @@ function getLowestAvailableNumber() {
     return num;
 }
 
-// Increase number from 1 until non-taken number (for C chairs)
 function getLowestAvailableCNumber(stackId) {
-    if (!allocatedCNumbersByStack[stackId]) {
-        // Add new set in array if stack doesn't have its set of chairs yet
-        allocatedCNumbersByStack[stackId] = new Set();
+    if (allocatedCNumbersByStack[stackId] === undefined) {
+        allocatedCNumbersByStack[stackId] = 0; // Initialize with 0 C chairs
     }
-    let num = 1;
-    while (allocatedCNumbersByStack[stackId].has(num)) {
-        num++;
+    if (allocatedCNumbersByStack[stackId] >= maxChairsPerStack) {
+        return null; // No more C chairs can be added
     }
-    allocatedCNumbersByStack[stackId].add(num); // Used C number for this stack
-    return num;
+    // Increment the count since we're adding a new C chair
+    return ++allocatedCNumbersByStack[stackId];
 }
 
 // Modes
 let currentMode = null;
-const modes = ["stack", "place", "rotate", "delete", "robot"];
+const modes = ["stack", "place", "rotate", "move", "delete", "robot"];
 const modeLogos = {
     stack: document.getElementById("stack-logo"),
     place: document.getElementById("place-logo"),
     rotate: document.getElementById("rotate-logo"),
+    move: document.getElementById("move-logo"),
     delete: document.getElementById("delete-logo"),
     robot: document.getElementById("robot-logo"),
 };
@@ -164,13 +179,19 @@ Object.keys(modeLogos).forEach((mode) => {
 });
 
 function toggleMode(selectedMode) {
+    // Clear any highlights when a mode is selected
+    document
+        .querySelectorAll(".highlighted-yellow, .highlighted-blue")
+        .forEach((el) =>
+            el.classList.remove("highlighted-yellow", "highlighted-blue")
+        );
     currentMode = currentMode === selectedMode ? null : selectedMode; // If selected mode is the current mode, current mode becomes nothing
     updateUIModes();
-    if (selectedStack) {
-        // If stack was selected in place mode, remove selection
-        selectedStack.classList.remove("selected-in-grid");
-        selectedStack = null;
-    }
+
+    // If stack was selected in place mode, remove selection
+    selectedStack = null;
+    selectedRotatingChair = null;
+    selectedMovingChair = null;
 }
 
 // Function for green border around mode logo, and also for which mode is active
@@ -191,38 +212,71 @@ function updateUIModes() {
 // Used for mouse holding functionality
 let lastGridItem;
 let isMouseDown = false;
+let isQuickClick; // Variable to determine if it's a quick click
+let holdTimeoutId; // Variable to store the timeout ID
 
-// When mouse is held down, set isMouseDown to true
-gridContainer.addEventListener("mousedown", (event) => {
-    // Left click button code is 0
+gridContainer.addEventListener("pointerdown", (event) => {
     if (event.button === 0) {
         isMouseDown = true;
-        handleGridClick(event);
+        isQuickClick = true;
+
+        if (currentMode === "rotate") {
+            holdTimeoutId = setTimeout(() => {
+                if (isMouseDown) {
+                    // If the mouse is still down, it's a hold
+                    isQuickClick = false; // Not a quick click
+                    handleGridClick(event);
+                }
+            }, 300); // Differentiate between click and hold
+        } else {
+            handleGridClick(event);
+        }
     }
 });
 
-// When mouse is released, set isMouseDown to false
-document.addEventListener("mouseup", () => {
-    isMouseDown = false;
+document.addEventListener("pointerdown", (event) => {
+    const rotateControlPanel = document.getElementById("rotateControlPanel");
+
+    // Check if rotateControlPanel exists and is currently displayed
+    if (rotateControlPanel && rotateControlPanel.style.display !== "none") {
+        // Check if the click is outside the rotateControlPanel
+        const gridItem = event.target.closest(".grid-item");
+        if (
+            !rotateControlPanel.contains(event.target) &&
+            gridItem !== lastGridItem
+        ) {
+            // Hide the control panel and remove highlighting from the active chair if any
+            rotateControlPanel.style.display = "none";
+            if (activeChair) {
+                activeChair.classList.remove("highlighted-yellow");
+                activeChair = null; // Reset active chair
+            }
+        }
+    }
+});
+
+document.addEventListener("pointerup", (event) => {
+    if (isMouseDown && isQuickClick && currentMode === "rotate") {
+        handleGridClick(event);
+    }
+
+    isMouseDown = false; // Reset mouse down status
+    clearTimeout(holdTimeoutId);
 });
 
 // When mouse is held down and hovering over a grid item
-gridContainer.addEventListener("mouseover", (event) => {
+gridContainer.addEventListener("pointerover", (event) => {
     const gridItem = event.target.closest(".grid-item");
     if (isMouseDown && gridItem !== lastGridItem) {
+        isQuickClick = true;
         handleGridClick(event);
     }
-});
-
-// Prevent images from being dragged
-gridContainer.addEventListener("dragstart", (event) => {
-    event.preventDefault();
 });
 
 // Functionality depends on which mode is active
 function handleGridClick(event) {
     const gridItem = event.target.closest(".grid-item");
-    if (!gridItem) return; // Exit if clicked object is not a grid item
+    if (!gridItem) return; // Exit if clicked object is not a grid item#
 
     switch (currentMode) {
         case "stack":
@@ -232,7 +286,10 @@ function handleGridClick(event) {
             handlePlaceMode(gridItem);
             break;
         case "rotate":
-            rotateChair(gridItem);
+            rotateChair(gridItem, isQuickClick);
+            break;
+        case "move":
+            moveChair(gridItem);
             break;
         case "delete":
             deleteChair(gridItem);
@@ -241,11 +298,17 @@ function handleGridClick(event) {
             addOrRemoveRobot(gridItem);
             break;
         default:
+            toggleHighlight(gridItem);
             break;
     }
 
     lastGridItem = gridItem;
 }
+
+document.getElementById("rotationButton").addEventListener("click", () => {
+    const rotationRangeValue = document.getElementById("rotationRange").value;
+    defaultRotationDegree = parseInt(rotationRangeValue); // Update the default rotation degree
+});
 
 function addStack(gridItem) {
     if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
@@ -266,7 +329,8 @@ function addStack(gridItem) {
     chairImage.src = "chair.png";
     chairImage.alt = "Chair";
     chairImage.className = "chair-in-grid";
-    chairImage.draggable = false;
+    chairImage.style.transform = `rotate(${defaultRotationDegree}deg)`; // Apply the default rotation degree
+    // chairImage.draggable = false;
 
     // Chair text
     const chairText = document.createElement("span");
@@ -300,6 +364,10 @@ function handlePlaceMode(gridItem) {
         ).textContent; // e.g., "S1"
         const cNumber = getLowestAvailableCNumber(stackText); // Get the lowest available C number for this stack
 
+        if (cNumber === null) {
+            return; // Stop if the limit is reached
+        }
+
         const container = document.createElement("div");
         container.className = "chair-container-in-grid"; // contains both image and text
 
@@ -308,7 +376,8 @@ function handlePlaceMode(gridItem) {
         chairImage.src = "chair.png";
         chairImage.alt = "Chair";
         chairImage.className = "chair-in-grid";
-        chairImage.draggable = false;
+        chairImage.style.transform = `rotate(${defaultRotationDegree}deg)`; // Apply the default rotation degree
+        // chairImage.draggable = false;
 
         // Chair text
         const chairText = document.createElement("span");
@@ -325,29 +394,89 @@ function handlePlaceMode(gridItem) {
         // Selecting or deselecting a stack
         if (selectedStack === gridItem) {
             // Deselect if the same stack is clicked again
-            selectedStack.classList.remove("selected-in-grid");
+            selectedStack.classList.remove("highlighted-yellow");
             selectedStack = null;
         } else {
             // Select a new stack
             if (selectedStack)
-                selectedStack.classList.remove("selected-in-grid");
+                selectedStack.classList.remove("highlighted-yellow");
             selectedStack = gridItem;
-            gridItem.classList.add("selected-in-grid");
+            gridItem.classList.add("highlighted-yellow");
         }
     }
 }
 
-function rotateChair(gridItem) {
+function rotateChair(gridItem, isQuickClick) {
     const chairContainer = gridItem.querySelector(".chair-container-in-grid");
-    if (!chairContainer) return; // Skip if there is no chair
+    if (!chairContainer) return; // Exit if there's no chair container
 
     const chairImage = chairContainer.querySelector(".chair-in-grid");
-    // Don't rotate robot
-    if (chairImage) {
-        const currentRotation = parseInt(chairImage.dataset.rotation || 0); // Default of 0
-        const newRotation = (currentRotation + 90) % 360;
-        chairImage.style.transform = `rotate(${newRotation}deg)`;
-        chairImage.dataset.rotation = newRotation.toString();
+
+    if (isQuickClick) {
+        // For a quick click, rotate the chair image by 90 degrees immediately
+        let currentRotation =
+            parseInt(chairImage.dataset.rotation) || defaultRotationDegree;
+        currentRotation = (currentRotation + 90) % 360; // Increment by 90 degrees, wrap around at 360
+        chairImage.dataset.rotation = currentRotation;
+        chairImage.style.transform = `rotate(${currentRotation}deg)`;
+        if (selectedRotatingChair) {
+            selectedRotatingChair.classList.remove("highlighted-yellow");
+            document.getElementById("rotateControlPanel").style.display =
+                "none";
+            selectedRotatingChair = null;
+        }
+    } else {
+        // For holding, show the rotation control panel and highlight the chair
+        if (chairContainer !== selectedRotatingChair) {
+            if (selectedRotatingChair) {
+                selectedRotatingChair.classList.remove("highlighted-yellow");
+            }
+            chairContainer.classList.add("highlighted-yellow");
+            selectedRotatingChair = chairContainer;
+            document.getElementById("rotateControlPanel").style.display =
+                "flex";
+
+            const rotationRange = document.getElementById("rotationRange");
+            const rotationDegree = document.getElementById("rotationDegree");
+
+            // Set the initial value and text
+            rotationRange.value =
+                chairImage.dataset.rotation || defaultRotationDegree;
+            rotationDegree.textContent = `${rotationRange.value}°`;
+
+            rotationRange.oninput = function () {
+                rotationDegree.textContent = `${this.value}°`;
+                chairImage.style.transform = `rotate(${this.value}deg)`;
+                chairImage.dataset.rotation = this.value;
+            };
+        } else {
+            selectedRotatingChair.classList.remove("highlighted-yellow");
+            document.getElementById("rotateControlPanel").style.display =
+                "none";
+            selectedRotatingChair = null;
+        }
+    }
+}
+
+function moveChair(gridItem) {
+    if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
+    if (gridItem.classList.contains("black")) return; // Skip if there's an obstacle
+
+    const chairContainer = gridItem.querySelector(".chair-container-in-grid");
+
+    // If there's a selected chair to move and the current grid item is empty
+    if (selectedMovingChair && !chairContainer) {
+        // Move the selected chair to the new grid item
+        gridItem.appendChild(selectedMovingChair);
+    } else if (chairContainer !== selectedMovingChair) {
+        if (selectedMovingChair) {
+            selectedMovingChair.classList.remove("highlighted-yellow");
+        }
+        chairContainer.classList.add("highlighted-yellow");
+        selectedMovingChair = chairContainer;
+    } else {
+        selectedMovingChair.classList.remove("highlighted-yellow");
+        selectedMovingChair = null;
     }
 }
 
@@ -364,7 +493,6 @@ function deleteChair(gridItem) {
         // Deleting a stack, remove it along with all associated C chairs
         const stackId = chairTextContent; // e.g., "S1"
         gridItem.removeChild(chairContainer); // Remove the S chair
-        allocatedNumbers.delete(parseInt(stackId.slice(1))); // Remove from allocatedNumbers
 
         // Remove all C chairs associated with this stack
         document
@@ -384,19 +512,84 @@ function deleteChair(gridItem) {
 
         // Clear allocated C numbers for this stack
         if (allocatedCNumbersByStack[stackId]) {
-            allocatedCNumbersByStack[stackId].clear();
             delete allocatedCNumbersByStack[stackId];
         }
+
+        const stackNumber = parseInt(stackId.substring(1));
+
+        document
+            .querySelectorAll(".chair-text-in-grid")
+            .forEach((chairText) => {
+                const isStack = chairText.textContent.startsWith("S");
+                const isCChair = chairText.textContent.startsWith("C");
+                let currentNumber;
+
+                if (isStack) {
+                    currentNumber = parseInt(
+                        chairText.textContent.substring(1)
+                    );
+                } else if (isCChair) {
+                    currentNumber = parseInt(
+                        chairText.textContent.match(/\(S(\d+)\)/)[1]
+                    );
+                }
+
+                // Renumber chairs
+                if (currentNumber > stackNumber) {
+                    const newNumber = currentNumber - 1;
+                    const newText = isStack
+                        ? `S${newNumber}`
+                        : chairText.textContent.replace(
+                              `S${currentNumber}`,
+                              `S${newNumber}`
+                          );
+                    chairText.textContent = newText;
+
+                    // Update allocatedCNumbersByStack for C chairs
+                    if (isCChair) {
+                        if (
+                            allocatedCNumbersByStack[`S${newNumber}`] ===
+                            undefined
+                        ) {
+                            allocatedCNumbersByStack[`S${newNumber}`] =
+                                allocatedCNumbersByStack[`S${currentNumber}`];
+                            delete allocatedCNumbersByStack[
+                                `S${currentNumber}`
+                            ];
+                        }
+                    }
+                }
+            });
+
+        // Update allocatedNumbers set
+        allocatedNumbers.delete(stackNumber);
+        const updatedNumbers = new Set(
+            [...allocatedNumbers].map((num) =>
+                num > stackNumber ? num - 1 : num
+            )
+        );
+        allocatedNumbers.clear();
+        updatedNumbers.forEach((num) => allocatedNumbers.add(num));
     } else if (chairTextContent.startsWith("C")) {
         // Deleting a C chair, remove it individually
         // Parse the stack ID and C number from the chair's text
         const match = chairTextContent.match(/C(\d+) \(S(\d+)\)/);
         if (match) {
-            const cNum = parseInt(match[1]);
             const stackId = `S${match[2]}`;
-            // Delete the C chair and update the allocated numbers
-            allocatedCNumbersByStack[stackId]?.delete(cNum);
             gridItem.removeChild(chairContainer);
+            // Decrement the count since we're removing a C chair
+            if (allocatedCNumbersByStack[stackId] > 0) {
+                allocatedCNumbersByStack[stackId]--;
+            }
+
+            let currentNumber = 1;
+            document
+                .querySelectorAll(`.chair-text-in-grid`)
+                .forEach((element) => {
+                    if (element.textContent.includes(`(${stackId})`)) {
+                        element.textContent = `C${currentNumber++} (${stackId})`; // Update C chair number
+                    }
+                });
         }
     }
 }
@@ -417,8 +610,86 @@ function addOrRemoveRobot(gridItem) {
         robotImage.src = "robot.png";
         robotImage.alt = "Robot";
         robotImage.className = "robot-in-grid";
-        robotImage.draggable = false;
+        // robotImage.draggable = false;
         gridItem.appendChild(robotImage);
+    }
+}
+
+function toggleHighlight(item) {
+    // Check if the item is a stack or C chair and toggle highlight
+    const chairText =
+        item.querySelector(".chair-text-in-grid")?.textContent || "";
+    if (chairText.startsWith("S") || chairText.startsWith("C")) {
+        if (
+            item.classList.contains("highlighted-yellow") ||
+            item.classList.contains("highlighted-blue")
+        ) {
+            // Unhighlight the stack and associated C chairs
+            document
+                .querySelectorAll(".highlighted-yellow, .highlighted-blue")
+                .forEach((el) =>
+                    el.classList.remove(
+                        "highlighted-yellow",
+                        "highlighted-blue"
+                    )
+                );
+        } else {
+            // Clear existing highlights
+            document
+                .querySelectorAll(".highlighted-yellow, .highlighted-blue")
+                .forEach((el) =>
+                    el.classList.remove(
+                        "highlighted-yellow",
+                        "highlighted-blue"
+                    )
+                );
+
+            if (chairText.startsWith("S")) {
+                // Highlight the stack
+                item.classList.add("highlighted-yellow");
+                // Highlight associated C chairs
+                document
+                    .querySelectorAll(
+                        ".chair-container-in-grid .chair-text-in-grid"
+                    )
+                    .forEach((el) => {
+                        if (el.textContent.includes(`(${chairText})`)) {
+                            el.closest(".grid-item").classList.add(
+                                "highlighted-blue"
+                            );
+                        }
+                    });
+            } else if (chairText.startsWith("C")) {
+                // Highlight the C chair
+                item.classList.add("highlighted-blue");
+                // Extract the stack ID from the C chair text
+                const stackId = chairText.match(/\((S\d+)\)/)[1];
+                // Highlight the associated stack
+                document
+                    .querySelectorAll(
+                        ".chair-container-in-grid .chair-text-in-grid"
+                    )
+                    .forEach((el) => {
+                        if (el.textContent === stackId) {
+                            el.closest(".grid-item").classList.add(
+                                "highlighted-yellow"
+                            );
+                        }
+                    });
+                // Highlight all C chairs associated with this stack
+                document
+                    .querySelectorAll(
+                        ".chair-container-in-grid .chair-text-in-grid"
+                    )
+                    .forEach((el) => {
+                        if (el.textContent.includes(`(${stackId})`)) {
+                            el.closest(".grid-item").classList.add(
+                                "highlighted-blue"
+                            );
+                        }
+                    });
+            }
+        }
     }
 }
 

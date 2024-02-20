@@ -1,8 +1,10 @@
 // Grid, stack, chair numbering data
 const gridContainer = document.querySelector(".grid-container");
-let selectedStack = null;
-
-// Stack/chair number calculation
+let selectedStack = null; // Stack mode
+let selectedMovingChair = null; // Move mode
+let selectedRotatingChair = null; // Rotate mode
+let defaultRotationDegree = 0; // Default rotation degree for new chairs
+const maxChairsPerStack = 3; // Maximum C chairs per stack
 const allocatedCNumbersByStack = {}; // for C chairs (chairs associated with stacks, e.g. C1 (S1), C2 (S2))
 const allocatedNumbers = new Set(); // for stacks
 
@@ -15,16 +17,13 @@ function getLowestAvailableNumber() {
     return num;
 }
 
-// Increase number from 1 until non-taken number (for C chairs)
 function getLowestAvailableCNumber(stackId) {
-    if (!allocatedCNumbersByStack[stackId]) {
-        // Add new set in array if stack doesn't have its set of chairs yet
-        allocatedCNumbersByStack[stackId] = new Set();
+    if (allocatedCNumbersByStack[stackId] === undefined) {
+        allocatedCNumbersByStack[stackId] = 0; // Initialize with 0 C chairs
     }
-    let num = 1;
-    while (allocatedCNumbersByStack[stackId].has(num)) {
-        num++;
+    if (allocatedCNumbersByStack[stackId] >= maxChairsPerStack) {
+        return null; // No more C chairs can be added
     }
-    allocatedCNumbersByStack[stackId].add(num); // Used C number for this stack
-    return num;
+    // Increment the count since we're adding a new C chair
+    return ++allocatedCNumbersByStack[stackId];
 }

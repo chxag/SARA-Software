@@ -67,6 +67,14 @@
             </div>
 
             <div class="mode">
+                <div id="move-logo" class="mode-logo">
+                    <img src="chair.png" alt="Chair" class="mode-logo-image" />
+                    <span class="mode-logo-text">M</span>
+                </div>
+                <div class="label">Move</div>
+            </div>
+
+            <div class="mode">
                 <div id="delete-logo" class="mode-logo">
                     <img src="chair.png" alt="Chair" class="mode-logo-image" />
                     <span class="mode-logo-text">D</span>
@@ -89,8 +97,32 @@
 
         <div class="grid-container"></div>
 
+        <div id="rotateControlPanel" style="display: none">
+            <div id="rotationRangeDegreeDiv">
+                <input
+                    type="range"
+                    id="rotationRange"
+                    min="0"
+                    max="350"
+                    step="10"
+                    value="0"
+                />
+                <span id="rotationDegree">0°</span>
+            </div>
+
+            <button id="rotationButton">Set as Default</button>
+        </div>
+
         <div id="send-div">
-            <button id="send-json"><span>Output as JSON</span></button>
+            <button class="grid-buttons" id="save-layout">
+                <span>Save Layout</span>
+            </button>
+            <button class="grid-buttons" id="send-json">
+                <span>Initiate Robot</span>
+            </button>
+            <button class="grid-buttons" id="clear-layout">
+                <span>Clear Layout</span>
+            </button>
         </div>
 
         <!-- <script src="app.js"></script> -->

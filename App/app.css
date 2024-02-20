@@ -1,5 +1,15 @@
-:root {
+/* Apply user-select none to all elements to prevent text selection */
+* {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+    user-select: none; /* Standard syntax */
+    -webkit-touch-callout: none; /* iOS Safari */
     color-scheme: light only;
+}
+
+img {
+    pointer-events: none;
 }
 
 textarea,
@@ -79,7 +89,6 @@ input[type="submit"],
     top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
-    pointer-events: none;
 }
 
 .mode-logo-image,
@@ -141,18 +150,19 @@ input[type="submit"],
 .chair-container-in-grid {
     /* Chair with text in grid */
     position: relative;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100%;
     width: 100%;
-    user-select: none;
 }
 
 .chair-in-grid {
     /* Chair image in grid */
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     object-fit: contain;
-    transition: transform 0.3s ease; /* Rotation transition */
+    transition: transform 0.1s ease; /* Rotation transition */
     transform-origin: center; /* Centered rotation */
 }
 
@@ -162,36 +172,75 @@ input[type="submit"],
     left: 50%;
     transform: translate(-50%, -50%);
     color: white;
-    pointer-events: none;
 }
 
-.selected-in-grid {
-    /* Selected stack */
-    border: 2px solid yellow;
-    background-color: rgba(255, 255, 0, 0.2);
+.faded {
+    opacity: 0.5;
+}
+
+.highlighted-yellow {
+    border-color: #da3;
+    background-color: rgba(221, 170, 51, 0.7);
+}
+
+.highlighted-blue {
+    border-color: #048;
+    background-color: rgba(0, 68, 136, 0.7);
 }
 
 .robot-in-grid {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    user-select: none;
 }
 
 .chair-container-in-grid:hover,
-.robot-in-grid:hover,
 .mode-logo:hover {
     cursor: pointer;
 }
 
-#send-json {
-    margin: auto;
+#rotateControlPanel {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    width: 70%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+#rotationRangeDegreeDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+#rotationRange {
+    width: 70%;
+    margin-right: 10px;
+}
+
+#rotationButton {
+    width: 60%;
+}
+
+.grid-buttons {
     width: 25%;
-    display: block;
 }
 
 #send-div {
-    margin: 20px auto 55px auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin: 20px auto 170px auto;
 }
 
 /* For smaller screens */

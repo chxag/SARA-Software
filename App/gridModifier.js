@@ -5,10 +5,38 @@ const urlParams = new URLSearchParams(window.location.search);
 let rows = parseInt(urlParams.get("rows"));
 let columns = parseInt(urlParams.get("columns"));
 
-function createGridFromData(gridData) {
+function createGrid() {
     const gridContainer = document.querySelector(".grid-container");
     gridContainer.innerHTML = ""; // Clear existing grid items
 
+    // Check for query parameters first
+    if (rows && columns) {
+        createGridFromDimensions(rows, columns);
+        localStorage.removeItem("gridData");
+    } else {
+        rows = 5;
+        columns = 5;
+        // Retrieve grid data from localStorage if no query parameters are found
+        const gridDataJson = localStorage.getItem("gridData");
+        if (gridDataJson && gridDataJson !== "null") {
+            try {
+                const gridData = JSON.parse(gridDataJson);
+                createGridFromData(gridData);
+            } catch (error) {
+                console.error(
+                    "Error parsing grid data from localStorage:",
+                    error
+                );
+                alert("Invalid grid data. Using fallback grid size.");
+                createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
+            }
+        } else {
+            createGridFromDimensions(rows, columns); // Use default grid size if no data is found
+        }
+    }
+}
+
+function createGridFromData(gridData) {
     // Update rows and columns based on gridData dimensions
     rows = gridData.length;
     columns = gridData[0].length;
@@ -26,8 +54,6 @@ function createGridFromData(gridData) {
 }
 
 function createGridFromDimensions(rows, columns) {
-    const gridContainer = document.querySelector(".grid-container");
-    gridContainer.innerHTML = ""; // Clear existing grid items
     gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
 
     for (let row = 1; row <= rows; row++) {
@@ -56,34 +82,18 @@ function updateGridCentering() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Check for query parameters first
-    if (rows && columns) {
-        createGridFromDimensions(rows, columns);
-        localStorage.removeItem("gridData");
-    } else {
-        rows = 5;
-        columns = 5;
-        // Retrieve grid data from localStorage if no query parameters are found
-        const gridDataJson = localStorage.getItem("gridData");
-        if (gridDataJson && gridDataJson !== "null") {
-            try {
-                const gridData = JSON.parse(gridDataJson);
-                createGridFromData(gridData);
-            } catch (error) {
-                console.error(
-                    "Error parsing grid data from localStorage:",
-                    error
-                );
-                alert("Invalid grid data. Using fallback grid size.");
-                createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
-            }
-        } else {
-            createGridFromDimensions(rows, columns); // Use default grid size if no data is found
-        }
-    }
-
-    // Update grid centering
+    createGrid();
     updateGridCentering();
 });
 
 window.addEventListener("resize", updateGridCentering);
+
+document.getElementById("clear-layout").addEventListener("click", function () {
+    createGrid();
+    updateGridCentering();
+    allocatedNumbers.clear();
+    defaultRotationDegree = 0;
+    Object.keys(allocatedCNumbersByStack).forEach((key) => {
+        delete allocatedCNumbersByStack[key];
+    });
+});

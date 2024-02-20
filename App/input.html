@@ -14,23 +14,6 @@
         <link rel="stylesheet" href="app.css" />
     </head>
     <body>
-        <!-- Load Pyodide globally -->
-        <script type ="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.17.0/full/pyodide.js"></script>
-
-        <!-- Use a promise to ensure Pyodide is fully loaded before using it -->
-        <script type="text/javascript">
-            const pyodideReady = new Promise((resolve) => {
-                window.languagePluginUrl = 'https://cdn.jsdelivr.net/pyodide/v0.17.0/full/';
-                window.pyodide = window.pyodide || {};
-
-                window.pyodide.ready = resolve;
-            });
-
-            //Load other scripts only after Pyodide is ready
-            pyodideReady.then(() => {
-                console.log('Pyodide is ready!');
-            });
-        </script>
         <nav class="navbar navbar-expand-sm bg-info" data-bs-theme="light">
             <div class="container-fluid">
                 <img id="logo" src="SARA_logo.png" alt="SARA Logo" />
@@ -70,7 +53,7 @@
                 </div>
             </form>
 
-            <h2>Upload Image</h2>
+            <h2>Upload PGM</h2>
             <input type="file" id="fileInput" />
             <button id="uploadData">Generate Grid</button>
         </div>
