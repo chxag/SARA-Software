@@ -1,9 +1,22 @@
+"""
+Author: Jo Barnes
+Based on sample app from https://pypi.org/project/yolo34py/. See CHANGELOG for details of expansions and modifications.
+"""
+
 from pydarknet import Detector, Image
 import cv2
 
-# Based on sample app from https://pypi.org/project/yolo34py/. See changelog for details of expansions and modifications
-net = Detector(bytes("cfg/yolov3.cfg", encoding="utf-8"), bytes("weights/yolov3.weights", encoding="utf-8"), 0, bytes("cfg/coco_chairs.data",encoding="utf-8"))
-#net = Detector(bytes("cfg/yolov2-tiny.cfg", encoding="utf-8"), bytes("weights/yolov2-tiny.weights", encoding="utf-8"), 0, bytes("cfg/coco.data",encoding="utf-8"))
+USING_YOLOv3 = True
+
+if USING_YOLOv3:
+    cfg_file = "cfg/yolov2-tiny.cfg"
+    weights_file = "weights/yolov2-tiny.weights"
+else:
+    cfg_file = "cfg/yolov3.cfg"
+    weights_file = "weights/yolov3.weights"      
+training_data_file = "cfg/coco.data"
+
+net = Detector(bytes(cfg_file, encoding="utf-8"), bytes(weights_file, encoding="utf-8"), 0, bytes(training_data_file, encoding="utf-8"))
 
 img = cv2.imread('data/chair.jpg')
 img_darknet = Image(img)
@@ -16,6 +29,3 @@ for category, score, bounds in results:
     cv2.putText(img, category ,(int(x),int(y)),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,0))
 
 cv2.imwrite("detected.png", img)
-#cv2.imwrite("detected-tiny2.png", img)
-#cv2.imshow("output", img)
-#cv2.waitKey(0)
