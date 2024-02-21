@@ -148,6 +148,8 @@ function handleGridClick(event) {
     }
 
     lastGridItem = gridItem;
+
+    highlightInaccessibleChairs();
 }
 
 document.getElementById("rotationButton").addEventListener("click", () => {
