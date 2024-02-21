@@ -28,6 +28,7 @@ gridContainer.addEventListener("pointerdown", (event) => {
 });
 
 document.addEventListener("pointerdown", (event) => {
+    highlightInaccessibleChairs();
     const rotateControlPanel = document.getElementById("rotateControlPanel");
 
     // Check if rotateControlPanel exists and is currently displayed
@@ -147,7 +148,6 @@ function handleGridClick(event) {
     }
 
     lastGridItem = gridItem;
-    highlightInaccessibleChairs();
 }
 
 document.getElementById("rotationButton").addEventListener("click", () => {
