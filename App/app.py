@@ -61,7 +61,7 @@ def upload_pgm():
         # Handle exceptions and return an error response
         return jsonify({'status': 'error', 'message': str(e)})
 
-@app.route('/grid', method=['POST'])
+@app.route('/grid', methods=['POST'])
 def handle_post():
     post_data = request.data
     decoded_post_msg = post_data.decode('utf-8')
