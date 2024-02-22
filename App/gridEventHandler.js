@@ -81,8 +81,8 @@ function handlePlaceMode(gridItem) {
 
         // If clicked grid item is a chair but not a C chair, then a stack must be clicked
     } else if (chairContainer && !isCChair) {
-        // Selecting or deselecting a stack
-        if (selectedStack === gridItem) {
+        // Interacting with a stack
+        if (selectedStack === chairContainer) {
             // Deselect if the same stack is clicked again
             selectedStack.classList.remove("highlighted-yellow");
             selectedStack = null;
@@ -90,8 +90,8 @@ function handlePlaceMode(gridItem) {
             // Select a new stack
             if (selectedStack)
                 selectedStack.classList.remove("highlighted-yellow");
-            selectedStack = gridItem;
-            gridItem.classList.add("highlighted-yellow");
+            selectedStack = chairContainer;
+            chairContainer.classList.add("highlighted-yellow");
         }
     }
 }
@@ -299,16 +299,20 @@ function addOrRemoveRobot(gridItem) {
 
 function toggleHighlight(item) {
     // Check if the item is a stack or C chair and toggle highlight
+    const chairContainer = item.querySelector(".chair-container-in-grid");
     const chairText =
-        item.querySelector(".chair-text-in-grid")?.textContent || "";
+        chairContainer?.querySelector(".chair-text-in-grid")?.textContent || "";
+
     if (chairText.startsWith("S") || chairText.startsWith("C")) {
         if (
-            item.classList.contains("highlighted-yellow") ||
-            item.classList.contains("highlighted-blue")
+            chairContainer.classList.contains("highlighted-yellow") ||
+            chairContainer.classList.contains("highlighted-blue")
         ) {
             // Unhighlight the stack and associated C chairs
             document
-                .querySelectorAll(".highlighted-yellow, .highlighted-blue")
+                .querySelectorAll(
+                    ".chair-container-in-grid.highlighted-yellow, .chair-container-in-grid.highlighted-blue"
+                )
                 .forEach((el) =>
                     el.classList.remove(
                         "highlighted-yellow",
@@ -318,7 +322,9 @@ function toggleHighlight(item) {
         } else {
             // Clear existing highlights
             document
-                .querySelectorAll(".highlighted-yellow, .highlighted-blue")
+                .querySelectorAll(
+                    ".chair-container-in-grid.highlighted-yellow, .chair-container-in-grid.highlighted-blue"
+                )
                 .forEach((el) =>
                     el.classList.remove(
                         "highlighted-yellow",
@@ -328,7 +334,7 @@ function toggleHighlight(item) {
 
             if (chairText.startsWith("S")) {
                 // Highlight the stack
-                item.classList.add("highlighted-yellow");
+                chairContainer.classList.add("highlighted-yellow");
                 // Highlight associated C chairs
                 document
                     .querySelectorAll(
@@ -336,14 +342,14 @@ function toggleHighlight(item) {
                     )
                     .forEach((el) => {
                         if (el.textContent.includes(`(${chairText})`)) {
-                            el.closest(".grid-item").classList.add(
-                                "highlighted-blue"
-                            );
+                            el.closest(
+                                ".chair-container-in-grid"
+                            ).classList.add("highlighted-blue");
                         }
                     });
             } else if (chairText.startsWith("C")) {
                 // Highlight the C chair
-                item.classList.add("highlighted-blue");
+                chairContainer.classList.add("highlighted-blue");
                 // Extract the stack ID from the C chair text
                 const stackId = chairText.match(/\((S\d+)\)/)[1];
                 // Highlight the associated stack
@@ -353,9 +359,9 @@ function toggleHighlight(item) {
                     )
                     .forEach((el) => {
                         if (el.textContent === stackId) {
-                            el.closest(".grid-item").classList.add(
-                                "highlighted-yellow"
-                            );
+                            el.closest(
+                                ".chair-container-in-grid"
+                            ).classList.add("highlighted-yellow");
                         }
                     });
                 // Highlight all C chairs associated with this stack
@@ -365,9 +371,9 @@ function toggleHighlight(item) {
                     )
                     .forEach((el) => {
                         if (el.textContent.includes(`(${stackId})`)) {
-                            el.closest(".grid-item").classList.add(
-                                "highlighted-blue"
-                            );
+                            el.closest(
+                                ".chair-container-in-grid"
+                            ).classList.add("highlighted-blue");
                         }
                     });
             }
