@@ -781,17 +781,39 @@ function generateGridDataJson() {
     return gridDataJson;
 }
 
+// const sendData = () => {
+//     const gridDataJson = generateGridDataJson();
+//     console.log(gridDataJson);
+
+//     const xhr = new XMLHttpRequest();
+//     xhr.open("POST", "http://localhost:8082");
+
+//     xhr.responseType = "json";
+//     xhr.onload = () => {
+//         if (xhr.readyState == 4 && xhr.status == 201) {
+//             console.log("no");
+//         } else {
+//             console.log(`Error: ${xhr.status}`);
+//         }
+//     };
+
+//     xhr.send(gridDataJson);
+//     console.log("Grid JSON data sent to server.");
+// };
+
+// document.getElementById("send-json").addEventListener("click", sendData);
+
 const sendData = () => {
     const gridDataJson = generateGridDataJson();
     console.log(gridDataJson);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://localhost:8082");
+    xhr.open("POST", "http://localhost:8082/grid"); // Updated URL
 
     xhr.responseType = "json";
     xhr.onload = () => {
-        if (xhr.readyState == 4 && xhr.status == 201) {
-            console.log("no");
+        if (xhr.readyState == 4 && xhr.status == 200) { // Updated status code
+            console.log("Success");
         } else {
             console.log(`Error: ${xhr.status}`);
         }

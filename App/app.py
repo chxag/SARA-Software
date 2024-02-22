@@ -3,6 +3,8 @@ from flask_cors import CORS
 from Grid_Creation import pgm_to_png, autocrop, png_to_grid
 import os
 import json
+import subprocess
+from GridJSON import Grid
 
 app = Flask(__name__, template_folder=os.path.dirname(os.path.abspath(__file__)))
 CORS(app)
@@ -59,6 +61,57 @@ def upload_pgm():
         # Handle exceptions and return an error response
         return jsonify({'status': 'error', 'message': str(e)})
 
+@app.route('/grid', method=['POST'])
+def handle_post():
+    post_data = request.data
+    decoded_post_msg = post_data.decode('utf-8')
+    if post_data:
+            print("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
+                  str(request.path), str(request.headers), decoded_post_msg)
+            
+            # Convert received string to JSON object
+            post_json = json.loads(decoded_post_msg)
+            print("Converting JSON object...\n")
+            # Convert the JSON object to an instance of Grid
+            grid_data = Grid(**post_json)
+            print("Conversion succeeded.\n")
+            
+            execute_sara(grid_data)
+    else:
+        print("No grid data was received.\n")
+def execute_sara(grid_data):
+    if grid_data.robot == None:
+    	print("The position of SARA has not been set yet!")
+    else:
+        print("SARA is on its way!\n")
+        task_no = len(grid_data.stacks)
+        center_x = grid_data.dimensions.columns // 2 + grid_data.dimensions.columns % 2
+        center_y = grid_data.dimensions.rows // 2 + grid_data.dimensions.rows % 2
+        
+        robot_x = ord(grid_data.robot[0]) - ord('0')
+        robot_y = ord(grid_data.robot[-1]) - ord('0')
+        
+        # Calculate the relative coordinates of robot position
+        rel_robot_pos_x = robot_x - center_x
+        rel_robot_pos_y = robot_y - center_y
+        
+        for i in range(task_no):
+            goal_pose = grid_data.stacks[i]
+            goal_pose_loc = goal_pose.location
+            
+            # Convert location indices from str to int
+            goal_pose_x = ord(goal_pose_loc[0]) - ord('0')
+            goal_pose_y = ord(goal_pose_loc[-1]) - ord('0')
+            
+            # Calculate the relative coordinates of goal positions
+            rel_goal_pose_x = goal_pose_x - center_x
+            rel_goal_pose_y = goal_pose_y - center_y
+            
+            to_goal = str(rel_goal_pose_x) + ' '+ str(rel_goal_pose_y)
+            robot_goal = str(rel_robot_pos_x) + ' '+ str(rel_robot_pos_y)
+            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_goal.encode('utf-8'))
+            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=robot_goal.encode('utf-8'))
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
@@ -71,4 +124,6 @@ def upload_file():
 
 # Run the Flask app if this script is executed
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 8082))
+    app.run(host='0.0.0.0', port=port)
+    #app.run(debug=True)

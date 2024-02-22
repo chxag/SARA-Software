@@ -21,7 +21,7 @@ document.getElementById("uploadData").addEventListener("click", function () {
     formData.append('file', file);
 
     // Send the file to the server
-    fetch('http://localhost:5000/upload', {
+    fetch('http://localhost:8082/upload', { //'http://localhost:5000/upload'
         method: 'POST',
         body: formData
     })
@@ -29,7 +29,7 @@ document.getElementById("uploadData").addEventListener("click", function () {
     .then(result => {
         console.log(result);
         // After the file is uploaded, process it
-        return fetch('http://localhost:5000/', {
+        return fetch('http://localhost:8082/grid', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -91,7 +91,7 @@ const sendData = () => {
     console.log(gridDataJson);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://localhost:8082");
+    xhr.open("POST", "http://localhost:8082/grid"); //added /grid
 
     xhr.responseType = "json";
     xhr.onload = () => {
