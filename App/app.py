@@ -17,7 +17,7 @@ def serve_static(filename):
 # Render the main page
 @app.route('/')
 def index():
-    return render_template('app.html')
+    return render_template('index.html')
 
 # Handle uploaded pgm file
 @app.route('/', methods=['POST'])

@@ -17,13 +17,13 @@ function createGrid() {
         rows = 5;
         columns = 5;
         // Retrieve grid data from server if no query parameters are found
-        fetch('Maps/grid_data.json')
-            .then(response => response.json())
-            .then(gridData => {
+        fetch("Maps/grid_data.json")
+            .then((response) => response.json())
+            .then((gridData) => {
                 console.log(gridData);
                 createGridFromData(gridData);
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Error fetching grid data from server:", error);
                 alert("Invalid grid data. Using fallback grid size.");
                 createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid

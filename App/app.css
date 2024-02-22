@@ -174,8 +174,25 @@ input[type="submit"],
     color: white;
 }
 
-.faded {
-    opacity: 0.5;
+.preview-chair-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.preview-chair-in-grid {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+    opacity: 0.5; /* Make the preview chair faded */
+}
+
+.highlighted-red {
+    border-color: #b56;
+    background-color: rgba(187, 85, 102, 0.7);
 }
 
 .highlighted-yellow {
