@@ -81,7 +81,7 @@ def handle_post():
         print("No grid data was received.\n")
 def execute_sara(grid_data):
     if grid_data.robot == None:
-    	print("The position of SARA has not been set yet!")
+        print("The position of SARA has not been set yet!")
     else:
         print("SARA is on its way!\n")
         task_no = len(grid_data.stacks)
