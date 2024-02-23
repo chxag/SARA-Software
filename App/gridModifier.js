@@ -12,21 +12,24 @@ function createGrid() {
     // Check for query parameters first
     if (rows && columns) {
         createGridFromDimensions(rows, columns);
-        localStorage.removeItem("gridData");
     } else {
         rows = 5;
         columns = 5;
-        // Retrieve grid data from server if no query parameters are found
-        fetch("Maps/grid_data.json")
-            .then((response) => response.json())
+        fetch("http://localhost:8082/latest_grid_data")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("No grid data available");
+                }
+                return response.json();
+            })
             .then((gridData) => {
-                console.log(gridData);
+                // console.log(gridData);
                 createGridFromData(gridData);
             })
             .catch((error) => {
-                console.error("Error fetching grid data from server:", error);
-                alert("Invalid grid data. Using fallback grid size.");
-                createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
+                console.error("Error fetching grid data:", error);
+                // alert("Invalid grid data. Using fallback grid size.");
+                createGridFromDimensions(rows, columns); // Fallback grid size
             });
     }
 }

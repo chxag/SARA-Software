@@ -96,20 +96,22 @@ const sendData = () => {
     const gridDataJson = generateGridDataJson();
     console.log(gridDataJson);
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://localhost:8082/grid"); //added /grid
-
-    xhr.responseType = "json";
-    xhr.onload = () => {
-        if (xhr.readyState == 4 && xhr.status == 201) {
-            console.log("no");
-        } else {
-            console.log(`Error: ${xhr.status}`);
-        }
-    };
-
-    xhr.send(gridDataJson);
-    console.log("Grid JSON data sent to server.");
+    fetch("http://localhost:8082/send", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: gridDataJson,
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
 };
 
 document.getElementById("send-json").addEventListener("click", sendData);
