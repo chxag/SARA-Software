@@ -5,6 +5,11 @@ import numpy as np
 import math
 import aprilTagPoints
 
+def crop_image(image, bbox):
+    left, top = bbox[0]
+    right, bottom = bbox[1]
+    return np.array([image[row][left:right] for row in range(top, bottom)])
+
 image_file = "chairs/detected_april_tagged_rubber.jpg"
 # image_file = "chairs/detected_april_tagged_rubbers.jpg"
 
