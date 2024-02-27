@@ -2,7 +2,7 @@ import apriltag
 import cv2
 
 def detect_apriltag(image_path):
-    # load the input image and convert it to grayscale
+    # load the input image and crop to bounding boxes
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
