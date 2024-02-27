@@ -10,7 +10,7 @@ from pydarknet import Detector, Image
 import cv2
 
 USING_YOLOv3 = True
-RESIZE = True
+RESIZE = False
 
 BLUE = (136, 68, 0)  # Paul Tol High Contrast Blue
 YELLOW = (51, 170, 221)  # Paul Tol High Contrast Yellow
@@ -74,7 +74,11 @@ def _corners(box):
 
 
 # Test Outputs
-visualisation()
-print(get_box_corners())
-visualisation("data/chairs.jpg", "detected_multiple.jpg")
-print(get_box_corners("data/chairs.jpg"))
+visualisation("data/april_tagged_rubber_chair.jpg", "detected_april_tagged_rubber.jpg")
+visualisation("data/april_tagged_rubber_chairs.jpg", "detected_april_tagged_rubbers.jpg")
+visualisation("data/april_tagged_red_chair.jpg", "detected_april_tagged_red.jpg")
+# visualisation("data/april_tagged_chairs.jpg", "detected_april_taggeds.jpg")
+# visualisation()
+# print(get_box_corners())
+# visualisation("data/chairs.jpg", "detected_multiple.jpg")
+# print(get_box_corners("data/chairs.jpg"))
