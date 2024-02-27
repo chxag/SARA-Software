@@ -91,5 +91,5 @@ def create_grid(cropped_png_path, grid_data_path):
     with open(grid_data_path, 'w') as f: #change this so you can use the maps in the subdirectory
         f.write(json_data)
 
-    plt.imshow(cv2.cvtColor(image_with_grid, cv2.COLOR_BGR2RGB))
-    plt.show()
+    # plt.imshow(cv2.cvtColor(image_with_grid, cv2.COLOR_BGR2RGB))
+    # plt.show()
