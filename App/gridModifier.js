@@ -4,17 +4,17 @@ let gridSize = 50; // Initial grid size in pixels
 const urlParams = new URLSearchParams(window.location.search);
 let rows = parseInt(urlParams.get("rows"));
 let columns = parseInt(urlParams.get("columns"));
+let dimensionsInput = false;
+if (rows && columns) dimensionsInput = true;
 
 function createGrid() {
     const gridContainer = document.querySelector(".grid-container");
     gridContainer.innerHTML = ""; // Clear existing grid items
 
     // Check for query parameters first
-    if (rows && columns) {
+    if (dimensionsInput) {
         createGridFromDimensions(rows, columns);
     } else {
-        rows = 5;
-        columns = 5;
         fetch("http://localhost:8082/latest_grid_data")
             .then((response) => {
                 if (!response.ok) {
@@ -29,6 +29,8 @@ function createGrid() {
             .catch((error) => {
                 console.error("Error fetching grid data:", error);
                 // alert("Invalid grid data. Using fallback grid size.");
+                rows = 5;
+                columns = 5;
                 createGridFromDimensions(rows, columns); // Fallback grid size
             });
     }
@@ -49,6 +51,7 @@ function createGridFromData(gridData) {
             gridContainer.appendChild(gridItem);
         }
     }
+    updateGridCentering();
 }
 
 function createGridFromDimensions(rows, columns) {
@@ -62,6 +65,7 @@ function createGridFromDimensions(rows, columns) {
             gridContainer.append(gridItem);
         }
     }
+    updateGridCentering();
 }
 
 function updateGridCentering() {
@@ -81,14 +85,19 @@ function updateGridCentering() {
 
 document.addEventListener("DOMContentLoaded", function () {
     createGrid();
-    updateGridCentering();
 });
 
 window.addEventListener("resize", updateGridCentering);
 
 document.getElementById("clear-layout").addEventListener("click", function () {
-    createGrid();
-    updateGridCentering();
+    const chairContainers = document.querySelectorAll(
+        ".chair-container-in-grid"
+    );
+    chairContainers.forEach((container) => container.remove());
+
+    const robots = document.querySelectorAll(".robot-in-grid");
+    robots.forEach((robot) => robot.remove());
+
     allocatedNumbers.clear();
     defaultRotationDegree = 0;
     Object.keys(allocatedCNumbersByStack).forEach((key) => {
