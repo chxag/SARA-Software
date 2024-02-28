@@ -4,6 +4,7 @@ let isMouseDown = false;
 let isQuickClick; // Variable to determine if it's a quick click
 let holdTimeoutId; // Variable to store the timeout ID
 let hoveredGridItem = null; // Variable to track the chair that was under the mouse during pointerdown
+let clickedGridItem = null;
 
 gridContainer.addEventListener("pointerdown", (event) => {
     if (event.button === 0) {
@@ -35,10 +36,7 @@ document.addEventListener("pointerdown", (event) => {
     if (rotateControlPanel && rotateControlPanel.style.display !== "none") {
         // Check if the click is outside the rotateControlPanel
         const gridItem = event.target.closest(".grid-item");
-        if (
-            !rotateControlPanel.contains(event.target) &&
-            gridItem !== lastGridItem
-        ) {
+        if (!rotateControlPanel.contains(event.target)) {
             // Hide the control panel and remove highlighting from the active chair if any
             rotateControlPanel.style.display = "none";
             if (selectedRotatingChair) {
@@ -64,9 +62,20 @@ gridContainer.addEventListener("pointerover", (event) => {
     hoveredGridItem = gridItem;
 
     if (isMouseDown && gridItem !== lastGridItem) {
-        isQuickClick = true;
-        handleGridClick(event);
-        isQuickClick = false;
+        if (
+            clickedGridItem &&
+            clickedGridItem != gridItem &&
+            currentMode === "rotate"
+        ) {
+            rotateChair(clickedGridItem, isQuickClick);
+            clickedGridItem = null;
+        }
+
+        if (!clickedGridItem) {
+            isQuickClick = true;
+            handleGridClick(event);
+            isQuickClick = false;
+        }
     }
 
     // Previewing implementation
