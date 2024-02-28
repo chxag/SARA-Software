@@ -66,9 +66,17 @@ gridContainer.addEventListener("pointerover", (event) => {
     if (isMouseDown && gridItem !== lastGridItem) {
         isQuickClick = true;
         handleGridClick(event);
+        isQuickClick = false;
     }
 
     // Previewing implementation
+
+    // Clear any previously shown preview chair
+    const existingPreview = document.querySelector(".preview-chair-container");
+    if (existingPreview) {
+        existingPreview.remove();
+    }
+
     if (
         !gridItem ||
         gridItem.querySelector(".chair-container-in-grid") ||
@@ -77,12 +85,6 @@ gridContainer.addEventListener("pointerover", (event) => {
     ) {
         // Exit if not hovering over a grid item or if the grid item contains a chair, a robot, or is an obstacle
         return;
-    }
-
-    // Clear any previously shown preview chair
-    const existingPreview = document.querySelector(".preview-chair-container");
-    if (existingPreview) {
-        existingPreview.remove();
     }
 
     // Show a preview chair based on the current mode
