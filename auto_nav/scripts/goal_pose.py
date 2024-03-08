@@ -50,6 +50,7 @@ def set_goal_orientation(goal, orientation_x, orientation_y, orientation_z, orie
     goal.target_pose.pose.orientation.z = orientation_z
     goal.target_pose.pose.orientation.w = orientation_w
     
+# Read in the coordinations from the app
 dest_pose_str = sys.stdin.read().split()
 dest_pose_x = int(dest_pose_str[0])
 dest_pose_y = int(dest_pose_str[1])
