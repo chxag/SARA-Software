@@ -7,15 +7,16 @@
 #define m2Pin 6
 
 #define faultPin 8
-int faultState = 0;
-
 #define enablePin 9
 
-#define delay_length 500
+#define topButtonPin 10
+#define bottomButtonPin 11
 
+#define delay_length 500
 #define stepsPerRevolution 200
 
 int pythonInput;
+
 
 void setup() {
   pinMode(enablePin, OUTPUT);
@@ -24,26 +25,82 @@ void setup() {
   pinMode(m0Pin, OUTPUT);
   pinMode(m1Pin, OUTPUT);
   pinMode(m2Pin, OUTPUT);
+
   pinMode(faultPin, INPUT);
+  pinMode(topButtonPin, INPUT);
+  pinMode(bottomButtonPin, INPUT);
 
-  digitalWrite(enablePin, HIGH);
-  digitalWrite(dirPin, HIGH);
-
-  digitalWrite(m0Pin, LOW);
+  digitalWrite(enablePin, HIGH);  // Disable the driver
+  digitalWrite(dirPin, HIGH);  // Set the initial direction
+  digitalWrite(m0Pin, LOW);  // Set the step size
   digitalWrite(m1Pin, LOW);
   digitalWrite(m2Pin, LOW);
 
-  Serial.begin(115200);
+  Serial.begin(9600);  // Begin serial transmission
   Serial.setTimeout(1);
 }
 
-void loop() {
-  while (!Serial.available());      // Wait until Serial is available
+
+// Check if the arm has hit the top button
+bool checkTopHit(){
+  return digitalRead(topButtonPin);
+}
+
+
+// Check if the arm has hit the bottom button:
+bool checkBottomHit(){
+  return digitalRead(bottomButtonPin);
+}
+
+
+// Run the motor n revolutions in the given directoin
+void runMotor(int n, int dir){
+  // Enable the motor and set the direction, wait
+  digitalWrite(enablePin, LOW);
+  digitalWrite(dirPin, dir);
+  delayMicroseconds(20);
+
+  // Run the motor
+  for (int i = 0; i < stepsPerRevolution * n; i++) {
+    digitalWrite(stepPin, HIGH);
+    delayMicroseconds(delay_length);
+    digitalWrite(stepPin, LOW);
+    delayMicroseconds(delay_length);
+  }
+
+  // Disable the motor and wait
   digitalWrite(enablePin, HIGH);
-  
-  
-  faultState = digitalRead(faultPin);
-  if (faultState == LOW) {
+  delayMicroseconds(20);
+}
+
+
+// Run the motor until it reaches the top ot bottom
+void runMotorHit(int dir){
+  // Enable the motor and set the direction, wait
+  digitalWrite(enablePin, LOW);
+  digitalWrite(dirPin, dir);
+  delayMicroseconds(20);
+
+  // Run the motor
+  while ((checkTopHit() == false && dir == HIGH) || (checkBottomHit() == true && dir == LOW)){
+    digitalWrite(stepPin, HIGH);
+    delayMicroseconds(delay_length);
+    digitalWrite(stepPin, LOW);
+    delayMicroseconds(delay_length);
+  }
+
+  // Disable the motor and wait
+  digitalWrite(enablePin, HIGH);
+  delayMicroseconds(20);
+}
+
+void loop() {
+  digitalWrite(enablePin, HIGH);  // Disable the driver
+  while (!Serial.available());  // Wait until Serial is available
+
+
+  // Potentially unecessary - if the driver overheats, it will give a fault but eventually turn on when it warms up
+  if (digitalRead(faultPin) == LOW) {
     digitalWrite(enablePin, HIGH);
     Serial.print("Fault");
     while(true);  // Infinite loop
@@ -52,38 +109,17 @@ void loop() {
   pythonInput = Serial.readString().toInt();
 
   switch (pythonInput) {
+    // Hit the top button:
     case 1:
-      Serial.print("CW");
-      digitalWrite(enablePin, LOW);
-      digitalWrite(dirPin, HIGH);
-      delayMicroseconds(100);
-      for (int i = 0; i < stepsPerRevolution * 10; i++) {
-        digitalWrite(stepPin, HIGH);
-        delayMicroseconds(delay_length);
-        digitalWrite(stepPin, LOW);
-        delayMicroseconds(delay_length);
-      }
-      digitalWrite(enablePin, HIGH);
-      delayMicroseconds(20);
+      runMotorHit(HIGH);
       break;
+
+    // Hit the bottom button:
     case 2:
-      Serial.print("ACW");
-      digitalWrite(enablePin, LOW);
-      digitalWrite(dirPin, LOW);
-      delayMicroseconds(100);
-      for (int i = 0; i < stepsPerRevolution * 10; i++) {
-        digitalWrite(stepPin, HIGH);
-        delayMicroseconds(delay_length);
-        digitalWrite(stepPin, LOW);
-        delayMicroseconds(delay_length);
-      }
-      digitalWrite(enablePin, HIGH);
-      delayMicroseconds(20);
+      runMotorHit(LOW);
       break;
-    case 0:
-      digitalWrite(enablePin, HIGH);
-      Serial.print("Stopping");
-      break;
+
+    // If any other command is sent, stop:
     default:
       digitalWrite(enablePin, HIGH);
       Serial.print("Stopping");
