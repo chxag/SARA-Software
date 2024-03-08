@@ -88,23 +88,32 @@ def execute_sara(grid_data):
         # Calculate the relative coordinates of robot position
         rel_robot_pos_x = robot_x - center_x
         rel_robot_pos_y = robot_y - center_y
+
+        #Go to stack first
+        stack_loc = grid_data.stacks.location
+        stack_x = ord(stack_loc[0]) - ord('0')
+        stack_y = ord(stack_loc[-1]) - ord('0')
+        rel_stack_x = stack_x - center_x
+        rel_stack_y = stack_y - center_y
+        to_stack = str(rel_stack_x) + ' '+ str(rel_stack_y)
+        subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_stack.encode('utf-8'))
         
         for i in range(task_no):
-            goal_pose = grid_data.stacks[i]
-            goal_pose_loc = goal_pose.location
+            chair = grid_data.chair[i]
+            chair_loc = chair.location
             
             # Convert location indices from str to int
-            goal_pose_x = ord(goal_pose_loc[0]) - ord('0')
-            goal_pose_y = ord(goal_pose_loc[-1]) - ord('0')
+            chair_x = ord(chair_loc[0]) - ord('0')
+            chair_y = ord(chair_loc[-1]) - ord('0')
             
             # Calculate the relative coordinates of goal positions
-            rel_goal_pose_x = goal_pose_x - center_x
-            rel_goal_pose_y = goal_pose_y - center_y
+            rel_chair_x = chair_x - center_x
+            rel_chair_y = chair_y - center_y
             
-            to_goal = str(rel_goal_pose_x) + ' '+ str(rel_goal_pose_y)
+            to_chair = str(rel_chair_x) + ' '+ str(rel_chair_y)
             robot_goal = str(rel_robot_pos_x) + ' '+ str(rel_robot_pos_y)
-            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_goal.encode('utf-8'))
-            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=robot_goal.encode('utf-8'))
+            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_chair.encode('utf-8'))
+            #subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=robot_goal.encode('utf-8'))
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8082))
