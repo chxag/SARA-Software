@@ -5,7 +5,7 @@ import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 # Callbacks definition
-def active_cb(extra):
+def active_cb():
     rospy.loginfo("Goal pose being processed")
 
 def feedback_cb(feedback):
