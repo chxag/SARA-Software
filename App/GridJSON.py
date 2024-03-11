@@ -6,12 +6,11 @@ import json
 class Chair:
     location: str
     rotation: int
-    chairs: List[int]
 
 class Stack: 
     location: str
     rotation: int
-    stacks: List[int]
+    chairs: List[Chair]
 
 @dataclass
 class Dimension:
@@ -23,10 +22,8 @@ class Grid:
     dimensions: Dimension
     robot: str
     stacks: List[Stack]
-    chairs: List[Chair]
     obstacles: List[str]
 
     def __post_init__(self):
-        self.stacks = [Stack(**stack) for stack in self.stacks]
-        self.chairs = [Chair(**chair) for chair in self.chairs]
+        self.stacks = [Stack(location=stack['location'], rotation=stack['rotation'], chairs=[Chair(**chair) for chair in stack['chair']]) for stack in self.stacks]
         self.dimensions = Dimension(**self.dimensions)
