@@ -91,7 +91,7 @@ def execute_sara(grid_data):
 
         for stack in grid_data.stacks:
             #Go to stack first
-            stack_loc = grid_data.stacks.location
+            stack_loc = stack.location
             stack_x = ord(stack_loc[0]) - ord('0')
             stack_y = ord(stack_loc[-1]) - ord('0')
             rel_stack_x = stack_x - center_x
