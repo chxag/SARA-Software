@@ -101,10 +101,6 @@ def execute_sara(grid_data):
             
             for chair in stack.chairs: 
                 chair_loc = chair.location
-
-        # for i in range(task_no):
-        #     chair = grid_data.chair[i]
-        #     chair_loc = chair.location
             
                 # Convert location indices from str to int
                 chair_x = ord(chair_loc[0]) - ord('0')
