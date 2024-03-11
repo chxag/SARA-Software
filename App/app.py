@@ -78,7 +78,7 @@ def execute_sara(grid_data):
         print("The position of SARA has not been set yet!")
     else:
         print("SARA is on its way!\n")
-        task_no = len(grid_data.stacks)
+        #task_no = len(grid_data.stacks)
         center_x = grid_data.dimensions.columns // 2 + grid_data.dimensions.columns % 2
         center_y = grid_data.dimensions.rows // 2 + grid_data.dimensions.rows % 2
         
@@ -89,31 +89,35 @@ def execute_sara(grid_data):
         rel_robot_pos_x = robot_x - center_x
         rel_robot_pos_y = robot_y - center_y
 
-        #Go to stack first
-        stack_loc = grid_data.stacks.location
-        stack_x = ord(stack_loc[0]) - ord('0')
-        stack_y = ord(stack_loc[-1]) - ord('0')
-        rel_stack_x = stack_x - center_x
-        rel_stack_y = stack_y - center_y
-        to_stack = str(rel_stack_x) + ' '+ str(rel_stack_y)
-        subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_stack.encode('utf-8'))
-        
-        for i in range(task_no):
-            chair = grid_data.chair[i]
-            chair_loc = chair.location
+        for stack in grid_data.stacks:
+            #Go to stack first
+            stack_loc = grid_data.stacks.location
+            stack_x = ord(stack_loc[0]) - ord('0')
+            stack_y = ord(stack_loc[-1]) - ord('0')
+            rel_stack_x = stack_x - center_x
+            rel_stack_y = stack_y - center_y
+            to_stack = str(rel_stack_x) + ' '+ str(rel_stack_y)
+            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_stack.encode('utf-8'))
             
-            # Convert location indices from str to int
-            chair_x = ord(chair_loc[0]) - ord('0')
-            chair_y = ord(chair_loc[-1]) - ord('0')
+            for chair in stack.chairs: 
+                chair_loc = chair.location
+
+        # for i in range(task_no):
+        #     chair = grid_data.chair[i]
+        #     chair_loc = chair.location
             
-            # Calculate the relative coordinates of goal positions
-            rel_chair_x = chair_x - center_x
-            rel_chair_y = chair_y - center_y
-            
-            to_chair = str(rel_chair_x) + ' '+ str(rel_chair_y)
-            robot_goal = str(rel_robot_pos_x) + ' '+ str(rel_robot_pos_y)
-            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_chair.encode('utf-8'))
-            #subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=robot_goal.encode('utf-8'))
+                # Convert location indices from str to int
+                chair_x = ord(chair_loc[0]) - ord('0')
+                chair_y = ord(chair_loc[-1]) - ord('0')
+                
+                # Calculate the relative coordinates of goal positions
+                rel_chair_x = chair_x - center_x
+                rel_chair_y = chair_y - center_y
+                
+                to_chair = str(rel_chair_x) + ' '+ str(rel_chair_y)
+                robot_goal = str(rel_robot_pos_x) + ' '+ str(rel_robot_pos_y)
+                subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_chair.encode('utf-8'))
+                subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=robot_goal.encode('utf-8'))
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8082))
