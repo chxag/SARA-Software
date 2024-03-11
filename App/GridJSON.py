@@ -25,5 +25,5 @@ class Grid:
     obstacles: List[str]
 
     def __post_init__(self):
-        self.stacks = [Stack(location=stack['location'], rotation=stack['rotation'], chairs=[Chair(**chair) for chair in stack['chair']]) for stack in self.stacks]
+        self.stacks = [Stack(location=stack['location'], rotation=stack['rotation'], chairs=[Chair(**chair) for chair in stack['chairs']]) for stack in self.stacks]
         self.dimensions = Dimension(**self.dimensions)
