@@ -8,9 +8,10 @@ class Chair:
     rotation: int
 
 class Stack: 
-    location: str
-    rotation: int
-    chairs: List[Chair]
+    def __init__(self, location, rotation, chairs):
+        self.location = location
+        self.rotation = rotation
+        self.chairs = chairs
 
 @dataclass
 class Dimension:
