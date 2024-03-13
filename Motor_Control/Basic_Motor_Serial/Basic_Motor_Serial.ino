@@ -1,4 +1,5 @@
 // Define stepper motor connections and steps per revolution:
+// Pins 0 and 1 are serial pins left unassigned
 #define dirPin 2
 #define stepPin 3
 

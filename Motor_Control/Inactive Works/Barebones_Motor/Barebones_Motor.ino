@@ -1,41 +1,50 @@
 // Define stepper motor connections and steps per revolution:
 #define dirPin 2
 #define stepPin 3
+
 #define m0Pin 6
 #define m1Pin 5
 #define m2Pin 4
-#define enablePin 7
-#define faultPin 8
-#define sleepPin 9
-#define resetPin 10
 
-int delay_length = 500;
-#define stepsPerRevolution 200
+#define faultPin 8
+int faultState = 0;
+
+#define enablePin 7
+
+#define delay_length 500
+
+#define stepsPerRevolution 200 * 10
 
 void setup() {
-  pinMode(dirPin, OUTPUT);
+  pinMode(enablePin, OUTPUT);
   pinMode(stepPin, OUTPUT);
+  pinMode(dirPin, OUTPUT);
   pinMode(m0Pin, OUTPUT);
   pinMode(m1Pin, OUTPUT);
-  pinMode(m2Pin, OUTPUT); 
-  pinMode(enablePin, OUTPUT);
+  pinMode(m2Pin, OUTPUT);
   pinMode(faultPin, INPUT);
-  pinMode(sleepPin, OUTPUT);
-  pinMode(resetPin, OUTPUT);
 
-  digitalWrite(dirPin, HIGH);
-  digitalWrite(stepPin, LOW);
+  digitalWrite(enablePin, LOW);
+  digitalWrite(dirPin, LOW);
+
   digitalWrite(m0Pin, LOW);
   digitalWrite(m1Pin, LOW);
   digitalWrite(m2Pin, LOW);
-  digitalWrite(enablePin, LOW);
-  digitalWrite(sleepPin, HIGH);
-  digitalWrite(resetPin, HIGH);
 }
 
 void loop() {
-  digitalWrite(enablePin, LOW);
-  delayMicroseconds(100);
+  faultState = digitalRead(faultPin);
+
+  if (faultState == LOW) {
+    digitalWrite(enablePin, HIGH);
+    delayMicroseconds(25000);
+  }
+
+  if (faultState == HIGH) {
+    digitalWrite(enablePin, LOW);
+    delayMicroseconds(1000);
+  }
+  
   // Spin the stepper motor 1 revolution slowly:
   for (int i = 0; i < stepsPerRevolution; i++) {
     // These four lines result in 1 step:
@@ -44,6 +53,4 @@ void loop() {
     digitalWrite(stepPin, LOW);
     delayMicroseconds(delay_length);
   }
-  digitalWrite(enablePin, HIGH);
-  delay(5000);
 }
