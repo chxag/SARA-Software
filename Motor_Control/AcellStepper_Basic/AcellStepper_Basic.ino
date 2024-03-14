@@ -12,27 +12,34 @@
 
 int pulse_width = 2;
 
-#define delay_length 500
+#define step_delay_length 1000
+#define driver_rest_us 100000
 #define stepsPerRevolution 200
 
 void forward() {
   digitalWrite(dirPin, HIGH);
   digitalWrite(stepPin, HIGH);
-  delayMicroseconds(delay_length);
+  delayMicroseconds(step_delay_length);
   digitalWrite(stepPin, LOW);
-  delayMicroseconds(delay_length);
+  // Let the driver "rest":
+  digitalWrite(enablePin, HIGH);
+  delayMicroseconds(driver_rest_us);
+  digitalWrite(enablePin, LOW);
 }
 
 void backward() {
   digitalWrite(dirPin, LOW);
   digitalWrite(stepPin, HIGH);
-  delayMicroseconds(delay_length);
+  delayMicroseconds(step_delay_length);
   digitalWrite(stepPin, LOW);
-  delayMicroseconds(delay_length);
+  // Let the driver "rest":
+  digitalWrite(enablePin, HIGH);
+  delayMicroseconds(driver_rest_us);
+  digitalWrite(enablePin, LOW);
 }
 
 // Create a new instance of the AccelStepper class
-// AccelStepper stepper(AccelStepper::DRIVER, stepPin, dirPin, 11, 11);
+// AccelStepper stepper(AccelStepper::DRIVER, stepPin, dirPin);
 AccelStepper stepper(forward, backward);
 
 
@@ -45,8 +52,8 @@ void setup() {
   digitalWrite(sleepPin, HIGH);
   digitalWrite(resetPin, HIGH);
   stepper.setMinPulseWidth(100);
-  stepper.setMaxSpeed(300);  // Anything more causes too much heat due to the driver's current limits
-  stepper.setSpeed(300); // Set the speed in steps per second
+  stepper.setMaxSpeed(200);  // Anything more causes too much heat due to the driver's current limits, ideally should be 1000
+  stepper.setSpeed(200); // Set the speed in steps per second
   stepper.setAcceleration(1);
 }
 
