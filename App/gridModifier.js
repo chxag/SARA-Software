@@ -118,6 +118,8 @@ function createSavedGrid(gridDataJson) {
         );
         obstacleGridItem.classList.add("black");
     });
+
+    highlightInaccessibleChairs();
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -128,7 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         if (gridDataJson) {
             createSavedGrid(gridDataJson);
-            highlightInaccessibleChairs();
         } else {
             alert("Layout not found in LocalStorage.");
             createGrid();
