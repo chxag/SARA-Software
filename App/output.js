@@ -1,11 +1,18 @@
 // JSON Output
 function generateGridDataJson() {
     const gridData = {
+        stacked: null,
         dimensions: { rows, columns },
         robot: null,
         stacks: [],
         obstacles: [],
     };
+
+    // Include stacked property based on room state
+    gridData.stacked =
+        document.getElementById("roomStateValue").textContent === "Unstacked"
+            ? false
+            : true;
 
     // Robot location
     const robotElement = document.querySelector(".robot-in-grid");
@@ -87,23 +94,42 @@ function generateGridDataJson() {
 }
 
 const sendData = () => {
+    const invalidChair = document.querySelector(".highlighted-red");
+    if (invalidChair) {
+        alert("Invalid chairs present in grid.");
+        return;
+    }
+
     const gridDataJson = generateGridDataJson();
     console.log(gridDataJson);
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://localhost:8082");
+    fetch("http://localhost:8082/send", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: gridDataJson,
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
 
-    xhr.responseType = "json";
-    xhr.onload = () => {
-        if (xhr.readyState == 4 && xhr.status == 201) {
-            console.log("no");
-        } else {
-            console.log(`Error: ${xhr.status}`);
-        }
-    };
+    if (roomStateValue.textContent === "Stacked") {
+        roomStateValue.textContent = "Unstacked";
+        initiateRobotButton.textContent = "Initiate Robot - Stack Chairs";
+    } else {
+        roomStateValue.textContent = "Stacked";
+        initiateRobotButton.textContent = "Initiate Robot - Arrange Chairs";
+    }
 
-    xhr.send(gridDataJson);
-    console.log("Grid JSON data sent to server.");
+    // Save the updated room state in local storage under the current layout name
+    localStorage.setItem(layoutName, generateGridDataJson());
 };
 
-document.getElementById("send-json").addEventListener("click", sendData);
+initiateRobotButton.addEventListener("click", sendData);

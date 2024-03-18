@@ -16,6 +16,7 @@ class Dimension:
 
 @dataclass
 class Grid:
+    stacked: bool
     dimensions: Dimension
     robot: str
     stacks: List[Chair]

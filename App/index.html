@@ -34,12 +34,20 @@
                             <a class="nav-link" href="input.html">Input Data</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Choose Ready Rooms</a>
+                            <a class="nav-link" href="layouts.html"
+                                >Choose Ready Rooms</a
+                            >
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
+
+        <h2 id="layoutTitle"></h2>
+
+        <h3 id="roomStateLabel" style="display: none">
+            Current State: <span id="roomStateValue"></span>
+        </h3>
 
         <div id="legend">
             <div class="mode">
@@ -113,22 +121,88 @@
             <button id="rotationButton">Set as Default</button>
         </div>
 
+        <div id="stack-counter" style="display: none">
+            <p>
+                <span id="stack"></span> Remaining Chairs:
+                <span id="remainder"></span>
+            </p>
+        </div>
+
         <div id="send-div">
             <button class="grid-buttons" id="save-layout">
                 <span>Save Layout</span>
             </button>
-            <button class="grid-buttons" id="send-json">
-                <span>Initiate Robot</span>
+            <button class="grid-buttons" id="initiateRobot" disabled>
+                <span>Initiate Robot - Arrange Chairs</span>
             </button>
             <button class="grid-buttons" id="clear-layout">
                 <span>Clear Layout</span>
             </button>
         </div>
 
+        <hr />
+
+        <div id="tutorial">
+            <p>
+                You can toggle between <strong>modes</strong> by clicking the
+                icons in the bottom left corner. Pressing numbers 1 to 6, as
+                well as the letters on the icons (X for robot), would also work.
+                There are <strong>zoom controls</strong> in the bottom right
+                corner.
+            </p>
+            <p>
+                Activate <strong>Stack mode</strong> to place stacks on empty
+                grid cells. Next, activate <strong>Place mode</strong> to first
+                select a stack (e.g. "S1"), then place chairs of the selected
+                stack (e.g. "C1 (S1)", "C2 (S1)", "C3 (S1)"). The numbering on
+                the chairs is merely to display associations between stacks and
+                chairs.
+            </p>
+            <p>
+                Chairs <strong>highlighted red</strong> denote that the chair is
+                inaccessible for SARA. The front of the chair needs to be clear
+                for SARA to interact with it. Chairs can also be inaccessible
+                due to no possible pathing from SARA to those chairs. SARA can
+                be placed in <strong>Robot mode</strong>.
+            </p>
+            <p>
+                In <strong>Rotate mode</strong>, you can click to rotate chairs
+                90 degrees clockwise. You can also hold down on a chair to open
+                a control panel to rotate more precisely. You can set the
+                default angle for future chair placements in the control panel.
+                Click outside the control panel to close it.
+            </p>
+            <p>
+                In <strong>Move mode</strong>, you select a chair and then
+                choose where the chair would go. In
+                <strong>Delete mode</strong>, deleting a stack would also delete
+                all the associated chairs of that stack. If
+                <strong>no modes</strong> are activated, you can click on a
+                chair to highlight associations where stacks are highlighted
+                yellow and their chairs are highlighted blue.
+            </p>
+            <p>
+                You can <strong>save the layout</strong> by first giving it a
+                name. Once a layout is saved, it will be considered a room SARA
+                can operate within. Rooms are either in a stacked or unstacked
+                state, and now you can finally
+                <strong>initiate the robot</strong> to start doing its work.
+            </p>
+            <p>
+                You can access any room in the future in the
+                <strong>'Choose Ready Rooms'</strong> page found at the
+                navigation bar. You will also be able to rename and delete
+                rooms, as well as have the JSON data associated with the rooms
+                there.
+            </p>
+        </div>
+
         <!-- <script src="app.js"></script> -->
         <script src="gridModifier.js"></script>
+        <script src="layoutModifier.js"></script>
         <script src="zoomHandler.js"></script>
         <script src="utils.js"></script>
+        <script src="invalidChairsHandler.js"></script>
         <script src="modeHandler.js"></script>
         <script src="clickHandler.js"></script>
         <script src="gridEventHandler.js"></script>

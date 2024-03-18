@@ -3,6 +3,8 @@ let lastGridItem;
 let isMouseDown = false;
 let isQuickClick; // Variable to determine if it's a quick click
 let holdTimeoutId; // Variable to store the timeout ID
+let hoveredGridItem = null; // Variable to track the chair that was under the mouse during pointerdown
+let clickedGridItem = null;
 
 gridContainer.addEventListener("pointerdown", (event) => {
     if (event.button === 0) {
@@ -10,8 +12,14 @@ gridContainer.addEventListener("pointerdown", (event) => {
         isQuickClick = true;
 
         if (currentMode === "rotate") {
+            clickedGridItem = event.target.closest(".grid-item");
+            // Track the grid item under the mouse during pointerdown
             holdTimeoutId = setTimeout(() => {
-                if (isMouseDown) {
+                if (
+                    isMouseDown &&
+                    clickedGridItem === hoveredGridItem &&
+                    clickedGridItem != null
+                ) {
                     // If the mouse is still down, it's a hold
                     isQuickClick = false; // Not a quick click
                     handleGridClick(event);
@@ -24,16 +32,14 @@ gridContainer.addEventListener("pointerdown", (event) => {
 });
 
 document.addEventListener("pointerdown", (event) => {
+    highlightInaccessibleChairs();
     const rotateControlPanel = document.getElementById("rotateControlPanel");
 
     // Check if rotateControlPanel exists and is currently displayed
     if (rotateControlPanel && rotateControlPanel.style.display !== "none") {
         // Check if the click is outside the rotateControlPanel
         const gridItem = event.target.closest(".grid-item");
-        if (
-            !rotateControlPanel.contains(event.target) &&
-            gridItem !== lastGridItem
-        ) {
+        if (!rotateControlPanel.contains(event.target)) {
             // Hide the control panel and remove highlighting from the active chair if any
             rotateControlPanel.style.display = "none";
             if (selectedRotatingChair) {
@@ -56,10 +62,34 @@ document.addEventListener("pointerup", (event) => {
 // When mouse is held down and hovering over a grid item
 gridContainer.addEventListener("pointerover", (event) => {
     const gridItem = event.target.closest(".grid-item");
+    hoveredGridItem = gridItem;
+
     if (isMouseDown && gridItem !== lastGridItem) {
-        isQuickClick = true;
-        handleGridClick(event);
+        if (
+            clickedGridItem &&
+            clickedGridItem != gridItem &&
+            currentMode === "rotate"
+        ) {
+            rotateChair(clickedGridItem, isQuickClick);
+            clickedGridItem = null;
+        }
+
+        if (!clickedGridItem) {
+            isQuickClick = true;
+            handleGridClick(event);
+            isQuickClick = false;
+        }
     }
+
+    // Previewing implementation
+
+    // Clear any previously shown preview chair
+    const existingPreview = document.querySelector(".preview-chair-container");
+    const existingRobotPreview = document.querySelector(
+        ".preview-robot-in-grid"
+    );
+    if (existingPreview) existingPreview.remove();
+    if (existingRobotPreview) existingRobotPreview.remove();
 
     if (
         !gridItem ||
@@ -69,12 +99,6 @@ gridContainer.addEventListener("pointerover", (event) => {
     ) {
         // Exit if not hovering over a grid item or if the grid item contains a chair, a robot, or is an obstacle
         return;
-    }
-
-    // Clear any previously shown preview chair
-    const existingPreview = document.querySelector(".preview-chair-container");
-    if (existingPreview) {
-        existingPreview.remove();
     }
 
     // Show a preview chair based on the current mode
@@ -102,18 +126,28 @@ gridContainer.addEventListener("pointerover", (event) => {
             const previewChairContainer = createPreviewChair();
             gridItem.appendChild(previewChairContainer);
         }
+    } else if (currentMode === "robot") {
+        const previewRobot = document.createElement("img");
+        previewRobot.src = "robot.png";
+        previewRobot.alt = "Preview Robot";
+        previewRobot.className = "preview-robot-in-grid";
+        gridItem.appendChild(previewRobot);
     }
 });
 
 function handleGridClick(event) {
+    clickedGridItem = null;
+
     const gridItem = event.target.closest(".grid-item");
     if (!gridItem) return; // Exit if clicked object is not a grid item
 
     // Clear any previously shown preview chair
     const existingPreview = document.querySelector(".preview-chair-container");
-    if (existingPreview) {
-        existingPreview.remove();
-    }
+    const existingRobotPreview = document.querySelector(
+        ".preview-robot-in-grid"
+    );
+    if (existingPreview) existingPreview.remove();
+    if (existingRobotPreview) existingRobotPreview.remove();
 
     switch (currentMode) {
         case "stack":
@@ -140,6 +174,8 @@ function handleGridClick(event) {
     }
 
     lastGridItem = gridItem;
+
+    highlightInaccessibleChairs();
 }
 
 document.getElementById("rotationButton").addEventListener("click", () => {
@@ -154,7 +190,7 @@ function createPreviewChair(rotationDegree = defaultRotationDegree) {
 
     const previewChair = document.createElement("img");
     previewChair.src = "chair.png";
-    previewChair.alt = "Chair";
+    previewChair.alt = "Preview Chair";
     previewChair.className = "preview-chair-in-grid";
     // Apply the given rotation
     previewChair.style.transform = `rotate(${rotationDegree}deg)`;

@@ -1,38 +1,42 @@
 let gridSize = 50; // Initial grid size in pixels
 
 // Query URL parameters
-const urlParams = new URLSearchParams(window.location.search);
-let rows = parseInt(urlParams.get("rows"));
-let columns = parseInt(urlParams.get("columns"));
+let urlParams = new URLSearchParams(window.location.search);
+let rows;
+let columns;
+const parsedRows = parseInt(urlParams.get("rows"));
+const parsedColumns = parseInt(urlParams.get("columns"));
+const useTempLayout = urlParams.get("useTempLayout");
+let layoutName = urlParams.get("layoutName");
 
 function createGrid() {
     const gridContainer = document.querySelector(".grid-container");
     gridContainer.innerHTML = ""; // Clear existing grid items
 
     // Check for query parameters first
-    if (rows && columns) {
+    if (parsedRows && parsedColumns) {
+        rows = parsedRows;
+        columns = parsedColumns;
         createGridFromDimensions(rows, columns);
-        localStorage.removeItem("gridData");
     } else {
-        rows = 5;
-        columns = 5;
-        // Retrieve grid data from localStorage if no query parameters are found
-        const gridDataJson = localStorage.getItem("gridData");
-        if (gridDataJson && gridDataJson !== "null") {
-            try {
-                const gridData = JSON.parse(gridDataJson);
+        fetch("http://localhost:8082/latest_grid_data")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("No grid data available");
+                }
+                return response.json();
+            })
+            .then((gridData) => {
+                // console.log(gridData);
                 createGridFromData(gridData);
-            } catch (error) {
-                console.error(
-                    "Error parsing grid data from localStorage:",
-                    error
-                );
-                alert("Invalid grid data. Using fallback grid size.");
-                createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
-            }
-        } else {
-            createGridFromDimensions(rows, columns); // Use default grid size if no data is found
-        }
+            })
+            .catch((error) => {
+                console.error("Error fetching grid data:", error);
+                // alert("Invalid grid data. Using fallback grid size.");
+                rows = 5;
+                columns = 5;
+                createGridFromDimensions(rows, columns); // Fallback grid size
+            });
     }
 }
 
@@ -66,6 +70,89 @@ function createGridFromDimensions(rows, columns) {
     }
 }
 
+function createSavedGrid(gridDataJson) {
+    const gridData = JSON.parse(gridDataJson);
+
+    // Set up the grid dimensions
+    rows = gridData.dimensions.rows;
+    columns = gridData.dimensions.columns;
+    createGridFromDimensions(rows, columns);
+
+    // Place robot if present
+    if (gridData.robot) {
+        const robotLocation = gridData.robot.split("-");
+        const robotGridItem = document.getElementById(
+            `item-${robotLocation[0]}-${robotLocation[1]}`
+        );
+        addOrRemoveRobot(robotGridItem);
+    }
+
+    // Place stacks and chairs
+    gridData.stacks.forEach((stack) => {
+        const stackLocation = stack.location.split("-");
+        const stackGridItem = document.getElementById(
+            `item-${stackLocation[0]}-${stackLocation[1]}`
+        );
+        addStack(stackGridItem, stack.rotation);
+
+        selectedStack = stackGridItem;
+
+        // For each chair in the stack
+        stack.chairs.forEach((chair) => {
+            const chairLocation = chair.location.split("-");
+            const chairGridItem = document.getElementById(
+                `item-${chairLocation[0]}-${chairLocation[1]}`
+            );
+            handlePlaceMode(chairGridItem, chair.rotation);
+        });
+    });
+
+    document.getElementById("stack-counter").style.display = "none"; // Hide the counter
+    selectedStack = null;
+
+    // Place obstacles
+    gridData.obstacles.forEach((obstacle) => {
+        const obstacleLocation = obstacle.split("-");
+        const obstacleGridItem = document.getElementById(
+            `item-${obstacleLocation[0]}-${obstacleLocation[1]}`
+        );
+        obstacleGridItem.classList.add("black");
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    clearLayout();
+    if (layoutName) {
+        const gridDataJson = localStorage.getItem(
+            decodeURIComponent(layoutName)
+        );
+        if (gridDataJson) {
+            createSavedGrid(gridDataJson);
+            highlightInaccessibleChairs();
+        } else {
+            alert("Layout not found in LocalStorage.");
+            createGrid();
+        }
+    } else if (useTempLayout === "true") {
+        // Retrieve the temporary layout from sessionStorage
+        const tempLayoutJson = sessionStorage.getItem("tempLayout");
+        if (tempLayoutJson) {
+            createSavedGrid(tempLayoutJson);
+            // Optionally, clear the temporary layout from sessionStorage after use
+            sessionStorage.removeItem("tempLayout");
+        } else {
+            alert("No layout data found.");
+            createGrid();
+        }
+    } else {
+        // Your usual grid initialization logic
+        createGrid();
+    }
+    updateGridCentering();
+});
+
+window.addEventListener("resize", updateGridCentering);
+
 function updateGridCentering() {
     // Calculate the total grid width
     const totalGridWidth = columns * gridSize;
@@ -80,20 +167,3 @@ function updateGridCentering() {
         gridContainer.style.justifyContent = "center";
     }
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-    createGrid();
-    updateGridCentering();
-});
-
-window.addEventListener("resize", updateGridCentering);
-
-document.getElementById("clear-layout").addEventListener("click", function () {
-    createGrid();
-    updateGridCentering();
-    allocatedNumbers.clear();
-    defaultRotationDegree = 0;
-    Object.keys(allocatedCNumbersByStack).forEach((key) => {
-        delete allocatedCNumbersByStack[key];
-    });
-});
