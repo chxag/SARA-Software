@@ -91,6 +91,10 @@ button:hover {
     margin: 10px;
 }
 
+.grey-out {
+    color: #1010104d;
+}
+
 #legend {
     position: fixed;
     bottom: 10px;

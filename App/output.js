@@ -94,6 +94,11 @@ function generateGridDataJson() {
 }
 
 const sendData = () => {
+    if (!layoutName) {
+        alert("Save the layout before initiating the robot.");
+        return;
+    }
+
     const invalidChair = document.querySelector(".highlighted-red");
     if (invalidChair) {
         alert("Invalid chairs present in grid.");

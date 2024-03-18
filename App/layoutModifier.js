@@ -27,7 +27,7 @@ function displayLayoutData() {
             initiateRobotButton.textContent = "Initiate Robot - Stack Chairs";
         }
 
-        initiateRobotButton.disabled = false; // Enable the button
+        initiateRobotButton.classList.remove("grey-out"); // Enable the button
     }
 }
 
