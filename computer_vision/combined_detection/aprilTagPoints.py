@@ -1,12 +1,21 @@
 import apriltag
 import cv2
+import numpy as np
 
-def detect_apriltag(image_path):
-    # load the input image and convert it to grayscale
+def crop_image(image, bbox):
+    """Crop the supplied opencv image array to within the bounds of the supplied bounding box."""
+    left, top = bbox[0]
+    right, bottom = bbox[1]
+    return np.array([image[row][left:right] for row in range(top, bottom)])
+
+def detect_apriltag_cropped(image_path, bounding_box):
+    """Modified version of Leo's April Tag detection. Crops image to bounding box and detects within."""
+    # load the input image and crop to bounding boxes
     image = cv2.imread(image_path)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    cv2.imwrite("gray_test.jpg", gray)
+    cropped_image = crop_image(image, bounding_box)
+    # set to grayscale
+    gray = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+    # cv2.imwrite("gray_test.jpg", gray)
 
     # define the AprilTags detector options and then detect the AprilTags
     options = apriltag.DetectorOptions(families="tag36h11")
@@ -31,4 +40,3 @@ def detect_apriltag(image_path):
         apriltag_coordinates.append((ptA, ptB, ptC, ptD))
 
     return apriltag_coordinates
-
