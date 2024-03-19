@@ -4,6 +4,7 @@ from Grid_Creation import pgm_to_png, autocrop, png_to_grid
 import os
 from GridJSON import Grid # For JSON deserialisation
 import subprocess
+import math 
 
 app = Flask(__name__, template_folder=os.path.dirname(os.path.abspath(__file__)))
 CORS(app)
@@ -72,6 +73,11 @@ def handle_send():
     except Exception as e:
         print(f'Error handling /send request: {e}')
         return jsonify({'error': str(e)}), 400
+
+def degrees_to_quaternion(rotation):
+    radians = math.radians(rotation)
+    sin_half = math.sin(radians / 2)
+    return [0, 0, sin_half, math.cos(radians / 2)]
     
 def execute_sara(grid_data):
     if grid_data.robot == None:
@@ -84,7 +90,7 @@ def execute_sara(grid_data):
         
         robot_x = ord(grid_data.robot[0]) - ord('0')
         robot_y = ord(grid_data.robot[-1]) - ord('0')
-        
+
         # Calculate the relative coordinates of robot position
         rel_robot_pos_x = robot_x - center_x
         rel_robot_pos_y = robot_y - center_y
@@ -92,28 +98,43 @@ def execute_sara(grid_data):
         for stack in grid_data.stacks:
             #Go to stack first
             stack_loc = stack.location
+            stack_rot_str = stack.rotation
+
+            print(stack_rot_str)
+
+            stack_rot =  float(stack_rot_str)
+            stack_rot_quat = degrees_to_quaternion(stack_rot)
+            print(stack_rot)
+            print(stack_rot_quat)
             stack_x = ord(stack_loc[0]) - ord('0')
             stack_y = ord(stack_loc[-1]) - ord('0')
             rel_stack_x = stack_x - center_x
             rel_stack_y = stack_y - center_y
             to_stack = str(rel_stack_x) + ' '+ str(rel_stack_y)
-            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_stack.encode('utf-8'))
+            to_stack_split = to_stack.split(' ')
+            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py", to_stack_split[0], to_stack_split[1], "0"] + [str(j) for j in stack_rot_quat])#input=to_stack.encode('utf-8'))
             
             for chair in stack.chairs: 
                 chair_loc = chair.location
+                chair_rot_str = chair.rotation
             
                 # Convert location indices from str to int
                 chair_x = ord(chair_loc[0]) - ord('0')
                 chair_y = ord(chair_loc[-1]) - ord('0')
-                
+
+                chair_rot = float(chair_rot_str)
+                chair_rot_quat = degrees_to_quaternion(chair_rot)
+
                 # Calculate the relative coordinates of goal positions
                 rel_chair_x = chair_x - center_x
                 rel_chair_y = chair_y - center_y
                 
                 to_chair = str(rel_chair_x) + ' '+ str(rel_chair_y)
+                to_chair_split = to_chair.split(' ')
                 robot_goal = str(rel_robot_pos_x) + ' '+ str(rel_robot_pos_y)
-                subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=to_chair.encode('utf-8'))
-                subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py"], input=robot_goal.encode('utf-8'))
+                robot_goal_split = robot_goal.split(' ')
+                subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py", to_chair_split[0], to_chair_split[1], "0"] + [str(q) for q in chair_rot_quat])#input=to_chair.encode('utf-8'))
+                subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py", robot_goal_split[0], robot_goal_split[1], "0", "0", "0", "0.662", "0.750"])#input=robot_goal.encode('utf-8'))
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8082))

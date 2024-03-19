@@ -2,6 +2,7 @@
 
 import rospy
 import actionlib
+import sys
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 # Callbacks definition
@@ -64,8 +65,20 @@ goal.target_pose.header.frame_id = "map"
 goal.target_pose.header.stamp = rospy.Time.now()
 
 # Set destination goals
-set_goal_pose(goal, -1.0, 0.5, 0.0)
-set_goal_orientation(goal, 0.0, 0.0, 0.662, 0.750)
+position_x = float(sys.argv[1])
+position_y = float(sys.argv[2])
+position_z = float(sys.argv[3])
+set_goal_pose(goal, position_x, position_y, position_z)
+
+orientation_x = float(sys.argv[4])
+orientation_y = float(sys.argv[5])
+orientation_z = float(sys.argv[6])
+orientation_w = float(sys.argv[7])
+set_goal_orientation(goal, orientation_x, orientation_y, orientation_z, orientation_w)
+
+# # Set destination goals
+# set_goal_pose(goal, -1.0, 0.5, 0.0)
+# set_goal_orientation(goal, 0.0, 0.0, 0.662, 0.750)
 
 # Send the destination location
 navclient.send_goal(goal, done_cb, active_cb, feedback_cb)
