@@ -15,7 +15,7 @@ def detect_apriltag_cropped(image_path, bounding_box):
     cropped_image = crop_image(image, bounding_box)
     # set to grayscale
     gray = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite("gray_test.jpg", gray)
+    # cv2.imwrite("gray_test.jpg", gray)
 
     # define the AprilTags detector options and then detect the AprilTags
     options = apriltag.DetectorOptions(families="tag36h11")

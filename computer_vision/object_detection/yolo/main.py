@@ -55,7 +55,7 @@ def visualisation(filepath="data/chair.jpg", writeto="detected.jpg"):
         font_thickness = 1 if RESIZE else 5
         # Draw bounding box and "chair" label on image
         cv2.rectangle(img, _corners(box)[0], _corners(box)[1], BLUE, thickness=thickness)
-        # cv2.putText(img, "chair", (int(x), int(y)), cv2.FONT_HERSHEY_PLAIN, font_scale, BLUE, font_thickness)
+        # cv2.putText(img, "chair", (int(x), int(y)), cv2.FONT_HERSHEY_PLAIN, font_scale, YELLOW, font_thickness)
     cv2.imwrite(writeto, img)
 
 def get_box_corners(filepath="data/chair.jpg"):
@@ -74,13 +74,24 @@ def _corners(box):
 
 
 # Test Outputs
-visualisation("data/april_tagged_rubber_chair.jpg", "detected_april_tagged_rubber.jpg")
-print(get_box_corners("data/april_tagged_rubber_chair.jpg"))
-visualisation("data/april_tagged_rubber_chairs.jpg", "detected_april_tagged_rubbers.jpg")
-print(get_box_corners("data/april_tagged_rubber_chairs.jpg"))
+# visualisation("data/home_chair.jpg", "detected_home_chair.jpg")
+# print(get_box_corners("data/home_chair.jpg"))
+# visualisation("data/home_chairs.jpg", "detected_home_chairs.jpg")
+# print(get_box_corners("data/home_chairs.jpg"))
+# visualisation("data/april_tagged_rubber_chair.jpg", "detected_april_tagged_rubber.jpg")
+# print(get_box_corners("data/april_tagged_rubber_chair.jpg"))
+# visualisation("data/april_tagged_rubber_chairs.jpg", "detected_april_tagged_rubbers.jpg")
+# print(get_box_corners("data/april_tagged_rubber_chairs.jpg"))
 # visualisation("data/april_tagged_red_chair.jpg", "detected_april_tagged_red.jpg")
 # visualisation("data/april_tagged_chairs.jpg", "detected_april_taggeds.jpg")
 # visualisation()
 # print(get_box_corners())
 # visualisation("data/chairs.jpg", "detected_multiple.jpg")
 # print(get_box_corners("data/chairs.jpg"))
+
+# print(get_box_corners("data/home_chair_3.jpg"))
+# print(get_box_corners("data/home_chair_4.jpg"))
+# print(get_box_corners("data/home_chair_5.jpg"))
+# visualisation("data/home_chair_3.jpg", "detected_home_chair_3.jpg")
+# visualisation("data/home_chair_4.jpg", "detected_home_chair_4.jpg")
+visualisation("data/home_chair_5.jpg", "detected_home_chair_5.jpg")
