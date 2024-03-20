@@ -1,5 +1,9 @@
+let errorMessage = null;
+
 // JSON Output
 function generateGridDataJson() {
+    errorMessage = null;
+
     const gridData = {
         stacked: null,
         dimensions: { rows, columns },
@@ -87,6 +91,22 @@ function generateGridDataJson() {
         }
     });
 
+    // Check if there are any stacks defined
+    if (gridData.stacks.length === 0) {
+        errorMessage =
+            "Stacks with their associated chairs need to be present.";
+    } else {
+        // Check if any stack has an empty chairs array
+        const emptyChairStack = gridData.stacks.find(
+            (stack) => stack.chairs.length === 0
+        );
+        if (emptyChairStack) {
+            errorMessage = `Stack at ${emptyChairStack.location} (row-column) has no chairs. Place at least one chair for each stack.`;
+        } else if (!gridData.robot) {
+            errorMessage = "No robot placed in the layout.";
+        }
+    }
+
     // Convert the grid data object to a JSON string
     const gridDataJson = JSON.stringify(gridData, null, 2); // Pretty print the JSON
 
@@ -107,6 +127,11 @@ const sendData = () => {
 
     const gridDataJson = generateGridDataJson();
     console.log(gridDataJson);
+
+    if (errorMessage) {
+        alert(errorMessage);
+        return;
+    }
 
     fetch("http://localhost:8082/send", {
         method: "POST",
@@ -135,6 +160,8 @@ const sendData = () => {
 
     // Save the updated room state in local storage under the current layout name
     localStorage.setItem(layoutName, generateGridDataJson());
+
+    displayLayoutData();
 };
 
 initiateRobotButton.addEventListener("click", sendData);

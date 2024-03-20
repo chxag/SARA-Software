@@ -32,10 +32,21 @@ input[type="submit"],
     align-items: center;
 }
 
+#fileInput {
+    width: 100%;
+    max-width: 250px;
+}
+
 #dimensions {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+#premade-templates div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #saved-layouts,
@@ -47,11 +58,12 @@ input[type="submit"],
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    width: 75%;
     padding: 10px;
     margin: 10px auto;
     border: 1px solid black;
     border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
 }
 
 .layout-item {
@@ -77,6 +89,7 @@ button {
     background-color: white;
     border: 1px solid black;
     border-radius: 5px;
+    color: black;
     cursor: pointer;
     outline: none;
 }
@@ -92,7 +105,8 @@ button:hover {
 }
 
 .grey-out {
-    color: #1010104d;
+    /* color: #1010104d; */
+    opacity: 0.5;
 }
 
 #legend {
@@ -271,7 +285,8 @@ button:hover {
     position: fixed;
     bottom: 100px;
     left: 50%;
-    width: 70%;
+    width: 90%;
+    max-width: 300px;
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
@@ -314,31 +329,170 @@ button:hover {
     padding: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 1000;
+    padding: 10px;
 }
 
 #stack-counter p {
     margin: 0;
 }
 
-.grid-buttons {
-    width: 25%;
+#initiateRobot {
+    width: 90%;
+    max-width: 500px;
 }
 
-#send-div {
+#buttons-div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    margin: 20px;
+}
+
+.grid-buttons {
+    min-height: 5em;
+}
+
+#grid-buttons-div {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
-    margin: 20px auto 20px auto;
+    justify-content: space-evenly;
+    width: 90%;
+    max-width: 500px;
 }
 
 #tutorial {
-    text-align: justify;
-    width: 70%;
-    margin: auto auto 170px auto;
+    width: 100%;
+    margin: auto auto 200px auto;
+    text-align: center;
 }
 
-#tutorial p {
-    margin-bottom: 10px;
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#tutorialImage {
+    max-width: 100%;
+    margin: 20px 0;
+}
+
+#tutorialImages {
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    max-width: 1000px;
+    margin: auto;
+}
+
+#tutorialText {
+    max-width: 500px;
+    width: 100%;
+    margin: auto;
+}
+
+.tutorial-image {
+    max-width: 100%; /* Ensure images do not exceed the content width */
+    border: 1px solid black;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 5px auto;
+    max-height: 60vh;
+}
+
+.tutorial-overlay {
+    /* Other styles remain unchanged */
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
+    justify-content: center;
+}
+
+.tutorial-content {
+    background: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    width: 90%; /* Fixed width */
+    height: 90%; /* Fixed height */
+    overflow-y: auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensure space between content and navigation */
+}
+
+.tutorial-header {
+    display: flex;
+    justify-content: center; /* Center children */
+    align-items: center;
+    position: relative; /* Needed for absolute positioning of the close button */
+    width: 100%;
+}
+
+#tutorialTitle {
+    text-align: center;
+    font-size: 1.5em; /* Adjust font size as needed */
+}
+
+#closeTutorial {
+    position: absolute; /* Position the button absolutely within the header */
+    right: 20px; /* Adjust based on your layout */
+    top: 50%;
+    transform: translateY(-50%); /* Center the button vertically */
+    cursor: pointer;
+}
+
+.tutorial-main-content {
+    overflow-y: auto;
+    flex-grow: 1; /* Allow this section to take up available space */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+.tutorial-main-content::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome, Safari and Opera */
+}
+
+.tutorial-navigation {
+    display: flex;
+    justify-content: center;
+    flex-shrink: 1;
+}
+
+.tutorial-nav-button {
+    flex: 1; /* Equal width for all buttons */
+    max-width: 30px;
+    white-space: nowrap; /* Prevent text breaking */
+    margin: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tutorial-nav-button.active {
+    border-color: #048;
+    background-color: rgba(0, 68, 136, 0.7);
+    color: white;
+}
+
+.hidden {
+    display: none;
 }
 
 /* For smaller screens */
@@ -357,4 +511,50 @@ button:hover {
         height: 30px;
         font-size: 1em;
     }
+}
+
+#moveControls.show {
+    display: grid;
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    margin: auto;
+    width: 90%;
+    max-width: 300px;
+    transform: translateX(-50%);
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    gap: 5px; /* Minimal gap for visual separation */
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#toggleSelectMode {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+}
+
+#moveUp {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+}
+
+#moveLeft {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+}
+
+#moveRight {
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+}
+
+#moveDown {
+    grid-column: 2 / 3;
+    grid-row: 3 / 4;
 }

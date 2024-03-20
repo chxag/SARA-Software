@@ -146,10 +146,7 @@ function rotateChair(gridItem, isQuickClick) {
 
     if (isQuickClick) {
         // For a quick click, rotate the chair image by 90 degrees immediately
-        let currentRotation = parseInt(chairImage.dataset.rotation); // Directly use dataset.rotation which should always be set
-        currentRotation = (currentRotation + 90) % 360; // Increment by 90 degrees, wrap around at 360
-        chairImage.dataset.rotation = currentRotation; // Update rotation in dataset
-        chairImage.style.transform = `rotate(${currentRotation}deg)`;
+        rotateByAngle(chairImage, 90);
     } else {
         // For holding, show the rotation control panel and highlight the chair
         if (chairContainer !== selectedRotatingChair) {
@@ -181,26 +178,301 @@ function rotateChair(gridItem, isQuickClick) {
     }
 }
 
-function moveChair(gridItem) {
-    if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
-    if (gridItem.classList.contains("black")) return; // Skip if there's an obstacle
+function rotateByAngle(chairImage, angle) {
+    // Extract the current rotation angle from the transform style
+    const currentTransform = chairImage.style.transform;
+    const rotationMatch = currentTransform.match(/rotate\(([-\d.]+)deg\)/);
+    let currentRotation = rotationMatch ? parseFloat(rotationMatch[1]) : 0;
 
-    const chairContainer = gridItem.querySelector(".chair-container-in-grid");
+    // Calculate the new display rotation, taking overflow past 360 into account
+    let newDisplayRotation = currentRotation + angle;
 
-    // If there's a selected chair to move and the current grid item is empty
-    if (selectedMovingChair && !chairContainer) {
-        // Move the selected chair to the new grid item
-        gridItem.appendChild(selectedMovingChair);
-    } else if (chairContainer !== selectedMovingChair) {
-        if (selectedMovingChair) {
-            selectedMovingChair.classList.remove("highlighted-yellow");
-        }
-        chairContainer.classList.add("highlighted-yellow");
-        selectedMovingChair = chairContainer;
-    } else if (selectedMovingChair) {
-        selectedMovingChair.classList.remove("highlighted-yellow");
-        selectedMovingChair = null;
+    // Update the dataset rotation to be within the 0-360 range
+    let datasetRotation = ((newDisplayRotation % 360) + 360) % 360;
+    chairImage.dataset.rotation = datasetRotation;
+
+    // Apply the updated rotation for a smooth transition
+    chairImage.style.transform = `rotate(${newDisplayRotation}deg)`;
+
+    if (selectedRotatingChair) {
+        selectedRotatingChair.classList.remove("highlighted-yellow");
+        selectedRotatingChair = null;
     }
+    document.getElementById("rotateControlPanel").style.display = "none";
+}
+
+document.addEventListener("keydown", function (event) {
+    const existingPreview = document.querySelector(".preview-chair-container");
+    if (currentMode === "stack" || currentMode === "place") {
+        if (!existingPreview) return;
+        switch (event.key.toLowerCase()) {
+            case "q":
+                defaultRotationDegree =
+                    (((defaultRotationDegree - 90) % 360) + 360) % 360;
+                break;
+            case "w":
+                defaultRotationDegree =
+                    (((defaultRotationDegree - 10) % 360) + 360) % 360;
+                break;
+            case "e":
+                defaultRotationDegree =
+                    (((defaultRotationDegree + 10) % 360) + 360) % 360;
+                break;
+            case "r":
+                defaultRotationDegree =
+                    (((defaultRotationDegree + 90) % 360) + 360) % 360;
+                break;
+            case "t":
+                defaultRotationDegree =
+                    (((defaultRotationDegree - 180) % 360) + 360) % 360;
+                break;
+        }
+        previewChair(hoveredGridItem);
+    } else if (currentMode === "rotate" && hoveredGridItem) {
+        const chairContainer = hoveredGridItem.querySelector(
+            ".chair-container-in-grid"
+        );
+        if (!chairContainer) return;
+
+        const chairImage = chairContainer.querySelector(".chair-in-grid");
+        if (!chairImage) return;
+
+        switch (event.key.toLowerCase()) {
+            case "q":
+                rotateByAngle(chairImage, -90);
+                break;
+            case "w":
+                rotateByAngle(chairImage, -10);
+                break;
+            case "e":
+                rotateByAngle(chairImage, 10);
+                break;
+            case "r":
+                rotateByAngle(chairImage, 90);
+                break;
+            case "t":
+                rotateByAngle(chairImage, -180);
+                break;
+        }
+        highlightInaccessibleChairs();
+    }
+});
+
+function moveChair(gridItem) {
+    const chairContainer = gridItem.querySelector(".chair-container-in-grid");
+    if (isMultiSelectEnabled) {
+        if (
+            chairContainer &&
+            !chairContainer.classList.contains("highlighted-yellow")
+        ) {
+            chairContainer.classList.add("highlighted-yellow");
+        } else if (
+            chairContainer &&
+            chairContainer.classList.contains("highlighted-yellow")
+        ) {
+            chairContainer.classList.remove("highlighted-yellow");
+        }
+    } else {
+        if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
+        if (gridItem.classList.contains("black")) return; // Skip if there's an obstacle
+
+        const chairContainer = gridItem.querySelector(
+            ".chair-container-in-grid"
+        );
+
+        // If there's a selected chair to move and the current grid item is empty
+        if (selectedMovingChair && !chairContainer) {
+            // Move the selected chair to the new grid item
+            gridItem.appendChild(selectedMovingChair);
+        } else if (chairContainer !== selectedMovingChair) {
+            if (selectedMovingChair) {
+                selectedMovingChair.classList.remove("highlighted-yellow");
+            }
+            chairContainer.classList.add("highlighted-yellow");
+            selectedMovingChair = chairContainer;
+        } else if (selectedMovingChair) {
+            selectedMovingChair.classList.remove("highlighted-yellow");
+            selectedMovingChair = null;
+        }
+    }
+}
+
+document.addEventListener("keydown", function (event) {
+    if (currentMode === "move") {
+        if (event.key.toLowerCase() === "e") toggleSelectMode();
+        if (event.key.toLowerCase() === "q") {
+            // Clear any multi-selection
+            const selectedChairs = Array.from(
+                document.querySelectorAll(".highlighted-yellow")
+            );
+            selectedChairs.forEach((chair) =>
+                chair.classList.remove("highlighted-yellow")
+            );
+            selectedMovingChair = null;
+
+            const existingPreview = document.querySelector(
+                ".preview-chair-container"
+            );
+            const existingRobotPreview = document.querySelector(
+                ".preview-robot-in-grid"
+            );
+            if (existingPreview) existingPreview.remove();
+            if (existingRobotPreview) existingRobotPreview.remove();
+        }
+    }
+});
+
+document
+    .getElementById("toggleSelectMode")
+    .addEventListener("click", toggleSelectMode);
+
+let isMultiSelectEnabled = false;
+
+function toggleSelectMode() {
+    isMultiSelectEnabled = !isMultiSelectEnabled;
+    document.getElementById("toggleSelectMode").textContent =
+        isMultiSelectEnabled
+            ? "Switch to Single-Select"
+            : "Switch to Multi-Select";
+    if (!isMultiSelectEnabled) {
+        // Clear any multi-selection
+        const selectedChairs = Array.from(
+            document.querySelectorAll(".highlighted-yellow")
+        );
+        selectedChairs.forEach((chair) =>
+            chair.classList.remove("highlighted-yellow")
+        );
+    }
+}
+
+document.addEventListener("keydown", function (event) {
+    // Handling movement through keyboard inputs when in move mode and multi-select is enabled
+    if (currentMode === "move") {
+        switch (
+            event.key.toLowerCase() // Use toLowerCase() for simplicity
+        ) {
+            case "w":
+            case "arrowup":
+                moveSelectedChairs("up");
+                event.preventDefault(); // Prevent default action (scrolling) when pressing arrow keys
+                break;
+            case "s":
+            case "arrowdown":
+                moveSelectedChairs("down");
+                event.preventDefault();
+                break;
+            case "a":
+            case "arrowleft":
+                moveSelectedChairs("left");
+                event.preventDefault();
+                break;
+            case "d":
+            case "arrowright":
+                moveSelectedChairs("right");
+                event.preventDefault();
+                break;
+        }
+    }
+});
+
+// Adding event listeners for the movement buttons
+document
+    .getElementById("moveUp")
+    .addEventListener("click", () => moveSelectedChairs("up"));
+document
+    .getElementById("moveDown")
+    .addEventListener("click", () => moveSelectedChairs("down"));
+document
+    .getElementById("moveLeft")
+    .addEventListener("click", () => moveSelectedChairs("left"));
+document
+    .getElementById("moveRight")
+    .addEventListener("click", () => moveSelectedChairs("right"));
+
+function moveSelectedChairs(direction) {
+    const selectedChairs = Array.from(
+        document.querySelectorAll(".highlighted-yellow")
+    );
+    let moveAttempts = new Map();
+    let cancellations = new Set();
+
+    // Prepare move attempts
+    selectedChairs.forEach((chair) => {
+        const currentId = chair.parentElement.id;
+        const [prefix, row, col] = currentId.split("-");
+        let [targetRow, targetCol] = [parseInt(row), parseInt(col)];
+
+        switch (direction) {
+            case "up":
+                targetRow--;
+                break;
+            case "down":
+                targetRow++;
+                break;
+            case "left":
+                targetCol--;
+                break;
+            case "right":
+                targetCol++;
+                break;
+        }
+
+        const targetId = `item-${targetRow}-${targetCol}`;
+        moveAttempts.set(chair, { currentId, targetId });
+    });
+
+    // Validate moves
+    moveAttempts.forEach(({ targetId }, chair) => {
+        const targetCell = document.getElementById(targetId);
+        if (
+            !targetCell ||
+            targetCell.classList.contains("black") ||
+            targetCell.querySelector(".robot-in-grid")
+        ) {
+            cancellations.add(chair);
+        } else {
+            const targetChair = targetCell.querySelector(
+                ".chair-container-in-grid"
+            );
+            if (targetChair && !selectedChairs.includes(targetChair)) {
+                cancellations.add(chair);
+            }
+        }
+    });
+
+    let revalidationNeeded;
+    do {
+        revalidationNeeded = false;
+        moveAttempts.forEach(({ targetId }, chair) => {
+            if (cancellations.has(chair)) return; // Skip cancelled moves
+
+            // Check if the target cell is the start cell of a cancelled move
+            for (let cancelledChair of cancellations) {
+                if (moveAttempts.get(cancelledChair).currentId === targetId) {
+                    cancellations.add(chair); // Cancel this move as well
+                    revalidationNeeded = true;
+                    break;
+                }
+            }
+        });
+    } while (revalidationNeeded);
+
+    // Execute valid moves
+    moveAttempts.forEach(({ targetId }, chair) => {
+        if (!cancellations.has(chair)) {
+            const targetCell = document.getElementById(targetId);
+            // Check and remove any existing preview chair in the target cell
+            const previewChair = targetCell.querySelector(
+                ".preview-chair-container"
+            );
+            if (previewChair) {
+                targetCell.removeChild(previewChair);
+            }
+            targetCell.appendChild(chair);
+        }
+    });
+
+    highlightInaccessibleChairs();
 }
 
 function deleteChair(gridItem) {

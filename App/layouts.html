@@ -72,7 +72,33 @@
         </div>
 
         <div id="premade-templates">
-            <h2>Premade Templates</h2>
+            <h2>Template</h2>
+
+            <div>
+                <label for="rows">Dimensions - Rows (Height):</label>
+                <input type="number" id="rows" min="1" />
+            </div>
+            <div>
+                <label for="columns">Dimensions - Columns (Width):</label>
+                <input type="number" id="columns" min="1" />
+            </div>
+            <div>
+                <label for="numRows">Rows of Chairs:</label>
+                <input type="number" id="numRows" min="1" />
+            </div>
+            <div>
+                <label for="chairsPerRow">Chairs Per Row (Each Side):</label>
+                <input type="number" id="chairsPerRow" min="1" />
+            </div>
+            <div>
+                <label for="aisleGap">Aisle Gap (Grid Units):</label>
+                <input type="number" id="aisleGap" min="1" />
+            </div>
+            <div>
+                <label for="rowGap">Row Gap (Grid Units):</label>
+                <input type="number" id="rowGap" min="1" />
+            </div>
+            <button id="generateLayout">Generate Layout</button>
         </div>
 
         <script src="layouts.js"></script>

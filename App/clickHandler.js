@@ -26,6 +26,7 @@ gridContainer.addEventListener("pointerdown", (event) => {
                 }
             }, 300); // Differentiate between click and hold
         } else {
+            hoveredGridItem = null;
             handleGridClick(event);
         }
     }
@@ -60,7 +61,7 @@ document.addEventListener("pointerup", (event) => {
 });
 
 // When mouse is held down and hovering over a grid item
-gridContainer.addEventListener("pointerover", (event) => {
+document.addEventListener("pointerover", (event) => {
     const gridItem = event.target.closest(".grid-item");
     hoveredGridItem = gridItem;
 
@@ -82,57 +83,7 @@ gridContainer.addEventListener("pointerover", (event) => {
     }
 
     // Previewing implementation
-
-    // Clear any previously shown preview chair
-    const existingPreview = document.querySelector(".preview-chair-container");
-    const existingRobotPreview = document.querySelector(
-        ".preview-robot-in-grid"
-    );
-    if (existingPreview) existingPreview.remove();
-    if (existingRobotPreview) existingRobotPreview.remove();
-
-    if (
-        !gridItem ||
-        gridItem.querySelector(".chair-container-in-grid") ||
-        gridItem.querySelector(".robot-in-grid") ||
-        gridItem.classList.contains("black")
-    ) {
-        // Exit if not hovering over a grid item or if the grid item contains a chair, a robot, or is an obstacle
-        return;
-    }
-
-    // Show a preview chair based on the current mode
-    if (currentMode === "stack") {
-        const previewChairContainer = createPreviewChair();
-        gridItem.appendChild(previewChairContainer);
-    } else if (currentMode === "move" && selectedMovingChair) {
-        // Get the rotation degree of the selected moving chair
-        const selectedChairImage =
-            selectedMovingChair.querySelector(".chair-in-grid");
-        const rotationDegree = selectedChairImage
-            ? parseInt(selectedChairImage.dataset.rotation) || 0
-            : defaultRotationDegree;
-
-        const previewChairContainer = createPreviewChair(rotationDegree);
-        gridItem.appendChild(previewChairContainer);
-    } else if (currentMode === "place" && selectedStack) {
-        const stackText = selectedStack.querySelector(
-            ".chair-text-in-grid"
-        ).textContent; // e.g., "S1"
-        if (
-            allocatedCNumbersByStack[stackText] < maxChairsPerStack ||
-            allocatedCNumbersByStack[stackText] === undefined
-        ) {
-            const previewChairContainer = createPreviewChair();
-            gridItem.appendChild(previewChairContainer);
-        }
-    } else if (currentMode === "robot") {
-        const previewRobot = document.createElement("img");
-        previewRobot.src = "robot.png";
-        previewRobot.alt = "Preview Robot";
-        previewRobot.className = "preview-robot-in-grid";
-        gridItem.appendChild(previewRobot);
-    }
+    previewChair(hoveredGridItem);
 });
 
 function handleGridClick(event) {
@@ -182,6 +133,63 @@ document.getElementById("rotationButton").addEventListener("click", () => {
     const rotationRangeValue = document.getElementById("rotationRange").value;
     defaultRotationDegree = parseInt(rotationRangeValue); // Update the default rotation degree
 });
+
+function previewChair(gridItem) {
+    // Clear any previously shown preview chair
+    const existingPreview = document.querySelector(".preview-chair-container");
+    const existingRobotPreview = document.querySelector(
+        ".preview-robot-in-grid"
+    );
+    if (existingPreview) existingPreview.remove();
+    if (existingRobotPreview) existingRobotPreview.remove();
+
+    if (
+        !gridItem ||
+        gridItem.querySelector(".chair-container-in-grid") ||
+        gridItem.querySelector(".robot-in-grid") ||
+        gridItem.classList.contains("black")
+    ) {
+        // Exit if not hovering over a grid item or if the grid item contains a chair, a robot, or is an obstacle
+        return;
+    }
+
+    // Show a preview chair based on the current mode
+    if (currentMode === "stack") {
+        const previewChairContainer = createPreviewChair();
+        gridItem.appendChild(previewChairContainer);
+    } else if (
+        currentMode === "move" &&
+        selectedMovingChair &&
+        !isMultiSelectEnabled
+    ) {
+        // Get the rotation degree of the selected moving chair
+        const selectedChairImage =
+            selectedMovingChair.querySelector(".chair-in-grid");
+        const rotationDegree = selectedChairImage
+            ? parseInt(selectedChairImage.dataset.rotation) || 0
+            : defaultRotationDegree;
+
+        const previewChairContainer = createPreviewChair(rotationDegree);
+        gridItem.appendChild(previewChairContainer);
+    } else if (currentMode === "place" && selectedStack) {
+        const stackText = selectedStack.querySelector(
+            ".chair-text-in-grid"
+        ).textContent; // e.g., "S1"
+        if (
+            allocatedCNumbersByStack[stackText] < maxChairsPerStack ||
+            allocatedCNumbersByStack[stackText] === undefined
+        ) {
+            const previewChairContainer = createPreviewChair();
+            gridItem.appendChild(previewChairContainer);
+        }
+    } else if (currentMode === "robot") {
+        const previewRobot = document.createElement("img");
+        previewRobot.src = "robot.png";
+        previewRobot.alt = "Preview Robot";
+        previewRobot.className = "preview-robot-in-grid";
+        gridItem.appendChild(previewRobot);
+    }
+}
 
 function createPreviewChair(rotationDegree = defaultRotationDegree) {
     // Create a container for the preview chair

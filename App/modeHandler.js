@@ -12,17 +12,11 @@ const modeLogos = {
 
 const keyModeMapping = {
     1: "stack",
-    S: "stack",
     2: "place",
-    P: "place",
     3: "rotate",
-    R: "rotate",
     4: "move",
-    M: "move",
     5: "delete",
-    D: "delete",
     6: "robot",
-    X: "robot",
 };
 
 document.addEventListener("keydown", function (event) {
@@ -48,6 +42,14 @@ function toggleMode(selectedMode) {
         );
     currentMode = currentMode === selectedMode ? null : selectedMode; // If selected mode is the current mode, current mode becomes nothing
     updateUIModes();
+
+    if (currentMode === null) {
+        displayLayoutData();
+    } else {
+        document
+            .querySelectorAll(".chair-in-grid")
+            .forEach((el) => el.classList.remove("grey-out"));
+    }
 
     selectedStack = null;
     selectedRotatingChair = null;
@@ -75,6 +77,8 @@ function toggleMode(selectedMode) {
 
     document.getElementById("stack-counter").style.display = "none";
     document.getElementById("rotateControlPanel").style.display = "none";
+
+    toggleMoveControls(currentMode === "move");
 }
 
 // Function for green border around mode logo, and also for which mode is active
@@ -90,4 +94,15 @@ function updateUIModes() {
                 modeLogos[deactivateMode].classList.remove("active-mode");
             });
     });
+}
+
+function toggleMoveControls(show) {
+    const moveControls = document.getElementById("moveControls");
+    if (show) {
+        moveControls.classList.add("show");
+        moveControls.classList.remove("hidden");
+    } else {
+        moveControls.classList.remove("show");
+        moveControls.classList.add("hidden");
+    }
 }

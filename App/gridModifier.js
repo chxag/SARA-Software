@@ -128,10 +128,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const gridDataJson = localStorage.getItem(
             decodeURIComponent(layoutName)
         );
-        if (gridDataJson) {
+        try {
+            // Attempt to parse the item value as JSON
+            JSON.parse(gridDataJson);
             createSavedGrid(gridDataJson);
-        } else {
+        } catch (e) {
             alert("Layout not found in LocalStorage.");
+            window.history.replaceState(null, "", window.location.pathname);
             createGrid();
         }
     } else if (useTempLayout === "true") {
@@ -143,6 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
             sessionStorage.removeItem("tempLayout");
         } else {
             alert("No layout data found.");
+            window.history.replaceState(null, "", window.location.pathname);
             createGrid();
         }
     } else {
@@ -150,6 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
         createGrid();
     }
     updateGridCentering();
+    displayLayoutData();
 });
 
 window.addEventListener("resize", updateGridCentering);
