@@ -166,13 +166,21 @@ function rotateLayout(gridDataJson) {
     const newRows = gridData.dimensions.columns;
     const newColumns = gridData.dimensions.rows;
 
-    // Initialize new grid data with rotated dimensions and robot position
+    // Initialize new grid data with rotated dimensions
     const newGridData = {
         dimensions: { rows: newRows, columns: newColumns },
-        robot: gridData.robot, // Robot position remains the same
+        robot: null, // We'll calculate the new robot position
         stacks: [],
         obstacles: [],
     };
+
+    // Rotate robot position if it exists
+    if (gridData.robot) {
+        const [robotRow, robotColumn] = gridData.robot.split("-").map(Number);
+        const newRobotRow = robotColumn;
+        const newRobotColumn = gridData.dimensions.rows - robotRow + 1;
+        newGridData.robot = `${newRobotRow}-${newRobotColumn}`;
+    }
 
     // Rotate stacks and chairs
     gridData.stacks.forEach((stack) => {
