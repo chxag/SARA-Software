@@ -110,9 +110,10 @@ def execute_sara(grid_data):
             stack_y = ord(stack_loc[-1]) - ord('0')
             rel_stack_x = stack_x - center_x
             rel_stack_y = stack_y - center_y
-            to_stack = str(rel_stack_x) + ' '+ str(rel_stack_y)
+            to_stack = str(rel_stack_x) + ' '+ str(rel_stack_y) + ' 0'
             to_stack_split = to_stack.split(' ')
-            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py", to_stack_split[0], to_stack_split[1], "0"] + [str(j) for j in stack_rot_quat])#input=to_stack.encode('utf-8'))
+            stack_rot_quat = [str(j) for j in stack_rot_quat]
+            subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py", to_stack_split[0], to_stack_split[1], to_stack_split[2], stack_rot_quat[0], stack_rot_quat[1], stack_rot_quat[2], stack_rot_quat[3]])#input=to_stack.encode('utf-8'))
             
             for chair in stack.chairs: 
                 chair_loc = chair.location
@@ -129,11 +130,12 @@ def execute_sara(grid_data):
                 rel_chair_x = chair_x - center_x
                 rel_chair_y = chair_y - center_y
                 
-                to_chair = str(rel_chair_x) + ' '+ str(rel_chair_y)
+                to_chair = str(rel_chair_x) + ' '+ str(rel_chair_y) + ' 0'
                 to_chair_split = to_chair.split(' ')
                 robot_goal = str(rel_robot_pos_x) + ' '+ str(rel_robot_pos_y)
                 robot_goal_split = robot_goal.split(' ')
-                subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py", to_chair_split[0], to_chair_split[1], "0"] + [str(q) for q in chair_rot_quat])#input=to_chair.encode('utf-8'))
+                chair_rot_quat = [str(q) for q in chair_rot_quat]
+                subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py", to_chair_split[0], to_chair_split[1], to_chair_split[2],  chair_rot_quat[0], chair_rot_quat[1], chair_rot_quat[2], chair_rot_quat[3]])#input=to_chair.encode('utf-8'))
                 subprocess.run(["python3", "../auto_nav/scripts/goal_pose.py", robot_goal_split[0], robot_goal_split[1], "0", "0", "0", "0.662", "0.750"])#input=robot_goal.encode('utf-8'))
 
 if __name__ == "__main__":
