@@ -159,6 +159,8 @@ function createSavedGrid(gridDataJson) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    document.title = "SARA";
+
     // Set a timeout of 1 second to check for image load completion
     setTimeout(() => {
         const allImagesLoaded = Array.from(
@@ -185,6 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
             JSON.parse(gridDataJson);
             createSavedGrid(gridDataJson);
             localStorage.setItem("previousLayout", layoutName);
+            document.title = `${layoutName} - SARA`;
         } catch (e) {
             // alert(e);
             window.history.replaceState(null, "", window.location.pathname);

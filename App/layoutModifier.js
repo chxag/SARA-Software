@@ -109,6 +109,7 @@ function saveCurrentLayout() {
             "",
             `?layoutName=${encodeURIComponent(layoutName)}`
         );
+        document.title = `${layoutName} - SARA`;
 
         displayLayoutData();
     }
