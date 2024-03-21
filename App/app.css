@@ -453,8 +453,8 @@ button:hover {
     position: absolute;
     right: 0;
     top: 0;
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     display: flex;
     cursor: pointer;
     justify-content: center;
