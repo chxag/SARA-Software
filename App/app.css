@@ -445,13 +445,13 @@ button:hover {
 #tutorialTitle {
     text-align: center;
     font-size: 1.5em; /* Adjust font size as needed */
+    width: 80%;
 }
 
 #closeTutorial {
     position: absolute; /* Position the button absolutely within the header */
-    right: 20px; /* Adjust based on your layout */
-    top: 50%;
-    transform: translateY(-50%); /* Center the button vertically */
+    right: 0;
+    top: 0;
     cursor: pointer;
 }
 
