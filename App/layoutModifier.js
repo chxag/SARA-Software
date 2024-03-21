@@ -171,6 +171,8 @@ document.getElementById("rotate-layout").addEventListener("click", () => {
 });
 
 function rotateLayout(gridDataJson) {
+    if (currentMode != null) toggleMode(currentMode);
+
     const gridData = JSON.parse(gridDataJson);
 
     // Swap dimensions
