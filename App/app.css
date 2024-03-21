@@ -444,15 +444,21 @@ button:hover {
 
 #tutorialTitle {
     text-align: center;
-    font-size: 1.5em; /* Adjust font size as needed */
-    width: 80%;
+    font-size: 1.1em;
+    font-weight: bold;
+    width: 75%;
 }
 
 #closeTutorial {
-    position: absolute; /* Position the button absolutely within the header */
+    position: absolute;
     right: 0;
     top: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
     cursor: pointer;
+    justify-content: center;
+    align-items: center;
 }
 
 .tutorial-main-content {
