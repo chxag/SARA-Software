@@ -121,6 +121,7 @@ document
     .addEventListener("click", saveCurrentLayout);
 
 function clearLayout() {
+    if (currentMode != null) toggleMode(currentMode);
     const chairContainers = document.querySelectorAll(
         ".chair-container-in-grid"
     );
