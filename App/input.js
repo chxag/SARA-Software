@@ -22,8 +22,7 @@ document.getElementById("uploadData").addEventListener("click", function () {
         .then((response) => response.json())
         .then((result) => {
             console.log("File uploaded successfully:", result);
-            const gridDataFilename = result.gridDataFilename; // Assuming this is the key for the filename in the response
-            localStorage.setItem("gridDataFilename", gridDataFilename); // Store filename in localStorage
+            localStorage.setItem("pgmTransfer", true);
             window.location.href = "index.html"; // Redirect to index.html
         })
         .catch((error) => {

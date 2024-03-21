@@ -22,41 +22,49 @@ function createGrid() {
         createGridFromDimensions(rows, columns);
         localStorage.removeItem("previousLayout");
     } else {
-        fetch("http://localhost:8082/latest_grid_data")
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("No grid data available");
-                }
-                return response.json();
-            })
-            .then((gridData) => {
-                // console.log(gridData);
-                createGridFromData(gridData);
-                localStorage.removeItem("previousLayout");
-            })
-            .catch((error) => {
-                console.error("Error fetching grid data:", error);
+        const pgmTransfer = localStorage.getItem("pgmTransfer");
+        if (pgmTransfer) {
+            fetch("http://localhost:8082/latest_grid_data")
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("No grid data available");
+                    }
+                    return response.json();
+                })
+                .then((gridData) => {
+                    createGridFromData(gridData);
+                    localStorage.removeItem("previousLayout");
+                    localStorage.removeItem("pgmTransfer");
+                })
+                .catch((error) => {
+                    console.error("Error fetching grid data:", error);
+                    {
+                        rows = 5;
+                        columns = 5;
+                        createGridFromDimensions(rows, columns); // Fallback grid size
+                    }
+                });
+        } else {
+            const previousLayout = localStorage.getItem("previousLayout");
 
-                const previousLayout = localStorage.getItem("previousLayout");
+            if (previousLayout) {
+                window.location.href = `index.html?layoutName=${previousLayout}`;
+                return;
+            }
 
-                if (previousLayout) {
-                    window.location.href = `index.html?layoutName=${previousLayout}`;
-                    return;
-                }
+            localStorage.removeItem("previousLayout");
 
-                localStorage.removeItem("previousLayout");
-
-                // alert("Invalid grid data. Using fallback grid size.");
-                const mostRecentGrid = localStorage.getItem("mostRecentGrid");
-                const data = JSON.parse(mostRecentGrid);
-                if (mostRecentGrid && data.dimensions != null) {
-                    createSavedGrid(mostRecentGrid); // Load the most recent grid as default
-                } else {
-                    rows = 5;
-                    columns = 5;
-                    createGridFromDimensions(rows, columns); // Fallback grid size
-                }
-            });
+            // alert("Invalid grid data. Using fallback grid size.");
+            const mostRecentGrid = localStorage.getItem("mostRecentGrid");
+            const data = JSON.parse(mostRecentGrid);
+            if (mostRecentGrid && data.dimensions != null) {
+                createSavedGrid(mostRecentGrid); // Load the most recent grid as default
+            } else {
+                rows = 5;
+                columns = 5;
+                createGridFromDimensions(rows, columns); // Fallback grid size
+            }
+        }
     }
 }
 
@@ -168,12 +176,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ).every((img) => img.complete);
 
         if (!allImagesLoaded) {
-            console.log(
-                "Not all images were loaded within 1 second. Refreshing..."
-            );
             window.location.reload(); // Refresh the page
-        } else {
-            console.log("All images loaded successfully.");
         }
     }, 1000); // 1000 milliseconds = 1 second
 
