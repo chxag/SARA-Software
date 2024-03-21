@@ -145,6 +145,11 @@ document.getElementById("clear-layout").addEventListener("click", () => {
 });
 
 document.getElementById("rotate-layout").addEventListener("click", () => {
+    const prompt = confirm("Are you sure you want to rotate the layout?");
+    if (!prompt) {
+        return;
+    }
+
     // Generate the current layout's JSON
     const currentLayoutJson = generateGridDataJson();
 
