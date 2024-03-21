@@ -93,6 +93,10 @@ function saveCurrentLayout() {
     if (layoutName) {
         // Save layout in localStorage
         localStorage.setItem(layoutName, gridDataJson);
+
+        localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
+        localStorage.setItem("previousLayout", layoutName);
+
         alert("Layout saved successfully.");
 
         // Update the layoutName variable with the new name
@@ -149,7 +153,6 @@ document.getElementById("rotate-layout").addEventListener("click", () => {
     // Clear the current layout, including removing chairs, stacks, and the robot
     clearLayout();
 
-    const gridContainer = document.querySelector(".grid-container");
     gridContainer.innerHTML = ""; // Clear existing grid items
 
     // Re-create the grid based on the rotated layout JSON
@@ -157,6 +160,8 @@ document.getElementById("rotate-layout").addEventListener("click", () => {
 
     // Ensure any UI updates or additional logic that needs to run after rotating the layout
     displayLayoutData();
+
+    updateGridCentering();
 });
 
 function rotateLayout(gridDataJson) {

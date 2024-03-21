@@ -187,6 +187,10 @@ button:hover {
     height: 40px;
 }
 
+#loading-text {
+    text-align: center;
+}
+
 .grid-container {
     display: grid;
     grid-template-columns: repeat(1, 100px);
@@ -466,20 +470,21 @@ button:hover {
     display: flex;
     justify-content: center;
     flex-shrink: 1;
+    width: 100%;
 }
 
 .tutorial-nav-button {
-    flex: 1; /* Equal width for all buttons */
-    max-width: 30px;
-    white-space: nowrap; /* Prevent text breaking */
-    margin: 5px;
-    padding: 5px 10px;
+    /* flex: 1; */
+    max-width: 40px;
+    width: 10%;
+    white-space: nowrap;
+    margin: 2px;
+    padding: 5px 5px;
     cursor: pointer;
     background-color: #f0f0f0;
     border: 1px solid #ddd;
     border-radius: 5px;
     text-align: center;
-    line-height: 30px;
     display: flex;
     justify-content: center;
     align-items: center;

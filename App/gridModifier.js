@@ -8,6 +8,8 @@ const parsedRows = parseInt(urlParams.get("rows"));
 const parsedColumns = parseInt(urlParams.get("columns"));
 const useTempLayout = urlParams.get("useTempLayout");
 let layoutName = urlParams.get("layoutName");
+const loadingText = document.getElementById("loading-text");
+if (loadingText) loadingText.classList.remove("hidden");
 
 function createGrid() {
     const gridContainer = document.querySelector(".grid-container");
@@ -18,6 +20,7 @@ function createGrid() {
         rows = parsedRows;
         columns = parsedColumns;
         createGridFromDimensions(rows, columns);
+        localStorage.removeItem("previousLayout");
     } else {
         fetch("http://localhost:8082/latest_grid_data")
             .then((response) => {
@@ -29,18 +32,37 @@ function createGrid() {
             .then((gridData) => {
                 // console.log(gridData);
                 createGridFromData(gridData);
+                localStorage.removeItem("previousLayout");
             })
             .catch((error) => {
                 console.error("Error fetching grid data:", error);
+
+                const previousLayout = localStorage.getItem("previousLayout");
+
+                if (previousLayout) {
+                    window.location.href = `index.html?layoutName=${previousLayout}`;
+                    return;
+                }
+
+                localStorage.removeItem("previousLayout");
+
                 // alert("Invalid grid data. Using fallback grid size.");
-                rows = 5;
-                columns = 5;
-                createGridFromDimensions(rows, columns); // Fallback grid size
+                const mostRecentGrid = localStorage.getItem("mostRecentGrid");
+                const data = JSON.parse(mostRecentGrid);
+                if (mostRecentGrid && data.dimensions != null) {
+                    createSavedGrid(mostRecentGrid); // Load the most recent grid as default
+                } else {
+                    rows = 5;
+                    columns = 5;
+                    createGridFromDimensions(rows, columns); // Fallback grid size
+                }
             });
     }
 }
 
 function createGridFromData(gridData) {
+    if (loadingText) loadingText.classList.add("hidden");
+
     // Update rows and columns based on gridData dimensions
     rows = gridData.length;
     columns = gridData[0].length;
@@ -55,9 +77,14 @@ function createGridFromData(gridData) {
             gridContainer.appendChild(gridItem);
         }
     }
+    const gridDataJson = generateGridDataJson();
+    localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
+    updateGridCentering();
+    displayLayoutData();
 }
 
 function createGridFromDimensions(rows, columns) {
+    if (loadingText) loadingText.classList.add("hidden");
     gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
 
     for (let row = 1; row <= rows; row++) {
@@ -68,9 +95,15 @@ function createGridFromDimensions(rows, columns) {
             gridContainer.append(gridItem);
         }
     }
+
+    const gridDataJson = generateGridDataJson();
+    localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
+    updateGridCentering();
+    displayLayoutData();
 }
 
 function createSavedGrid(gridDataJson) {
+    if (loadingText) loadingText.classList.add("hidden");
     const gridData = JSON.parse(gridDataJson);
 
     // Set up the grid dimensions
@@ -119,7 +152,10 @@ function createSavedGrid(gridDataJson) {
         obstacleGridItem.classList.add("black");
     });
 
+    localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
     highlightInaccessibleChairs();
+    updateGridCentering();
+    displayLayoutData();
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -132,12 +168,14 @@ document.addEventListener("DOMContentLoaded", function () {
             // Attempt to parse the item value as JSON
             JSON.parse(gridDataJson);
             createSavedGrid(gridDataJson);
+            localStorage.setItem("previousLayout", layoutName);
         } catch (e) {
-            alert("Layout not found in LocalStorage.");
+            // alert(e);
             window.history.replaceState(null, "", window.location.pathname);
             createGrid();
         }
     } else if (useTempLayout === "true") {
+        localStorage.removeItem("previousLayout");
         // Retrieve the temporary layout from sessionStorage
         const tempLayoutJson = sessionStorage.getItem("tempLayout");
         if (tempLayoutJson) {
@@ -145,16 +183,13 @@ document.addEventListener("DOMContentLoaded", function () {
             // Optionally, clear the temporary layout from sessionStorage after use
             sessionStorage.removeItem("tempLayout");
         } else {
-            alert("No layout data found.");
+            // alert("No layout data found.");
             window.history.replaceState(null, "", window.location.pathname);
             createGrid();
         }
     } else {
-        // Your usual grid initialization logic
         createGrid();
     }
-    updateGridCentering();
-    displayLayoutData();
 });
 
 window.addEventListener("resize", updateGridCentering);

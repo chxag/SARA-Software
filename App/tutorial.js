@@ -57,6 +57,10 @@ function showTutorialStep(step) {
     if (step >= 0 && step < tutorialData.length) {
         currentStep = step; // Update current step only if within bounds
 
+        // Update tutorial title
+        document.getElementById("tutorialTitle").textContent =
+            tutorialData[step].title;
+
         const imagesContainer = document.getElementById("tutorialImages");
         imagesContainer.innerHTML = tutorialData[step].images
             .map(
@@ -79,35 +83,49 @@ function showTutorialStep(step) {
 
 const tutorialData = [
     {
-        text: "Press X on your keyboard to quickly open/close the tutorial, and A/D or Left/Right to navigate through steps. You can toggle between <strong>modes</strong> by clicking the icons in the bottom left corner, or by pressing numbers 1 to 6 on PC. There are <strong>zoom controls</strong> in the bottom right corner.",
+        title: "Tutorial",
+        text: "Press X on your keyboard to quickly open/close the tutorial, and A/D or Left/Right to navigate through tutorial steps. You can toggle between <strong>modes</strong> by clicking the icons in the bottom left corner, or by pressing numbers 1 to 6 on PC. There are <strong>zoom controls</strong> in the bottom right corner.",
         images: ["Tutorial_Images/1.png"],
     },
     {
-        text: `Activate <strong>Stack mode</strong> to place stacks on empty grid cells. Next, activate <strong>Place mode</strong> to first select a stack (e.g. "S1"), then place chairs of the selected stack (e.g. "C1 (S1)", "C2 (S1)", "C3 (S1)"). The numbering on the chairs is merely to display associations between stacks and chairs. The number of chairs per stack is limited and the remainding number of chairs for a selected stack is displayed at the bottom.`,
+        title: "Stacks and Chairs",
+        text: `In order to place chairs, you must first place a stack to take them from. Activate <strong>Stack mode</strong> to place stacks on empty grid cells. Next, activate <strong>Place mode</strong> to first select a stack (e.g. "S1"), then place chairs of the selected stack (e.g. "C1 (S1)", "C2 (S1)", "C3 (S1)"). The numbering on the chairs is merely to display associations between stacks and chairs. The number of chairs per stack is limited and the remainding number of chairs for a selected stack is displayed at the bottom.`,
         images: ["Tutorial_Images/2.png"],
     },
     {
-        text: `On PC, if you hover over an empty cell in Stack mode (or Place mode), while pressing <strong>QWERT keys</strong>, the chair rotates to another default angle (QW = anti-clockwise, ER = clockwise, T = 180). In <strong>Rotate mode</strong>, click chairs to rotate 90 degrees clockwise, or press QWERT keys while hovering over chairs to rotate more precisely. You can also hold down on a chair to open a control panel to rotate more precisely and set a default rotation angle.`,
-        images: ["Tutorial_Images/3.png", "Tutorial_Images/4.png"],
+        title: "Rotating Chairs",
+        text: `In <strong>Rotate Mode</strong>, click chairs to rotate them 90° clockwise. Hold down on a chair to open a control panel to rotate it more precisely and set a default rotation angle for future placements. On PC only, you can hover the pointer over chairs and use the <strong>QWERT keys</strong> to rotate them (Q and R rotate 90° anticlockwise and clockwise, W and E rotate 10° anticlockwise and clockwise, T rotates 180°). Additionally, you can use the QWERT keys to change the default angle before placing in Stack or Place mode.`,
+        images: ["Tutorial_Images/4.png", "Tutorial_Images/3.png"],
     },
     {
-        text: `Chairs <strong>highlighted red</strong> denote that the chair is inaccessible for SARA. The front of the chair needs to be clear for SARA to interact with it. Chairs can also be inaccessible due to no possible pathing from SARA to those chairs. SARA can be placed in <strong>Robot mode</strong>.`,
-        images: ["Tutorial_Images/5.png", "Tutorial_Images/6.png"],
-    },
-    {
-        text: `In <strong>Move mode</strong>, there are two ways to select chairs (press E to switch, Q to deselect). Both ways allow you to move the selected chairs with the buttons on the bottom, or with WASD or arrows keys on PC. In <strong>Single-Select Mode</strong>, you can select a chair and then click where it would go to.`,
+        title: "Moving Chairs",
+        text: `In <strong>Move mode</strong>, there are two ways to select chairs (press E to switch selection method, Q to deselect). Both ways allow you to move the selected chairs with the buttons on the bottom, or with WASD or arrows keys on PC. In <strong>Single-Select Mode</strong>, you can also click where you want your selected chair to go.`,
         images: ["Tutorial_Images/move1.png", "Tutorial_Images/move2.png"],
     },
     {
+        title: "Deleting Chairs and Association Highlights",
         text: `In <strong>Delete mode</strong>, deleting a stack would also delete all the associated chairs of that stack. If <strong>no modes</strong> are activated, you can click on a chair to highlight associations where stacks are highlighted yellow and their chairs are highlighted blue.`,
         images: ["Tutorial_Images/7.png"],
     },
     {
-        text: `You can <strong>save the layout</strong> by first giving it a name. Once a layout is saved, it will be considered a room SARA can operate within. Rooms are either in a stacked or unstacked state, and greyed out chairs represent chairs not physically present. You can now finally <strong>initiate the robot</strong> to start doing its work, which would eventually change the room state and greyed out chairs.`,
+        title: "Red Highlights and Robot Mode",
+        text: `Chairs <strong>highlighted red</strong> denote that the chair is inaccessible for SARA. The front of the chair needs to be clear for SARA to interact with it. Chairs can also be inaccessible due to no possible pathing from SARA to those chairs. SARA can be placed in <strong>Robot mode</strong>.`,
+        images: ["Tutorial_Images/5.png", "Tutorial_Images/6.png"],
+    },
+
+    {
+        title: "Saving Rooms and Commanding Robot",
+        text: `<strong>Save the layout</strong> by first giving it a name. Once a layout is saved, it will be considered a room SARA can operate within. Rooms are either in a stacked or unstacked state, and greyed out chairs represent chairs not physically present. You can now finally <strong>initiate the robot</strong> to start doing its work, which would eventually change the room state and greyed out chairs.`,
         images: ["Tutorial_Images/8.png", "Tutorial_Images/9.png"],
     },
     {
-        text: `You can access any room in the future in the <strong>'Choose Ready Rooms'</strong> page found at the navigation bar. You will also be able to rename and delete rooms, as well as have the JSON data associated with the rooms there. Use the <strong>Template</strong> feature to automatically generate a theatre-style layout.`,
+        title: "Creating New Rooms",
+        text: `In the <strong>New Room</strong> page, you can generate an empty grid with variable dimensions. Use the <strong>Theatre Style Layout</strong> feature to automatically generate a layout with stacks and chairs. You can also provide a .pgm file to generate a grid with obstacles.`,
+        images: ["Tutorial_Images/11.png"],
+    },
+    {
+        title: "Viewing and Loading Saved Rooms",
+        text: `Access any saved room in the <strong>Room Data</strong> page. You will also be able to rename and delete rooms, as well as have the JSON data associated with the rooms there. The JSON data can be shared and used to regenerate rooms.`,
         images: ["Tutorial_Images/10.png"],
     },
 ];

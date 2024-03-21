@@ -40,7 +40,7 @@
         </script>
         <nav class="navbar navbar-expand-sm bg-info" data-bs-theme="light">
             <div class="container-fluid">
-                <img id="logo" src="SARA_logo.png" alt="SARA Logo" />
+                <a href="index.html"><img id="logo" src="SARA_logo.png" alt="SARA Logo" /></a>
                 <button
                     class="navbar-toggler"
                     type="button"
@@ -55,11 +55,11 @@
                 <div class="collapse navbar-collapse" id="navbarText">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="input.html">Input Data</a>
+                            <a class="nav-link" href="input.html">New Room</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="layouts.html"
-                                >Choose Ready Rooms</a
+                                >Room Data</a
                             >
                         </li>
                     </ul>
@@ -69,38 +69,57 @@
 
         <div id="input">
             <div id="input-dimensions">
-                <h2>Dimensions</h2>
+                <h2>Empty Grid</h2>
                 <form action="index.html" method="GET">
                     <div id="dimensions">
-                        <label for="columns">Columns:</label>
+                        <label for="dimColumns">Dimensions - Columns (Width):</label>
                         <input
                             type="number"
                             name="columns"
                             min="1"
-                            id="columns"
+                            id="dimColumns"
+                            required
                         />
-                        <label for="rows">Rows:</label>
-                        <input type="number" name="rows" min="1" id="rows" />
+                        <label for="dimRows">Dimensions - Rows (Height):</label>
+                        <input type="number" name="rows" min="1" id="dimRows" required/>
                         <button type="submit">Generate Grid</button>
                     </div>
                 </form>
             </div>
 
-            <div id="input-pgm">
-                <h2>PGM</h2>
-                <input type="file" id="fileInput" />
-                <button id="uploadData">Generate Grid</button>
+        <div id="premade-templates">
+            <h2>Theatre Style Layout</h2>
+            <div>
+                <label for="columns">Dimensions - Columns (Width):</label>
+                <input type="number" id="columns" min="1" />
             </div>
+            <div>
+                <label for="rows">Dimensions - Rows (Height):</label>
+                <input type="number" id="rows" min="1" />
+            </div>
+            <div>
+                <label for="numRows">Rows of Chairs:</label>
+                <input type="number" id="numRows" min="1" />
+            </div>
+            <div>
+                <label for="chairsPerRow">Chairs Per Row (Each Side):</label>
+                <input type="number" id="chairsPerRow" min="1" />
+            </div>
+            <div>
+                <label for="aisleGap">Aisle Gap (Grid Units):</label>
+                <input type="number" id="aisleGap" min="1" />
+            </div>
+            <div>
+                <label for="rowGap">Row Gap (Grid Units):</label>
+                <input type="number" id="rowGap" min="1" />
+            </div>
+            <button id="generateLayout">Generate Layout</button>
+        </div>
 
-            <div id="input-json">
-                <h2>JSON</h2>
-                <textarea
-                    id="jsonData"
-                    rows="10"
-                    placeholder="Paste JSON data here"
-                ></textarea>
-                <button id="saveData">Generate Grid</button>
-            </div>
+        <div id="input-pgm">
+            <h2>Upload Map as PGM</h2>
+            <input type="file" id="fileInput" />
+            <button id="uploadData">Generate Grid</button>
         </div>
 
         <script src="input.js"></script>

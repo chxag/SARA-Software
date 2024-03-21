@@ -16,7 +16,9 @@
     <body>
         <nav class="navbar navbar-expand-sm bg-info" data-bs-theme="light">
             <div class="container-fluid">
-                <img id="logo" src="SARA_logo.png" alt="SARA Logo" />
+                <a href="index.html"
+                    ><img id="logo" src="SARA_logo.png" alt="SARA Logo"
+                /></a>
                 <button
                     class="navbar-toggler"
                     type="button"
@@ -31,11 +33,11 @@
                 <div class="collapse navbar-collapse" id="navbarText">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="input.html">Input Data</a>
+                            <a class="nav-link" href="input.html">New Room</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="layouts.html"
-                                >Choose Ready Rooms</a
+                                >Room Data</a
                             >
                         </li>
                     </ul>
@@ -102,6 +104,8 @@
             <button id="zoom-in" class="zoom-button"><span>+</span></button>
             <button id="zoom-out" class="zoom-button"><span>-</span></button>
         </div>
+
+        <h2 id="loading-text">Loading...</h2>
 
         <div class="grid-container"></div>
 

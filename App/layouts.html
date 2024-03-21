@@ -40,7 +40,7 @@
         </script>
         <nav class="navbar navbar-expand-sm bg-info" data-bs-theme="light">
             <div class="container-fluid">
-                <img id="logo" src="SARA_logo.png" alt="SARA Logo" />
+                <a href="index.html"><img id="logo" src="SARA_logo.png" alt="SARA Logo" /></a>
                 <button
                     class="navbar-toggler"
                     type="button"
@@ -55,11 +55,11 @@
                 <div class="collapse navbar-collapse" id="navbarText">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="input.html">Input Data</a>
+                            <a class="nav-link" href="input.html">New Room</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="layouts.html"
-                                >Choose Ready Rooms</a
+                                >Room Data</a
                             >
                         </li>
                     </ul>
@@ -71,35 +71,16 @@
             <h2>Saved Layouts</h2>
         </div>
 
-        <div id="premade-templates">
-            <h2>Template</h2>
-
-            <div>
-                <label for="rows">Dimensions - Rows (Height):</label>
-                <input type="number" id="rows" min="1" />
-            </div>
-            <div>
-                <label for="columns">Dimensions - Columns (Width):</label>
-                <input type="number" id="columns" min="1" />
-            </div>
-            <div>
-                <label for="numRows">Rows of Chairs:</label>
-                <input type="number" id="numRows" min="1" />
-            </div>
-            <div>
-                <label for="chairsPerRow">Chairs Per Row (Each Side):</label>
-                <input type="number" id="chairsPerRow" min="1" />
-            </div>
-            <div>
-                <label for="aisleGap">Aisle Gap (Grid Units):</label>
-                <input type="number" id="aisleGap" min="1" />
-            </div>
-            <div>
-                <label for="rowGap">Row Gap (Grid Units):</label>
-                <input type="number" id="rowGap" min="1" />
-            </div>
-            <button id="generateLayout">Generate Layout</button>
+        <div id="input-json">
+            <h2>Input JSON</h2>
+            <textarea
+                id="jsonData"
+                rows="10"
+                placeholder="Paste JSON data here"
+            ></textarea>
+            <button id="saveData">Generate Layout</button>
         </div>
+    </div>
 
         <script src="layouts.js"></script>
 
