@@ -159,6 +159,22 @@ function createSavedGrid(gridDataJson) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    // Set a timeout of 1 second to check for image load completion
+    setTimeout(() => {
+        const allImagesLoaded = Array.from(
+            document.querySelectorAll("img")
+        ).every((img) => img.complete);
+
+        if (!allImagesLoaded) {
+            console.log(
+                "Not all images were loaded within 1 second. Refreshing..."
+            );
+            window.location.reload(); // Refresh the page
+        } else {
+            console.log("All images loaded successfully.");
+        }
+    }, 1000); // 1000 milliseconds = 1 second
+
     clearLayout();
     if (layoutName) {
         const gridDataJson = localStorage.getItem(
