@@ -133,6 +133,11 @@ const sendData = () => {
         return;
     }
 
+    const prompt = confirm("Are you sure you want to initiate SARA?");
+    if (!prompt) {
+        return;
+    }
+
     fetch("http://localhost:8082/send", {
         method: "POST",
         headers: {
