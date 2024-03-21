@@ -6,6 +6,7 @@
     user-select: none; /* Standard syntax */
     -webkit-touch-callout: none; /* iOS Safari */
     color-scheme: light only;
+    touch-action: manipulation;
 }
 
 img {
