@@ -1,44 +1,52 @@
 // Define stepper motor connections and steps per revolution:
 // Pins 0 and 1 are serial pins left unassigned
+// Define stepper motor connections and steps per revolution:
 #define dirPin 2
 #define stepPin 3
-
-#define m0Pin 4
+#define m0Pin 6
 #define m1Pin 5
-#define m2Pin 6
-
+#define m2Pin 4
+#define enablePin 7
 #define faultPin 8
-#define enablePin 9
+#define sleepPin 9
+#define resetPin 10
 
-#define topButtonPin 10
-#define bottomButtonPin 11
+#define topButtonPin 11
+#define bottomButtonPin 12
 
 #define delay_length 500
 #define stepsPerRevolution 200
-
 int pythonInput;
+bool flag;
 
 
 void setup() {
-  pinMode(enablePin, OUTPUT);
-  pinMode(stepPin, OUTPUT);
   pinMode(dirPin, OUTPUT);
+  pinMode(stepPin, OUTPUT);
   pinMode(m0Pin, OUTPUT);
   pinMode(m1Pin, OUTPUT);
-  pinMode(m2Pin, OUTPUT);
-
+  pinMode(m2Pin, OUTPUT); 
+  pinMode(enablePin, OUTPUT);
   pinMode(faultPin, INPUT);
-  pinMode(topButtonPin, INPUT);
-  pinMode(bottomButtonPin, INPUT);
+  pinMode(sleepPin, OUTPUT);
+  pinMode(resetPin, OUTPUT);
 
-  digitalWrite(enablePin, HIGH);  // Disable the driver
-  digitalWrite(dirPin, HIGH);  // Set the initial direction
-  digitalWrite(m0Pin, LOW);  // Set the step size
+  digitalWrite(dirPin, HIGH);
+  digitalWrite(stepPin, LOW);
+  digitalWrite(m0Pin, LOW);
   digitalWrite(m1Pin, LOW);
   digitalWrite(m2Pin, LOW);
+  digitalWrite(sleepPin, HIGH);
+  digitalWrite(resetPin, HIGH);
 
+  flag = false;
+  
   Serial.begin(9600);  // Begin serial transmission
-  Serial.setTimeout(1);
+  Serial.setTimeout(5);
+  
+  digitalWrite(enablePin, HIGH);  // Disable the driver
+  while (!Serial.available());  // Wait until Serial is available
+  Serial.print("Connected");
 }
 
 
@@ -72,10 +80,11 @@ void runMotor(int n, int dir){
   // Disable the motor and wait
   digitalWrite(enablePin, HIGH);
   delayMicroseconds(20);
+  flag = true;
 }
 
 
-// Run the motor until it reaches the top ot bottom
+// Run the motor until it reaches the top or bottom
 void runMotorHit(int dir){
   // Enable the motor and set the direction, wait
   digitalWrite(enablePin, LOW);
@@ -83,7 +92,7 @@ void runMotorHit(int dir){
   delayMicroseconds(20);
 
   // Run the motor
-  while ((checkTopHit() == false && dir == HIGH) || (checkBottomHit() == true && dir == LOW)){
+  while (checkTopHit() == false || checkBottomHit() == false){
     digitalWrite(stepPin, HIGH);
     delayMicroseconds(delay_length);
     digitalWrite(stepPin, LOW);
@@ -93,38 +102,41 @@ void runMotorHit(int dir){
   // Disable the motor and wait
   digitalWrite(enablePin, HIGH);
   delayMicroseconds(20);
+  flag = true;
 }
 
 void loop() {
-  digitalWrite(enablePin, HIGH);  // Disable the driver
-  while (!Serial.available());  // Wait until Serial is available
-
-
   // Potentially unecessary - if the driver overheats, it will give a fault but eventually turn on when it warms up
   if (digitalRead(faultPin) == LOW) {
     digitalWrite(enablePin, HIGH);
     Serial.print("Fault");
-    while(true);  // Infinite loop
+    delay(10000);  // Wait 10 seconds
   }
 
   pythonInput = Serial.readString().toInt();
-
+  
   switch (pythonInput) {
     // Hit the top button:
     case 1:
+      Serial.print("Going Up!");
       runMotorHit(HIGH);
+      while(!flag);
+      Serial.print("Done Going Up!");
+      flag = false;
       break;
 
     // Hit the bottom button:
     case 2:
+      Serial.print("Going Down!");
       runMotorHit(LOW);
+      while(!flag);
+      Serial.print("Done Going Down!");
+      flag = false;
       break;
 
     // If any other command is sent, stop:
     default:
       digitalWrite(enablePin, HIGH);
-      Serial.print("Stopping");
       break;
   }
-  delayMicroseconds(500);
 }

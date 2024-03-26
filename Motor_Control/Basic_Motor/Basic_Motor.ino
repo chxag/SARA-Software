@@ -35,9 +35,9 @@ void setup() {
 
 void loop() {
   digitalWrite(enablePin, LOW);
-  delayMicroseconds(100);
-  // Spin the stepper motor 1 revolution slowly:
-  for (int i = 0; i < stepsPerRevolution; i++) {
+  delay(100);
+  // Spin the stepper motor N revolutions slowly:
+  for (int i = 0; i < 20 * stepsPerRevolution; i++) {
     // These four lines result in 1 step:
     digitalWrite(stepPin, HIGH);
     delayMicroseconds(delay_length);
@@ -45,5 +45,5 @@ void loop() {
     delayMicroseconds(delay_length);
   }
   digitalWrite(enablePin, HIGH);
-  delay(5000);
+  delay(500000);
 }

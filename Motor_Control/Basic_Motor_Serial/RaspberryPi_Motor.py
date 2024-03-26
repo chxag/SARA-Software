@@ -29,17 +29,17 @@ if 'ser' in locals():
             else:
                 print("Invalid command! Please enter '1', '2', or 'q'.")
 
-            # # Read serial feedback from Arduino with timeout
-            # serial_feedback = ser.readline().decode().strip()
-            # start_time = time.time()
-            # while not serial_feedback:
-            #     if time.time() - start_time > 5:  # Timeout after 5 seconds
-            #         print("Timeout: No serial feedback received.")
-            #         break
-            #     serial_feedback = ser.readline().decode().strip()
-            #
-            # if serial_feedback:
-            #     print("Serial Feedback:", serial_feedback)
+            # Read serial feedback from Arduino with timeout
+            serial_feedback = ser.readline().decode().strip()
+            start_time = time.time()
+            while not serial_feedback:
+                if time.time() - start_time > 5000:  # Timeout after 5 seconds
+                    print("Timeout: No serial feedback received.")
+                    break
+                serial_feedback = ser.readline().decode().strip()
+            
+            if serial_feedback:
+                print("Serial Feedback:", serial_feedback)
 
             # Add a delay to allow time for the Arduino to process the command
             time.sleep(1)
