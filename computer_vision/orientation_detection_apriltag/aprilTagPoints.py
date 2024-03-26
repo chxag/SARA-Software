@@ -6,6 +6,8 @@ def detect_apriltag(image_path):
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+    cv2.imwrite("gray_test.jpg", gray)
+
     # define the AprilTags detector options and then detect the AprilTags
     options = apriltag.DetectorOptions(families="tag36h11")
     detector = apriltag.Detector(options)

@@ -1,42 +1,76 @@
 let gridSize = 50; // Initial grid size in pixels
 
 // Query URL parameters
-const urlParams = new URLSearchParams(window.location.search);
-let rows = parseInt(urlParams.get("rows"));
-let columns = parseInt(urlParams.get("columns"));
+let urlParams = new URLSearchParams(window.location.search);
+let rows;
+let columns;
+const parsedRows = parseInt(urlParams.get("rows"));
+const parsedColumns = parseInt(urlParams.get("columns"));
+const useTempLayout = urlParams.get("useTempLayout");
+let layoutName = urlParams.get("layoutName");
+const loadingText = document.getElementById("loading-text");
+if (loadingText) loadingText.classList.remove("hidden");
 
 function createGrid() {
     const gridContainer = document.querySelector(".grid-container");
     gridContainer.innerHTML = ""; // Clear existing grid items
 
     // Check for query parameters first
-    if (rows && columns) {
+    if (parsedRows && parsedColumns) {
+        rows = parsedRows;
+        columns = parsedColumns;
         createGridFromDimensions(rows, columns);
-        localStorage.removeItem("gridData");
+        localStorage.removeItem("previousLayout");
     } else {
-        rows = 5;
-        columns = 5;
-        // Retrieve grid data from localStorage if no query parameters are found
-        const gridDataJson = localStorage.getItem("gridData");
-        if (gridDataJson && gridDataJson !== "null") {
-            try {
-                const gridData = JSON.parse(gridDataJson);
-                createGridFromData(gridData);
-            } catch (error) {
-                console.error(
-                    "Error parsing grid data from localStorage:",
-                    error
-                );
-                alert("Invalid grid data. Using fallback grid size.");
-                createGridFromDimensions(rows, columns); // Use fallback grid size if data is invalid
-            }
+        const pgmTransfer = localStorage.getItem("pgmTransfer");
+        if (pgmTransfer) {
+            fetch("http://localhost:8082/latest_grid_data")
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("No grid data available");
+                    }
+                    return response.json();
+                })
+                .then((gridData) => {
+                    createGridFromData(gridData);
+                    localStorage.removeItem("previousLayout");
+                    localStorage.removeItem("pgmTransfer");
+                })
+                .catch((error) => {
+                    console.error("Error fetching grid data:", error);
+                    {
+                        rows = 5;
+                        columns = 5;
+                        createGridFromDimensions(rows, columns); // Fallback grid size
+                    }
+                });
         } else {
-            createGridFromDimensions(rows, columns); // Use default grid size if no data is found
+            const previousLayout = localStorage.getItem("previousLayout");
+
+            if (previousLayout) {
+                window.location.href = `index.html?layoutName=${previousLayout}`;
+                return;
+            }
+
+            localStorage.removeItem("previousLayout");
+
+            // alert("Invalid grid data. Using fallback grid size.");
+            const mostRecentGrid = localStorage.getItem("mostRecentGrid");
+            const data = JSON.parse(mostRecentGrid);
+            if (mostRecentGrid && data.dimensions != null) {
+                createSavedGrid(mostRecentGrid); // Load the most recent grid as default
+            } else {
+                rows = 5;
+                columns = 5;
+                createGridFromDimensions(rows, columns); // Fallback grid size
+            }
         }
     }
 }
 
 function createGridFromData(gridData) {
+    if (loadingText) loadingText.classList.add("hidden");
+
     // Update rows and columns based on gridData dimensions
     rows = gridData.length;
     columns = gridData[0].length;
@@ -51,9 +85,14 @@ function createGridFromData(gridData) {
             gridContainer.appendChild(gridItem);
         }
     }
+    const gridDataJson = generateGridDataJson();
+    localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
+    updateGridCentering();
+    displayLayoutData();
 }
 
 function createGridFromDimensions(rows, columns) {
+    if (loadingText) loadingText.classList.add("hidden");
     gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
 
     for (let row = 1; row <= rows; row++) {
@@ -64,7 +103,118 @@ function createGridFromDimensions(rows, columns) {
             gridContainer.append(gridItem);
         }
     }
+
+    const gridDataJson = generateGridDataJson();
+    localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
+    updateGridCentering();
+    displayLayoutData();
 }
+
+function createSavedGrid(gridDataJson) {
+    if (loadingText) loadingText.classList.add("hidden");
+    const gridData = JSON.parse(gridDataJson);
+
+    // Set up the grid dimensions
+    rows = gridData.dimensions.rows;
+    columns = gridData.dimensions.columns;
+    createGridFromDimensions(rows, columns);
+
+    // Place robot if present
+    if (gridData.robot) {
+        const robotLocation = gridData.robot.split("-");
+        const robotGridItem = document.getElementById(
+            `item-${robotLocation[0]}-${robotLocation[1]}`
+        );
+        addOrRemoveRobot(robotGridItem);
+    }
+
+    // Place stacks and chairs
+    gridData.stacks.forEach((stack) => {
+        const stackLocation = stack.location.split("-");
+        const stackGridItem = document.getElementById(
+            `item-${stackLocation[0]}-${stackLocation[1]}`
+        );
+        addStack(stackGridItem, stack.rotation);
+
+        selectedStack = stackGridItem;
+
+        // For each chair in the stack
+        stack.chairs.forEach((chair) => {
+            const chairLocation = chair.location.split("-");
+            const chairGridItem = document.getElementById(
+                `item-${chairLocation[0]}-${chairLocation[1]}`
+            );
+            handlePlaceMode(chairGridItem, chair.rotation);
+        });
+    });
+
+    document.getElementById("stack-counter").style.display = "none"; // Hide the counter
+    selectedStack = null;
+
+    // Place obstacles
+    gridData.obstacles.forEach((obstacle) => {
+        const obstacleLocation = obstacle.split("-");
+        const obstacleGridItem = document.getElementById(
+            `item-${obstacleLocation[0]}-${obstacleLocation[1]}`
+        );
+        obstacleGridItem.classList.add("black");
+    });
+
+    localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
+    highlightInaccessibleChairs();
+    updateGridCentering();
+    displayLayoutData();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.title = "SARA";
+
+    // Set a timeout of 1 second to check for image load completion
+    setTimeout(() => {
+        const allImagesLoaded = Array.from(
+            document.querySelectorAll("img")
+        ).every((img) => img.complete);
+
+        if (!allImagesLoaded) {
+            window.location.reload(); // Refresh the page
+        }
+    }, 1000); // 1000 milliseconds = 1 second
+
+    clearLayout();
+    if (layoutName) {
+        const gridDataJson = localStorage.getItem(
+            decodeURIComponent(layoutName)
+        );
+        try {
+            // Attempt to parse the item value as JSON
+            JSON.parse(gridDataJson);
+            createSavedGrid(gridDataJson);
+            localStorage.setItem("previousLayout", layoutName);
+            document.title = `${layoutName} - SARA`;
+        } catch (e) {
+            // alert(e);
+            window.history.replaceState(null, "", window.location.pathname);
+            createGrid();
+        }
+    } else if (useTempLayout === "true") {
+        localStorage.removeItem("previousLayout");
+        // Retrieve the temporary layout from sessionStorage
+        const tempLayoutJson = sessionStorage.getItem("tempLayout");
+        if (tempLayoutJson) {
+            createSavedGrid(tempLayoutJson);
+            // Optionally, clear the temporary layout from sessionStorage after use
+            sessionStorage.removeItem("tempLayout");
+        } else {
+            // alert("No layout data found.");
+            window.history.replaceState(null, "", window.location.pathname);
+            createGrid();
+        }
+    } else {
+        createGrid();
+    }
+});
+
+window.addEventListener("resize", updateGridCentering);
 
 function updateGridCentering() {
     // Calculate the total grid width
@@ -80,20 +230,3 @@ function updateGridCentering() {
         gridContainer.style.justifyContent = "center";
     }
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-    createGrid();
-    updateGridCentering();
-});
-
-window.addEventListener("resize", updateGridCentering);
-
-document.getElementById("clear-layout").addEventListener("click", function () {
-    createGrid();
-    updateGridCentering();
-    allocatedNumbers.clear();
-    defaultRotationDegree = 0;
-    Object.keys(allocatedCNumbersByStack).forEach((key) => {
-        delete allocatedCNumbersByStack[key];
-    });
-});
