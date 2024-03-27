@@ -2,7 +2,7 @@ import serial
 import time
 
 # List of possible port names to try
-possible_ports = ['/dev/ttyACM0', '/dev/ttyACM1']
+possible_ports = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/ttyACM2', '/dev/ttyACM3']
 
 # Try opening each port until one works
 for port in possible_ports:
@@ -13,36 +13,29 @@ for port in possible_ports:
     except serial.SerialException:
         print(f"Failed to connect to {port}")
 
+print("For commands 5/6, enter two integers with space in between them (eg: 5 50")
 if 'ser' in locals():
     try:
         while True:
             # Ask the user for a command
-            command = input("Enter command (1/2) or 'q' to quit: ")
-
-            # Send the command if it's '1' or '2'
+            print()
+            command = input("Enter (1/2/3/4/5 n/6 n) or 7 to interrupt the current command ")
             if command == '1':
-                ser.write(b'1')  # Send command '1' (as bytes)
+                ser.write(b'1\n')  # Send command '1' (as bytes)
             elif command == '2':
-                ser.write(b'2')  # Send command '2' (as bytes)
-            elif command.lower() == 'q':
-                break  # Quit the loop if the command is 'q'
+                ser.write(b'2\n')  # Send command '2' (as bytes)
+            elif command == '3':
+                ser.write(b'3\n')  # Send command '3' (as bytes)
+            elif command == '4':
+                ser.write(b'4\n')  # Send command '4' (as bytes)
+            elif command[:2] == '5 ':	# Note: Doesn't validate the second integer
+                ser.write(f"{command}\n".encode())  # Send command (as bytes)
+            elif command[:2] == '6 ': # Note: Doesn't validate the second integer
+                ser.write(f"{command}\n".encode())  # Send command (as bytes)
+            elif command == '7':
+                ser.write(b'7\n')  # Send command '7' (as bytes)
             else:
-                print("Invalid command! Please enter '1', '2', or 'q'.")
-
-            # Read serial feedback from Arduino with timeout
-            serial_feedback = ser.readline().decode().strip()
-            start_time = time.time()
-            while not serial_feedback:
-                if time.time() - start_time > 5000:  # Timeout after 5 seconds
-                    print("Timeout: No serial feedback received.")
-                    break
-                serial_feedback = ser.readline().decode().strip()
-            
-            if serial_feedback:
-                print("Serial Feedback:", serial_feedback)
-
-            # Add a delay to allow time for the Arduino to process the command
-            time.sleep(1)
+                print("Invalid command! Please enter '1', '2', '3', '4', '5 n', '6 n' or '7'.")
 
     except KeyboardInterrupt:
         print("\nProgram stopped by user.")
