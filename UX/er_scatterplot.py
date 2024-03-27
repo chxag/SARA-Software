@@ -59,4 +59,3 @@ ax.set_title("Expected and actual task ease")
 fig.legend(letter_patches, tasks, loc="center right")
 
 plt.show()
-ax.text("")
