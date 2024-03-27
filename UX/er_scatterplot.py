@@ -1,9 +1,5 @@
 from matplotlib import pyplot as plt
-
-import matplotlib.markers as m
 from matplotlib import patches
-
-import numpy as np
 
 PATCH_RADIUS = 0.1
 PATCH_COLORS = {"blue": "#004488", "yellow": "#DDAA33", "red": "#BB5566"}  # Paul Tol High Contrast
