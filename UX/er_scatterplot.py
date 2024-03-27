@@ -6,7 +6,7 @@ from matplotlib import patches
 import numpy as np
 
 PATCH_RADIUS = 0.1
-PATCH_COLORS = {"blue": "#004488", "yellow": "#DDAA33", "red": "#BB5566"}
+PATCH_COLORS = {"blue": "#004488", "yellow": "#DDAA33", "red": "#BB5566"}  # Paul Tol High Contrast
 EDGE_COLOR = "#000000"
 TEXT_COLOR = "#FFFFFF"
 
@@ -59,4 +59,3 @@ ax.set_title("Expected and actual task ease")
 fig.legend(letter_patches, tasks, loc="center right")
 
 plt.show()
-ax.text("")
