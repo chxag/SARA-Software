@@ -8,7 +8,7 @@ TEXT_COLOR = "#FFFFFF"
 
 tasks = ["Create desired room layout", "Place stacks of chairs", "Place chairs", "Delete chairs*", 
          "Move a chair*", "Move groups of chairs", "Rotate a chair", "Rotate the room", 
-         "Save and reload layout", "Neither Easy Nor Hard"]
+         "Save and reload layout", "Use Theatre Style Template"]
 
 expected_means = [5.25, 6,   4.75, 5,    5,    4.75, 4.5, 5.75, 6.5, 5]
 actual_means =   [4,    6.5, 5.25, 6.75, 6.75, 6.25, 6,   4.25, 5.5, 5.25]
@@ -33,7 +33,7 @@ class LetterPatch(patches.Circle):
 
 # Jitter matching coordinates
 import random
-random.seed(0)
+random.seed(0)  # Ensure always same position
 expected_means[3] += random.random() * 0.1
 actual_means[3] += random.random() * 0.1
 expected_means[4] += random.random() * 0.1
@@ -43,7 +43,6 @@ fig, ax = plt.subplots(figsize=(5, 5))
 ax.set(xlim= (3.75, 7), ylim= (3.75, 7))
 
 letter_patches = []
-
 for i, (x, y) in enumerate(zip(expected_means, actual_means)):
     patch = LetterPatch((x, y), letters[i], colors[i])
     patch.add_to_ax(ax)
