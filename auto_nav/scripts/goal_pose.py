@@ -68,7 +68,7 @@ goal.target_pose.header.stamp = rospy.Time.now()
 position_x = float(sys.argv[1])
 position_y = float(sys.argv[2])
 position_z = float(sys.argv[3])
-set_goal_pose(goal, position_x, position_y, position_z)
+set_goal_pose(goal, position_x, -position_y, position_z)
 
 orientation_x = float(sys.argv[4])
 orientation_y = float(sys.argv[5])
