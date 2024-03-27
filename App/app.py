@@ -92,8 +92,10 @@ def execute_sara(grid_data):
         robot_y = ord(grid_data.robot[-1]) - ord('0')
 
         # Calculate the relative coordinates of robot position
-        rel_robot_pos_x = robot_x - center_x
-        rel_robot_pos_y = robot_y - center_y
+        #rel_robot_pos_x = robot_x - center_x
+        #rel_robot_pos_y = robot_y - center_y
+        rel_robot_pos_x = -2
+        rel_robot_pos_y = -0.5
 
         for stack in grid_data.stacks:
             #Go to stack first
@@ -104,12 +106,14 @@ def execute_sara(grid_data):
 
             stack_rot =  float(stack_rot_str)
             stack_rot_quat = degrees_to_quaternion(stack_rot)
-            print(stack_rot)
-            print(stack_rot_quat)
             stack_x = ord(stack_loc[0]) - ord('0')
             stack_y = ord(stack_loc[-1]) - ord('0')
-            rel_stack_x = stack_x - center_x
-            rel_stack_y = stack_y - center_y
+            print(stack_x)
+            print(stack_y)
+            rel_stack_x = rel_robot_pos_x - (stack_x - robot_x)
+            rel_stack_y = rel_robot_pos_y - (stack_y - robot_y)
+            print(rel_stack_x)
+            print(rel_stack_y)
             to_stack = str(rel_stack_x) + ' '+ str(rel_stack_y) + ' 0'
             to_stack_split = to_stack.split(' ')
             stack_rot_quat = [str(j) for j in stack_rot_quat]
@@ -127,8 +131,8 @@ def execute_sara(grid_data):
                 chair_rot_quat = degrees_to_quaternion(chair_rot)
 
                 # Calculate the relative coordinates of goal positions
-                rel_chair_x = chair_x - center_x
-                rel_chair_y = chair_y - center_y
+                rel_chair_x = rel_robot_pos_x - (chair_x - robot_x)
+                rel_chair_y = rel_robot_pos_y - (chair_y - robot_y)
                 
                 to_chair = str(rel_chair_x) + ' '+ str(rel_chair_y) + ' 0'
                 to_chair_split = to_chair.split(' ')
