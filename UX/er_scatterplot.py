@@ -13,8 +13,12 @@ from matplotlib import patches
 SHOW_QUADRANT_LINES = True
 USE_OLD_DATA = False
 
+if USE_OLD_DATA:
+    COLORS = {"blue": "#004488", "yellow": "#DDAA33", "red": "#BB5566"}  # Paul Tol High Contrast
+else:
+    COLORS = {"blue": "#4477AA", "yellow": "#CCBB44", "red": "#EE6677", "green" : "#228833"}  # Paul Tol Bright
+
 PATCH_RADIUS = 0.1
-PATCH_COLORS = {"blue": "#004488", "yellow": "#DDAA33", "red": "#BB5566"}  # Paul Tol High Contrast
 EDGE_COLOR = "#000000"
 TEXT_COLOR = "#FFFFFF"
 letters = "ABCDEFGHIJ"
@@ -22,7 +26,7 @@ letters = "ABCDEFGHIJ"
 tasks = ["Create desired room layout", "Place stacks of chairs", "Place chairs", "Delete chairs", 
          "Move a chair", "Move groups of chairs", "Rotate a chair", "Rotate the room", 
          "Save and reload layout", "Use Theatre Style Template"]
-colors = [PATCH_COLORS["blue"]] * 4 + [PATCH_COLORS["red"]] * 4 + [PATCH_COLORS["yellow"]] * 2
+patch_colors = [COLORS["blue"]] * 4 + [COLORS["red"]] * 4 + [COLORS["yellow"]] * 2
 
 if USE_OLD_DATA:
     # Data from the 4 user tests preceding Demo 3
@@ -70,7 +74,7 @@ else:
 # Places coloured lettered patches at each datapoint
 letter_patches = []
 for i, (x, y) in enumerate(zip(expected_means, actual_means)):
-    patch = LetterPatch((x, y), letters[i], colors[i])
+    patch = LetterPatch((x, y), letters[i], patch_colors[i])
     patch.add_to_ax(ax)
     letter_patches.append(patch)
 
@@ -80,12 +84,18 @@ ax.set_ylabel("Mean actual ease")
 ax.set_title("Expected and actual task ease")
 fig.legend(letter_patches, tasks, loc="center right")
 
-# Quadrant lines (idea from )
+# Quadrant lines (idea from Tullis & Albert)
 if SHOW_QUADRANT_LINES:
     if USE_OLD_DATA:
+        # Incomplete as quadrants were instead manually put on feature for presentation
         center = 5.5  # Middle of range 4-7
     else:
         center = 5.34  # Mean of datapoints
+        plt.annotate("Promote this", (3.9, 6.125), weight="bold", color=COLORS["green"])
+        plt.annotate("Don't touch this", (5.6, 6.125), weight="bold", color=COLORS["green"])
+        plt.annotate("Big opportunity", (3.785, 4.1), weight="bold", color=COLORS["yellow"])
+        plt.annotate("Fix this fast", (5.735, 4.1), weight="bold", color=COLORS["red"])
+
     plt.plot([1,7], [center, center], color=EDGE_COLOR)
     plt.plot([center, center], [1,7], color=EDGE_COLOR)
 
