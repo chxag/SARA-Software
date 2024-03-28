@@ -7,10 +7,10 @@ COLORS = {"yellow" : "#EECC66", "red" : "#EE99AA", "blue" : "#6699CC"}
 
 if CHAIR_OR_ACCESSIBILITY_ERROR:
     title = "Chair Placement Error Rate"
-    data = [1,1,1,1,(30/60)]  # TODO
+    data = [(8/48), (42/48), (20/27), 0, (30/60)]
 else:
     title = "Stack and Chair Accessibility Error Rate"
-    data = [1,1,1,1,(74/80)]  # TODO
+    data = [0, (55/64), (2/37), 0, (74/80)]
 
 # Plot Bars with Error Rate for each user
 fig, ax = plt.subplots(figsize=(6, 6))
@@ -35,4 +35,3 @@ ax.legend([Patch(color=colour) for colour in COLORS.values()], ["Google Chrome",
 plt.plot([2, 2], [0, 1], color="black")
 
 plt.show()
-
