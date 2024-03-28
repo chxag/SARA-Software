@@ -17,8 +17,8 @@
 #define delay_length 500
 #define stepsPerRevolution 200
 int pythonInput;
-int interrupt = 0;
 bool doneFlag;
+bool interruptFlag;
 
 // If no serial input is made, run the "default" case
 int num1 = 0;
@@ -47,6 +47,7 @@ void setup() {
   digitalWrite(enablePin, HIGH);  // Disable the driver
 
   doneFlag = false;
+  interruptFlag = false;
   
   Serial.begin(9600);  // Begin serial transmission
   Serial.setTimeout(5);
@@ -62,18 +63,6 @@ bool checkTopHit(){
 // Check if the arm has hit the bottom button:
 bool checkBottomHit(){
   return digitalRead(bottomButtonPin);
-}
-
-bool checkInterrupt(){
-    String data = Serial.readStringUntil('\n');
-    // Note that int values can overflow easily and inputs are not sanitised
-    interrupt = data.substring(0, 1).toInt();
-
-   if (interrupt == 7){
-    return true;
-   } else{
-       return false;
-   }
 }
 
 void run(){
@@ -95,7 +84,8 @@ void runMotor(int n, int dir){
   // Run the motor
   for (int i = 0; i < stepsPerRevolution * n; i++) {
     run();
-    if (checkInterrupt()){
+    if (interruptFlag){
+      interruptFlag = false;
       break;
     }
   }
@@ -116,11 +106,9 @@ void runMotorHit(int dir){
 
   // Run the motor
   while (checkTopHit() == false || checkBottomHit() == false ){
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(delay_length);
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(delay_length);
-    if (checkInterrupt()){
+    run();
+    if (interruptFlag){
+      interruptFlag = false;
       break;
     }
   }
@@ -136,7 +124,6 @@ void loop() {
   // by itself when it cools down
   if (digitalRead(faultPin) == LOW) {
     digitalWrite(enablePin, HIGH);
-    Serial.println("Fault");
     delay(10000);  // Wait 10 seconds
   }
 
@@ -183,6 +170,13 @@ void loop() {
               Serial.print("6 ");
               Serial.println(num2);
               runMotor(num2, HIGH);
+              break;
+        
+            case 7: // Interrupt
+              Serial.println("7");
+              if (!doneFlag){
+                interruptFlag = true;
+              }
               break;
             
             // If any other command is sent the python code shouldn't let that and something went wrong:
