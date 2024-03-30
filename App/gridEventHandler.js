@@ -610,6 +610,17 @@ function addOrRemoveRobot(gridItem) {
     }
 }
 
+function addOrRemoveObstacle(gridItem) {
+    if (gridItem.querySelector(".chair-container-in-grid")) return; // Skip if there's a chair
+    if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
+
+    if (gridItem.classList.contains("black")) {
+        gridItem.classList.remove("black");
+    } else {
+        gridItem.classList.add("black");
+    }
+}
+
 function toggleHighlight(item) {
     // Check if the item is a stack or C chair and toggle highlight
     const chairContainer = item.querySelector(".chair-container-in-grid");

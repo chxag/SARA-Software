@@ -118,9 +118,23 @@
 
         <div id="input-pgm">
             <h2>Upload Map as PGM</h2>
-            <input type="file" id="fileInput" />
+            <input type="file" id="fileInput">
+            <div id="imagePreview">
+                <img id="uploadedImage" class="hidden">
+            </div>
+            <div id="rotationControl">
+                <label for="rotationRange">Rotate:</label>
+                <input type="range" id="rotationRange" min="0" max="360" value="0" step="0.5">
+            </div>
+            <div id="dimensions">
+                <label for="dimColumns">PGM Room Width (cm):</label>
+                <input type="number" min="1" id="pgmColumns" required>
+                <label for="dimRows">PGM Room Height (cm):</label>
+                <input type="number" min="1" id="pgmRows" required>
+            </div>
+            <span id="pgmNote">One grid cell approximately represents 50cm x 50cm. Click "Rotate" to use arrow keys.</span>
             <button id="uploadData">Generate Grid</button>
-        </div>
+        </div>        
 
         <script src="input.js"></script>
 

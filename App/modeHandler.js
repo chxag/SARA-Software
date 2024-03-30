@@ -1,6 +1,14 @@
 // Modes
 let currentMode = null;
-const modes = ["stack", "place", "rotate", "move", "delete", "robot"];
+const modes = [
+    "stack",
+    "place",
+    "rotate",
+    "move",
+    "delete",
+    "robot",
+    "obstacle",
+];
 const modeLogos = {
     stack: document.getElementById("stack-logo"),
     place: document.getElementById("place-logo"),
@@ -8,6 +16,7 @@ const modeLogos = {
     move: document.getElementById("move-logo"),
     delete: document.getElementById("delete-logo"),
     robot: document.getElementById("robot-logo"),
+    obstacle: document.getElementById("obstacle-logo"),
 };
 
 const keyModeMapping = {
@@ -17,6 +26,7 @@ const keyModeMapping = {
     4: "move",
     5: "delete",
     6: "robot",
+    7: "obstacle",
 };
 
 document.addEventListener("keydown", function (event) {

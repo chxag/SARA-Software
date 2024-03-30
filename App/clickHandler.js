@@ -119,6 +119,9 @@ function handleGridClick(event) {
         case "robot":
             addOrRemoveRobot(gridItem);
             break;
+        case "obstacle":
+            addOrRemoveObstacle(gridItem);
+            break;
         default:
             toggleHighlight(gridItem);
             break;
