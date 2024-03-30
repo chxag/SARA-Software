@@ -3,11 +3,13 @@ from matplotlib.patches import Patch
 
 CHAIR_OR_ACCESSIBILITY_ERROR = True
 
+# Tol Medium Contrast (#https://cran.r-project.org/web/packages/khroma/vignettes/tol.html#medium-contrast)
 COLORS = {"yellow" : "#EECC66", "red" : "#EE99AA", "blue" : "#6699CC"}
 
 if CHAIR_OR_ACCESSIBILITY_ERROR:
     title = "Chair Placement Error Rate"
-    data = [(8/48), (42/48), (20/27), 0, (30/60)]
+    data = [(8/48), (30/48), (20/27), 0, (30/60)]
+
 else:
     title = "Stack and Chair Accessibility Error Rate"
     data = [0, (55/64), (2/37), 0, (74/80)]
