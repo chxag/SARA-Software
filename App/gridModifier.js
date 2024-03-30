@@ -98,6 +98,29 @@ function createGridFromData(gridData) {
     displayLayoutData(); // Assuming this function doesn't need adjustment
 }
 
+// function createGridFromData(gridData) {
+//     if (loadingText) loadingText.classList.add("hidden");
+
+//     // Update rows and columns based on gridData dimensions
+//     rows = gridData.length;
+//     columns = gridData[0].length;
+//     gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
+
+//     for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+//         for (let columnIndex = 0; columnIndex < columns; columnIndex++) {
+//             const cell = gridData[rowIndex][columnIndex];
+//             const gridItem = document.createElement("div");
+//             gridItem.className = "grid-item" + (cell === 0 ? " black" : ""); // black class for cells with value 0
+//             gridItem.id = `item-${rowIndex + 1}-${columnIndex + 1}`; // Location of grid item
+//             gridContainer.appendChild(gridItem);
+//         }
+//     }
+//     const gridDataJson = generateGridDataJson();
+//     localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
+//     updateGridCentering();
+//     displayLayoutData();
+// }
+
 function createGridFromDimensions(rows, columns) {
     if (loadingText) loadingText.classList.add("hidden");
     gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
