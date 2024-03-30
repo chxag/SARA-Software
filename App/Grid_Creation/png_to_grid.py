@@ -3,93 +3,78 @@ import cv2
 import matplotlib.pyplot as plt
 import json
 
-def create_grid(cropped_png_path, grid_data_path):
-    map_image = cv2.imread( cropped_png_path, cv2.IMREAD_GRAYSCALE) #change this so you can use the maps in the subdirectory
+def create_grid(cropped_png_path, grid_data_path, pgmRows, pgmColumns):
+    # Read the image in grayscale, then convert to BGR for color manipulation
+    map_image_gray = cv2.imread(cropped_png_path, cv2.IMREAD_GRAYSCALE)
+    map_image = cv2.cvtColor(map_image_gray, cv2.COLOR_GRAY2BGR)
 
-    map_image = cv2.resize(map_image, (1800, 1600))
+    # Define the color to replace (light gray, #cdcdcd) and the replacement color (black)
+    target_color = np.array([205, 205, 205])  # BGR format
+    replacement_color = np.array([0, 0, 0])  # BGR format
+
+    # Create a mask where the target color is present
+    mask = cv2.inRange(map_image, target_color, target_color)
+    
+    # Replace the target color with the replacement color
+    map_image[mask != 0] = replacement_color
+
+    # Convert back to grayscale for further processing
+    map_image = cv2.cvtColor(map_image, cv2.COLOR_BGR2GRAY)
+
+    # Continue with your existing processing...
+    cm_per_pixel_row = pgmRows / map_image.shape[0]  # cm per pixel in height
+    cm_per_pixel_col = pgmColumns / map_image.shape[1]  # cm per pixel in width
+    pixel_size_row = 50 / cm_per_pixel_row  # pixels per 50cm in height, now a float
+    pixel_size_col = 50 / cm_per_pixel_col  # pixels per 50cm in width, now a float
+    
+    pixel_size = min(pixel_size_row, pixel_size_col)
 
     map_image = cv2.GaussianBlur(map_image, (5, 5), 0)
     map_image = cv2.addWeighted(map_image, 1.5, np.zeros(map_image.shape, map_image.dtype), 0, 0)
 
-    pixel_size = 50
-
     image_with_grid = map_image.copy()
 
-    for x in range(0, map_image.shape[1], pixel_size):
-        cv2.line(image_with_grid, (x, 0), (x, map_image.shape[0]), (0, 255, 0), 1)
+    # Use np.arange for floating point step sizes
+    for x in np.arange(0, map_image.shape[1], pixel_size):
+        cv2.line(image_with_grid, (int(x), 0), (int(x), map_image.shape[0]), (0, 255, 0), 1)
         
-    for y in range(0, map_image.shape[0], pixel_size):
-        cv2.line(image_with_grid, (0, y), (map_image.shape[1], y), (0, 255, 0), 1)
+    for y in np.arange(0, map_image.shape[0], pixel_size):
+        cv2.line(image_with_grid, (0, int(y)), (map_image.shape[1], int(y)), (0, 255, 0), 1)
 
-    # Define the lower and upper boundaries for "close to black" in grayscale
     lower_bound = np.array([0])
-    upper_bound = np.array([75])  # Adjust this value to what you consider "close to black"
+    upper_bound = np.array([75])
 
-    # Iterate over each cell in the grid
-    for x in range(0, map_image.shape[1], pixel_size):
-        for y in range(0, map_image.shape[0], pixel_size):
-            # Check if there are any pixels in the corresponding area of the original image that are "close to black"
-            if cv2.inRange(map_image[y:y+pixel_size, x:x+pixel_size], lower_bound, upper_bound).any():
-                # Draw a black rectangle on the corresponding cell in the grid image
-                cv2.rectangle(image_with_grid, (x, y), (x+pixel_size, y+pixel_size), (0, 0, 0), -1)
-
-    # Define the threshold for "close to black" based on intensity
-    threshold_intensity = 254  # Adjust this value based on your needs
-
-    # Create an empty list to store the rows
     grid = []
 
-    # Iterate over each cell in the grid
-    for y in range(0, map_image.shape[0], pixel_size):
-        # Create an empty list for this row
+    # Use np.arange for floating point step sizes and iterate over the grid
+    for y in np.arange(0, map_image.shape[0], pixel_size):
         row = []
-        for x in range(0, map_image.shape[1], pixel_size):
-            # Get the intensity value of the cell
-            cell_intensity = int(map_image[y:y + pixel_size, x:x + pixel_size].mean())
-            # Check if the cell is "close to black" based on the threshold
-            if cell_intensity <= threshold_intensity:
-                # Set the intensity value to 0 for cells "close to black"
+        for x in np.arange(0, map_image.shape[1], pixel_size):
+            cell_x_start, cell_y_start = int(x), int(y)
+            cell_x_end, cell_y_end = int(min(x + pixel_size, map_image.shape[1])), int(min(y + pixel_size, map_image.shape[0]))
+            
+            if cv2.inRange(map_image[cell_y_start:cell_y_end, cell_x_start:cell_x_end], lower_bound, upper_bound).any():
+                cv2.rectangle(image_with_grid, (cell_x_start, cell_y_start), (cell_x_end, cell_y_end), (0, 0, 0), -1)
+
+            cell_intensity = int(map_image[cell_y_start:cell_y_end, cell_x_start:cell_x_end].mean())
+            if cell_intensity <= 254:
                 cell_intensity = 0
-            # Append the intensity value to the row list
             row.append(cell_intensity)
-        
-        # Create two pointers, one at the start and one at the end
-        start, end = 0, len(row) - 1
-
-        # Move the start pointer towards the right until it encounters a cell "close to black"
-        while start < len(row) and row[start] != 0:
-            row[start] = 0
-            start += 1
-
-        # Move the end pointer towards the left until it encounters a cell "close to black"
-        while end >= 0 and row[end] != 0:
-            row[end] = 0
-            end -= 1
-
-        # Append the row list to the grid list
         grid.append(row)
-        
-    # Iterate over each column in the grid
-    for x in range(len(grid[0])):
-    # Create two pointers, one at the top and one at the bottom
-        top, bottom = 0, len(grid) - 1
 
-        # Move the top pointer downwards until it encounters a cell "close to black"
-        while top < len(grid) and grid[top][x] != 0:
-            grid[top][x] = 0
-            top += 1
+    for row in grid:
+        for i in range(len(row)):
+            if i == 0 or i == len(row) - 1:
+                row[i] = 0
+    for i in range(len(grid)):
+        if i == 0 or i == len(grid) - 1:
+            for j in range(len(grid[i])):
+                grid[i][j] = 0
 
-        # Move the bottom pointer upwards until it encounters a cell "close to black"
-        while bottom >= 0 and grid[bottom][x] != 0:
-            grid[bottom][x] = 0
-            bottom -= 1
-
-    # Convert the grid list to a JSON string
     json_data = json.dumps(grid, indent=4)
-
-    # Write the JSON string to a file
-    with open(grid_data_path, 'w') as f: #change this so you can use the maps in the subdirectory
+    with open(grid_data_path, 'w') as f:
         f.write(json_data)
 
+    # Optionally display the image with the grid
     # plt.imshow(cv2.cvtColor(image_with_grid, cv2.COLOR_BGR2RGB))
     # plt.show()
