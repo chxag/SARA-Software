@@ -53,6 +53,10 @@ def detection(image):
             targets.append([classes[class_index], upper_left_x, upper_left_y, lower_right_x, lower_right_y])
 
     cv.imshow("Detected Image", image)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
-    return targets
+    cv.waitKey(5)
+
+cap = cv.VideoCapture('http://192.168.1.231:81/stream')
+
+while True:
+    ret, img = cap.read()
+    detection(img)
