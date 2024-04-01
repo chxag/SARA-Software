@@ -16,13 +16,13 @@
 
 #define delay_length 500
 #define stepsPerRevolution 200
-int pythonInput;
-int interrupt = 0;
+
+String interrupt = "";
 bool doneFlag;
 
 // If no serial input is made, run the "default" case
 int num1 = 0;
-int num2 = 0;
+double num2 = 0;
 
 
 void setup() {
@@ -64,18 +64,6 @@ bool checkBottomHit(){
   return digitalRead(bottomButtonPin);
 }
 
-bool checkInterrupt(){
-    String data = Serial.readStringUntil('\n');
-    // Note that int values can overflow easily and inputs are not sanitised
-    interrupt = data.substring(0, 1).toInt();
-
-   if (interrupt == 7){
-    return true;
-   } else{
-       return false;
-   }
-}
-
 void run(){
     // Run the motor one step at last set direction
     digitalWrite(stepPin, HIGH);
@@ -86,17 +74,16 @@ void run(){
 
 
 // Run the motor n revolutions in the given directoin
-void runMotor(int n, int dir){
+void runMotor(double n, bool dir){
   // Enable the motor and set the direction, wait
   digitalWrite(enablePin, LOW);
   digitalWrite(dirPin, dir);
   delay(100);
 
   // Run the motor
-  for (int i = 0; i < stepsPerRevolution * n; i++) {
-    run();
-    if (checkInterrupt()){
-      break;
+  for (double j = 0; j < n; j++){
+    for (int i = 0; i < stepsPerRevolution; i++) {
+      run();
     }
   }
 
@@ -108,7 +95,7 @@ void runMotor(int n, int dir){
 
 
 // Run the motor until it reaches the top or bottom
-void runMotorHit(int dir){
+void runMotorHit(bool dir){
   // Enable the motor and set the direction, wait
   digitalWrite(enablePin, LOW);
   digitalWrite(dirPin, dir);
@@ -116,20 +103,16 @@ void runMotorHit(int dir){
 
   // Run the motor
   while (checkTopHit() == false || checkBottomHit() == false ){
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(delay_length);
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(delay_length);
-    if (checkInterrupt()){
-      break;
-    }
+    run();
   }
-
+  
   // Disable the motor and wait
   digitalWrite(enablePin, HIGH);
   delayMicroseconds(20);
   doneFlag = true;
 }
+
+
 
 void loop() {
   // Potentially unecessary - if the driver overheats, it will give a fault but eventually turn on
@@ -144,7 +127,7 @@ void loop() {
         String data = Serial.readStringUntil('\n');
         // Note that int values can overflow easily and inputs are not sanitised
         int num1 = data.substring(0, 1).toInt();
-        int num2 = data.substring(2).toInt(); // Will return 0 if the no integer in char[2] onwards
+        double num2 = data.substring(2).toInt(); // Will return 0 if the no integer in char[2] onwards
 
         doneFlag = false;
     
