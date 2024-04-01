@@ -49,13 +49,14 @@ def detection(image):
             lower_right_x = int(detected_objects[0, 0, i ,5] * width)
             lower_right_y = int(detected_objects[0, 0, i ,6] * height)
 
+        if classes[class_index] == 56:
             prediction_text = f"{classes[class_index]}: {confidence * 100:.1f}%"
             cv.rectangle(image, (upper_left_x, upper_left_y), (lower_right_x, lower_right_y), colours[class_index], 3)
-            #cv.rectangle(image, (1214, 1456), (1814, 2056), (180,11,30), 3)
+        #cv.rectangle(image, (1214, 1456), (1814, 2056), (180,11,30), 3)
             cv.putText(image, prediction_text, (upper_left_x, upper_left_y), cv.FONT_HERSHEY_SIMPLEX, 6, colours[class_index], 2)
-            #cv.putText(image, 'No April Tag Detected!', (714, 1056), cv.FONT_HERSHEY_SIMPLEX, 6, (180,11,30), 2)
+        #cv.putText(image, 'No April Tag Detected!', (714, 1056), cv.FONT_HERSHEY_SIMPLEX, 6, (180,11,30), 2)
 
-            # Add the box to the target list
+        # Add the box to the target list
             targets.append(['chair', upper_left_x, upper_left_y, lower_right_x, lower_right_y])
 
 def detect_apriltag(image):
@@ -92,14 +93,20 @@ def detect_apriltag(image):
             deg = 0
         else:
             deg = math.degrees(math.acos(height / width))
+        for i in range(1, 5):
+            cv.line(image, apriltag_coordinates[0][i-1], apriltag_coordinates[0][i%4], (0, 183, 24), 3)
         #cv.rectangle(img, (apriltag_coordinates[0][1][0], apriltag_coordinates[0][3][0]), (apriltag_coordinates[0][1][1], apriltag_coordinates[0][3][1]), (0, 183, 24), 3)
-        cv.putText(img, f"{deg}", (apriltag_coordinates[0][1][0], apriltag_coordinates[0][3][0]), cv.FONT_HERSHEY_SIMPLEX, 4, (0, 183, 24), 2)
+        cv.putText(img, str(deg)[:7]+"o", (apriltag_coordinates[0][1][0], apriltag_coordinates[0][3][0]), cv.FONT_HERSHEY_SIMPLEX, 4, (0, 183, 24), 2)
 
 cap = cv.VideoCapture('http://192.168.1.231:81/stream')
+# cap = cv.VideoCapture('http://192.168.1.47:81/stream')
 
 while True:
-    ret, img = cap.read()
-    detection(img)
-    detect_apriltag(img)
-    cv.imshow("Captured:", img)
-    cv.waitKey(5)
+    try:
+        ret, img = cap.read()
+        detection(img)
+        detect_apriltag(img)
+        cv.imshow("Captured:", img)
+        cv.waitKey(5)
+    except:
+        pass
