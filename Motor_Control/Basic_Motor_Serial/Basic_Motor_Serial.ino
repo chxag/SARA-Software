@@ -14,14 +14,14 @@
 #define topButtonPin 11
 #define bottomButtonPin 12
 
-#define delay_length 500
+#define delay_length 400
 #define stepsPerRevolution 200
-
-String interrupt = "";
+double pythonInput;
 bool doneFlag;
+bool interruptFlag;
 
 // If no serial input is made, run the "default" case
-int num1 = 0;
+double num1 = 0;
 double num2 = 0;
 
 
@@ -47,6 +47,7 @@ void setup() {
   digitalWrite(enablePin, HIGH);  // Disable the driver
 
   doneFlag = false;
+  interruptFlag = false;
   
   Serial.begin(9600);  // Begin serial transmission
   Serial.setTimeout(5);
@@ -74,16 +75,18 @@ void run(){
 
 
 // Run the motor n revolutions in the given directoin
-void runMotor(double n, bool dir){
+void runMotor(int n, int dir){
   // Enable the motor and set the direction, wait
   digitalWrite(enablePin, LOW);
   digitalWrite(dirPin, dir);
   delay(100);
 
   // Run the motor
-  for (double j = 0; j < n; j++){
-    for (int i = 0; i < stepsPerRevolution; i++) {
-      run();
+  for (int i = 0; i < stepsPerRevolution * n; i++) {
+    run();
+    if (interruptFlag){
+      interruptFlag = false;
+      break;
     }
   }
 
@@ -95,7 +98,7 @@ void runMotor(double n, bool dir){
 
 
 // Run the motor until it reaches the top or bottom
-void runMotorHit(bool dir){
+void runMotorHit(int dir){
   // Enable the motor and set the direction, wait
   digitalWrite(enablePin, LOW);
   digitalWrite(dirPin, dir);
@@ -104,22 +107,23 @@ void runMotorHit(bool dir){
   // Run the motor
   while (checkTopHit() == false || checkBottomHit() == false ){
     run();
+    if (interruptFlag){
+      interruptFlag = false;
+      break;
+    }
   }
-  
+
   // Disable the motor and wait
   digitalWrite(enablePin, HIGH);
   delayMicroseconds(20);
   doneFlag = true;
 }
 
-
-
 void loop() {
   // Potentially unecessary - if the driver overheats, it will give a fault but eventually turn on
   // by itself when it cools down
   if (digitalRead(faultPin) == LOW) {
     digitalWrite(enablePin, HIGH);
-    Serial.println("Fault");
     delay(10000);  // Wait 10 seconds
   }
 
@@ -127,7 +131,7 @@ void loop() {
         String data = Serial.readStringUntil('\n');
         // Note that int values can overflow easily and inputs are not sanitised
         int num1 = data.substring(0, 1).toInt();
-        double num2 = data.substring(2).toInt(); // Will return 0 if the no integer in char[2] onwards
+        int num2 = data.substring(2).toInt(); // Will return 0 if the no integer in char[2] onwards
 
         doneFlag = false;
     
@@ -166,6 +170,13 @@ void loop() {
               Serial.print("6 ");
               Serial.println(num2);
               runMotor(num2, HIGH);
+              break;
+        
+            case 7: // Interrupt
+              Serial.println("7");
+              if (!doneFlag){
+                interruptFlag = true;
+              }
               break;
             
             // If any other command is sent the python code shouldn't let that and something went wrong:
