@@ -68,7 +68,6 @@ fig, ax = plt.subplots(figsize=(5, 5))
 if USE_OLD_DATA: 
     ax.set(xlim= (3.75, 7), ylim= (3.75, 7)) 
 else:
-    pass
     ax.set(xlim= (3, 7), ylim= (3, 7)) 
 
 # Places coloured lettered patches at each datapoint
