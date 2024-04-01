@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light only" />
         <title>New Room - SARA</title>
+        <link rel="icon" type="image/x-icon" href="favicon.png" />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -89,30 +90,41 @@
 
         <div id="premade-templates">
             <h2>Theatre Style Layout</h2>
-            <div>
+            <span id="note">Sections are groups of chairs separated by aisles.<br>0 aisles = 1 section, 1 aisle = 2 sections, etc.</span>
+            <!-- <div>
                 <label for="columns">Dimensions - Columns (Width):</label>
                 <input type="number" id="columns" min="1" />
             </div>
             <div>
                 <label for="rows">Dimensions - Rows (Height):</label>
                 <input type="number" id="rows" min="1" />
-            </div>
+            </div> -->
             <div>
                 <label for="numRows">Rows of Chairs:</label>
                 <input type="number" id="numRows" min="1" />
             </div>
             <div>
-                <label for="chairsPerRow">Chairs Per Row (Each Side):</label>
+                <label for="chairsPerRow">Chairs Per Section (Per Row):</label>
                 <input type="number" id="chairsPerRow" min="1" />
             </div>
             <div>
+                <label for="aisles">Aisles:</label>
+                <select name="aisles" id="aisles">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+            <div>
                 <label for="aisleGap">Aisle Gap (Grid Units):</label>
-                <input type="number" id="aisleGap" min="1" />
+                <input type="number" id="aisleGap" min="0" />
             </div>
             <div>
                 <label for="rowGap">Row Gap (Grid Units):</label>
                 <input type="number" id="rowGap" min="1" />
             </div>
+
             <button id="generateLayout">Generate Layout</button>
         </div>
 
@@ -132,7 +144,7 @@
                 <label for="dimRows">PGM Room Height (cm):</label>
                 <input type="number" min="1" id="pgmRows" required>
             </div>
-            <span id="pgmNote">One grid cell approximately represents 50cm x 50cm. Click "Rotate" to use arrow keys.</span>
+            <span id="note">One grid cell approximately represents 50cm x 50cm. Click "Rotate" to use arrow keys.</span>
             <button id="uploadData">Generate Grid</button>
         </div>        
 

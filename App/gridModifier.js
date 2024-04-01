@@ -35,7 +35,7 @@ function createGrid() {
                 .then((gridData) => {
                     createGridFromData(gridData);
                     localStorage.removeItem("previousLayout");
-                    // sessionStorage.removeItem("pgmTransfer");
+                    sessionStorage.removeItem("pgmTransfer");
                 })
                 .catch((error) => {
                     console.error("Error fetching grid data:", error);
@@ -69,57 +69,57 @@ function createGrid() {
     }
 }
 
-function createGridFromData(gridData) {
-    if (loadingText) loadingText.classList.add("hidden");
-
-    // Skip the first and last rows and columns from gridData dimensions
-    rows = gridData.length - 2; // Exclude first and last row
-    columns = gridData[0].length - 2; // Exclude first and last column
-    gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
-
-    for (let rowIndex = 1; rowIndex < gridData.length - 1; rowIndex++) {
-        // Start from second row, end one before last
-        for (
-            let columnIndex = 1;
-            columnIndex < gridData[rowIndex].length - 1;
-            columnIndex++
-        ) {
-            // Start from second column, end one before last
-            const cell = gridData[rowIndex][columnIndex];
-            const gridItem = document.createElement("div");
-            gridItem.className = "grid-item" + (cell === 0 ? " black" : ""); // Black class for cells with value 0
-            gridItem.id = `item-${rowIndex}-${columnIndex}`; // Adjusted location of grid item to account for skipped rows/columns
-            gridContainer.appendChild(gridItem);
-        }
-    }
-    const gridDataJson = generateGridDataJson(); // Assuming this function accounts for the skipped rows/columns
-    localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
-    updateGridCentering(); // Assuming this function doesn't need adjustment
-    displayLayoutData(); // Assuming this function doesn't need adjustment
-}
-
 // function createGridFromData(gridData) {
 //     if (loadingText) loadingText.classList.add("hidden");
 
-//     // Update rows and columns based on gridData dimensions
-//     rows = gridData.length;
-//     columns = gridData[0].length;
+//     // Skip the first and last rows and columns from gridData dimensions
+//     rows = gridData.length - 2; // Exclude first and last row
+//     columns = gridData[0].length - 2; // Exclude first and last column
 //     gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
 
-//     for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
-//         for (let columnIndex = 0; columnIndex < columns; columnIndex++) {
+//     for (let rowIndex = 1; rowIndex < gridData.length - 1; rowIndex++) {
+//         // Start from second row, end one before last
+//         for (
+//             let columnIndex = 1;
+//             columnIndex < gridData[rowIndex].length - 1;
+//             columnIndex++
+//         ) {
+//             // Start from second column, end one before last
 //             const cell = gridData[rowIndex][columnIndex];
 //             const gridItem = document.createElement("div");
-//             gridItem.className = "grid-item" + (cell === 0 ? " black" : ""); // black class for cells with value 0
-//             gridItem.id = `item-${rowIndex + 1}-${columnIndex + 1}`; // Location of grid item
+//             gridItem.className = "grid-item" + (cell === 0 ? " black" : ""); // Black class for cells with value 0
+//             gridItem.id = `item-${rowIndex}-${columnIndex}`; // Adjusted location of grid item to account for skipped rows/columns
 //             gridContainer.appendChild(gridItem);
 //         }
 //     }
-//     const gridDataJson = generateGridDataJson();
+//     const gridDataJson = generateGridDataJson(); // Assuming this function accounts for the skipped rows/columns
 //     localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
-//     updateGridCentering();
-//     displayLayoutData();
+//     updateGridCentering(); // Assuming this function doesn't need adjustment
+//     displayLayoutData(); // Assuming this function doesn't need adjustment
 // }
+
+function createGridFromData(gridData) {
+    if (loadingText) loadingText.classList.add("hidden");
+
+    // Update rows and columns based on gridData dimensions
+    rows = gridData.length;
+    columns = gridData[0].length;
+    gridContainer.style.gridTemplateColumns = `repeat(${columns}, ${gridSize}px)`;
+
+    for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+        for (let columnIndex = 0; columnIndex < columns; columnIndex++) {
+            const cell = gridData[rowIndex][columnIndex];
+            const gridItem = document.createElement("div");
+            gridItem.className = "grid-item" + (cell === 0 ? " black" : ""); // black class for cells with value 0
+            gridItem.id = `item-${rowIndex + 1}-${columnIndex + 1}`; // Location of grid item
+            gridContainer.appendChild(gridItem);
+        }
+    }
+    const gridDataJson = generateGridDataJson();
+    localStorage.setItem("mostRecentGrid", gridDataJson); // Store the most recent grid JSON
+    updateGridCentering();
+    displayLayoutData();
+}
 
 function createGridFromDimensions(rows, columns) {
     if (loadingText) loadingText.classList.add("hidden");
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (tempLayoutJson) {
             createSavedGrid(tempLayoutJson);
             // Optionally, clear the temporary layout from sessionStorage after use
-            // sessionStorage.removeItem("tempLayout");
+            sessionStorage.removeItem("tempLayout");
         } else {
             // alert("No layout data found.");
             window.history.replaceState(null, "", window.location.pathname);
@@ -248,15 +248,14 @@ window.addEventListener("resize", updateGridCentering);
 
 function updateGridCentering() {
     // Calculate the total grid width
-    const totalGridWidth = columns * gridSize;
-    const gridContainer = document.querySelector(".grid-container");
+    const gridOuterContainer = document.querySelector(".grid-outer-container");
 
     // Check if the grid overflows the viewport width
-    if (totalGridWidth > window.innerWidth) {
+    if (gridOuterContainer.scrollWidth > window.innerWidth) {
         // Grid overflows, set justify-content to flex-start
-        gridContainer.style.justifyContent = "flex-start";
+        gridOuterContainer.style.justifyContent = "flex-start";
     } else {
         // No overflow, center the grid
-        gridContainer.style.justifyContent = "center";
+        gridOuterContainer.style.justifyContent = "center";
     }
 }

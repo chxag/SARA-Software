@@ -238,3 +238,328 @@ function rotateLayout(gridDataJson) {
 
     return JSON.stringify(newGridData);
 }
+
+document
+    .getElementById("add-row-top")
+    .addEventListener("click", () => addRow("top"));
+document
+    .getElementById("remove-row-top")
+    .addEventListener("click", () => removeRow("top"));
+document
+    .getElementById("add-col-left")
+    .addEventListener("click", () => addColumn("left"));
+document
+    .getElementById("remove-col-left")
+    .addEventListener("click", () => removeColumn("left"));
+document
+    .getElementById("add-row-bottom")
+    .addEventListener("click", () => addRow("bottom"));
+document
+    .getElementById("remove-row-bottom")
+    .addEventListener("click", () => removeRow("bottom"));
+document
+    .getElementById("add-col-right")
+    .addEventListener("click", () => addColumn("right"));
+document
+    .getElementById("remove-col-right")
+    .addEventListener("click", () => removeColumn("right"));
+
+function addRow(position) {
+    const gridDataJson = generateGridDataJson(); // Get current layout JSON
+    let gridData = JSON.parse(gridDataJson);
+
+    gridData.dimensions.rows += 1; // Increment total rows count
+
+    if (position === "top") {
+        // Increment the row index of stacks, obstacles, and robot to make space at the top
+        gridData = adjustLayoutForAddition(gridData, "row");
+    }
+
+    // Clear the layout and recreate the grid with updated dimensions
+    clearLayout();
+    gridContainer.innerHTML = ""; // Clear existing grid items
+    createSavedGrid(JSON.stringify(gridData));
+}
+
+function addColumn(position) {
+    const gridDataJson = generateGridDataJson(); // Get current layout JSON
+    let gridData = JSON.parse(gridDataJson);
+
+    gridData.dimensions.columns += 1; // Increment total columns count
+
+    if (position === "left") {
+        // Increment the column index of stacks, obstacles, and robot to make space on the left
+        gridData = adjustLayoutForAddition(gridData, "column");
+    }
+
+    // Clear the layout and recreate the grid with updated dimensions
+    clearLayout();
+    gridContainer.innerHTML = ""; // Clear existing grid items
+    createSavedGrid(JSON.stringify(gridData));
+}
+
+function adjustLayoutForAddition(gridData, type) {
+    if (type === "row") {
+        // Increment row index for stacks, obstacles, robot, and each chair in the stacks
+        gridData.stacks.forEach((stack) => {
+            stack.location = incrementIndex(stack.location, "row");
+            stack.chairs.forEach((chair) => {
+                chair.location = incrementIndex(chair.location, "row");
+            });
+        });
+        gridData.obstacles = gridData.obstacles.map((obstacle) =>
+            incrementIndex(obstacle, "row")
+        );
+        if (gridData.robot)
+            gridData.robot = incrementIndex(gridData.robot, "row");
+    } else if (type === "column") {
+        // Increment column index for stacks, obstacles, robot, and each chair in the stacks
+        gridData.stacks.forEach((stack) => {
+            stack.location = incrementIndex(stack.location, "column");
+            stack.chairs.forEach((chair) => {
+                chair.location = incrementIndex(chair.location, "column");
+            });
+        });
+        gridData.obstacles = gridData.obstacles.map((obstacle) =>
+            incrementIndex(obstacle, "column")
+        );
+        if (gridData.robot)
+            gridData.robot = incrementIndex(gridData.robot, "column");
+    }
+
+    return gridData;
+}
+
+function incrementIndex(location, type) {
+    let [row, column] = location.split("-").map(Number);
+    if (type === "row") {
+        row += 1; // Increment the row index
+    } else if (type === "column") {
+        column += 1; // Increment the column index
+    }
+    return `${row}-${column}`;
+}
+
+function removeRow(position) {
+    const gridDataJson = generateGridDataJson();
+    let gridData = JSON.parse(gridDataJson);
+
+    if (gridData.dimensions.rows > 1) {
+        let occupied = isRowOccupied(
+            gridData,
+            position === "top" ? 1 : gridData.dimensions.rows
+        );
+        if (
+            occupied &&
+            !confirm(
+                "This row is occupied, are you sure you want to remove it?"
+            )
+        ) {
+            return;
+        }
+
+        if (position === "top") {
+            gridData = adjustLayoutForRemoval(gridData, "row", 1, true);
+        } else if (position === "bottom") {
+            gridData = adjustLayoutForRemoval(
+                gridData,
+                "row",
+                gridData.dimensions.rows,
+                false
+            );
+        }
+
+        gridData.dimensions.rows -= 1;
+        recreateGrid(gridData);
+    }
+}
+
+function removeColumn(position) {
+    const gridDataJson = generateGridDataJson();
+    let gridData = JSON.parse(gridDataJson);
+
+    if (gridData.dimensions.columns > 1) {
+        let occupied = isColumnOccupied(
+            gridData,
+            position === "left" ? 1 : gridData.dimensions.columns
+        );
+        if (
+            occupied &&
+            !confirm(
+                "This column is occupied, are you sure you want to remove it?"
+            )
+        ) {
+            return;
+        }
+
+        if (position === "left") {
+            gridData = adjustLayoutForRemoval(gridData, "column", 1, true);
+        } else if (position === "right") {
+            gridData = adjustLayoutForRemoval(
+                gridData,
+                "column",
+                gridData.dimensions.columns,
+                false
+            );
+        }
+
+        gridData.dimensions.columns -= 1;
+        recreateGrid(gridData);
+    }
+}
+
+function isRowOccupied(gridData, rowIndex) {
+    // Check for stacks and their chairs in the specified row
+    const isStackOrChairInRow = gridData.stacks.some((stack) => {
+        const stackRow = getRow(stack.location);
+        // Check if the stack itself is in the specified row
+        if (stackRow === rowIndex) return true;
+        // Check if any of the stack's chairs are in the specified row
+        return stack.chairs.some(
+            (chair) => getRow(chair.location) === rowIndex
+        );
+    });
+
+    // Check for obstacles in the specified row
+    const isObstacleInRow = gridData.obstacles.some(
+        (obstacle) => getRow(obstacle) === rowIndex
+    );
+
+    // Check if the robot is in the specified row
+    const isRobotInRow = gridData.robot && getRow(gridData.robot) === rowIndex;
+
+    // The row is occupied if any condition above is true
+    return isStackOrChairInRow || isObstacleInRow || isRobotInRow;
+}
+
+function isColumnOccupied(gridData, columnIndex) {
+    // Check for stacks and their chairs in the specified column
+    const isStackOrChairInColumn = gridData.stacks.some((stack) => {
+        const stackColumn = getColumn(stack.location);
+        // Check if the stack itself is in the specified column
+        if (stackColumn === columnIndex) return true;
+        // Check if any of the stack's chairs are in the specified column
+        return stack.chairs.some(
+            (chair) => getColumn(chair.location) === columnIndex
+        );
+    });
+
+    // Check for obstacles in the specified column
+    const isObstacleInColumn = gridData.obstacles.some(
+        (obstacle) => getColumn(obstacle) === columnIndex
+    );
+
+    // Check if the robot is in the specified column
+    const isRobotInColumn =
+        gridData.robot && getColumn(gridData.robot) === columnIndex;
+
+    // The column is occupied if any condition above is true
+    return isStackOrChairInColumn || isObstacleInColumn || isRobotInColumn;
+}
+
+function recreateGrid(gridData) {
+    clearLayout(); // Clear existing grid items and related states
+    gridContainer.innerHTML = "";
+    createSavedGrid(JSON.stringify(gridData)); // Use updated grid data to recreate the grid
+    displayLayoutData(); // Update UI to reflect changes
+}
+
+function adjustLayoutForRemoval(gridData, type, index, adjustIndices) {
+    if (type === "row") {
+        if (adjustIndices) {
+            // Adjusting for removal of the top row
+            gridData.stacks.forEach((stack) => {
+                // Remove chairs located in the first row from this stack
+                stack.chairs = stack.chairs.filter(
+                    (chair) => getRow(chair.location) !== 1
+                );
+
+                // Decrement the row index for remaining chairs in this stack
+                stack.chairs.forEach((chair) => {
+                    chair.location = decrementIndex(chair.location, "row");
+                });
+            });
+            gridData.stacks = gridData.stacks
+                .filter((stack) => getRow(stack.location) !== 1)
+                .map((stack) => {
+                    stack.location = decrementIndex(stack.location, "row");
+                    return stack;
+                });
+            gridData.obstacles = gridData.obstacles
+                .filter((obstacle) => getRow(obstacle) !== 1)
+                .map((obstacle) => decrementIndex(obstacle, "row"));
+            if (gridData.robot && getRow(gridData.robot) === 1)
+                gridData.robot = null;
+            else if (gridData.robot)
+                gridData.robot = decrementIndex(gridData.robot, "row");
+        } else {
+            // Simply remove elements from the last row, no decrement needed
+            gridData.stacks = gridData.stacks.filter(
+                (stack) => getRow(stack.location) !== index
+            );
+            gridData.obstacles = gridData.obstacles.filter(
+                (obstacle) => getRow(obstacle) !== index
+            );
+            if (gridData.robot && getRow(gridData.robot) === index)
+                gridData.robot = null;
+        }
+    } else if (type === "column") {
+        if (adjustIndices) {
+            // Adjusting for removal of the leftmost column
+            gridData.stacks.forEach((stack) => {
+                // Remove chairs located in the first column from this stack
+                stack.chairs = stack.chairs.filter(
+                    (chair) => getColumn(chair.location) !== 1
+                );
+
+                // Decrement the column index for remaining chairs in this stack
+                stack.chairs.forEach((chair) => {
+                    chair.location = decrementIndex(chair.location, "column");
+                });
+            });
+            gridData.stacks = gridData.stacks
+                .filter((stack) => getColumn(stack.location) !== 1)
+                .map((stack) => {
+                    stack.location = decrementIndex(stack.location, "column");
+                    return stack;
+                });
+            gridData.obstacles = gridData.obstacles
+                .filter((obstacle) => getColumn(obstacle) !== 1)
+                .map((obstacle) => decrementIndex(obstacle, "column"));
+            if (gridData.robot && getColumn(gridData.robot) === 1)
+                gridData.robot = null;
+            else if (gridData.robot)
+                gridData.robot = decrementIndex(gridData.robot, "column");
+        } else {
+            // Simply remove elements from the last column, no decrement needed
+            gridData.stacks = gridData.stacks.filter(
+                (stack) => getColumn(stack.location) !== index
+            );
+            gridData.obstacles = gridData.obstacles.filter(
+                (obstacle) => getColumn(obstacle) !== index
+            );
+            if (gridData.robot && getColumn(gridData.robot) === index)
+                gridData.robot = null;
+        }
+    }
+
+    return gridData;
+}
+
+function decrementIndex(location, type) {
+    let [row, column] = location.split("-").map(Number);
+    if (type === "row" && row > 1) {
+        row -= 1; // Decrement row index only if it's greater than 1
+    } else if (type === "column" && column > 1) {
+        column -= 1; // Decrement column index only if it's greater than 1
+    }
+    return `${row}-${column}`;
+}
+
+function getRow(location) {
+    return location ? parseInt(location.split("-")[0], 10) : null;
+}
+
+function getColumn(location) {
+    return location ? parseInt(location.split("-")[1], 10) : null;
+}

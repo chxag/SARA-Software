@@ -50,6 +50,10 @@ input[type="submit"],
     align-items: center;
 }
 
+#premade-templates * select {
+    width: 188px;
+}
+
 #saved-layouts,
 #premade-templates,
 #input-dimensions,
@@ -196,7 +200,6 @@ button:hover {
     display: grid;
     grid-template-columns: repeat(1, 100px);
     padding: 10px;
-    overflow-x: auto;
 }
 
 .grid-item {
@@ -356,6 +359,11 @@ button:hover {
 
 .grid-buttons {
     min-height: 5em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
 }
 
 #grid-buttons-div {
@@ -597,6 +605,78 @@ button:hover {
     text-align: center;
 }
 
-#pgmNote {
+#note {
     text-align: center;
+}
+
+.grid-outer-container {
+    display: grid;
+    grid-template-columns: min-content min-content min-content; /* Adjust the 40px as needed for the arrows */
+    grid-template-rows: min-content min-content min-content; /* Adjust the 40px as needed for the top and bottom arrows */
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    overflow-x: auto;
+}
+
+/* Positioning individual arrow groups */
+.top-arrows,
+.bottom-arrows {
+    grid-column: 2 / 3; /* Centered horizontally */
+    display: flex;
+    gap: 10px; /* Space between add and remove arrows */
+    margin: 5px auto;
+}
+
+.left-arrows,
+.right-arrows {
+    grid-row: 2 / 3; /* Centered vertically */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Adjust the gap between the arrows as needed */
+    align-self: center;
+    margin: auto 5px;
+}
+
+.arrow {
+    /* Arrow button styles */
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 5px 10px; /* Adjust the padding as needed */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    aspect-ratio: 1/1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+svg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.arrow:hover {
+    background-color: #ccc;
+}
+
+.grid-container {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+}
+
+.bi.bi-triangle-fill.add {
+    fill: #048; /* Color for add buttons */
+}
+
+.bi.bi-triangle-fill.remove {
+    fill: #b56; /* Color for remove buttons */
+}
+
+.grid-button-logo {
+    margin-top: 5px;
+    height: 2em;
+    width: 2em;
 }

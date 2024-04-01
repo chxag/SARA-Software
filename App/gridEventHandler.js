@@ -1,4 +1,5 @@
 function addStack(gridItem, rotationDegree = defaultRotationDegree) {
+    if (!gridItem) return;
     if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
     if (gridItem.classList.contains("black")) return; // Skip if there's an obstacle
 
@@ -33,6 +34,7 @@ function addStack(gridItem, rotationDegree = defaultRotationDegree) {
 }
 
 function handlePlaceMode(gridItem, rotationDegree = defaultRotationDegree) {
+    if (!gridItem) return;
     const chairContainer = gridItem.querySelector(".chair-container-in-grid");
 
     // To not get mixed up with stacks
@@ -99,6 +101,7 @@ function addChair(
     chairTextContent,
     rotationDegree = defaultRotationDegree
 ) {
+    if (!gridItem) return;
     const container = document.createElement("div");
     container.className = "chair-container-in-grid"; // contains both image and text
 
@@ -138,6 +141,7 @@ function updateStackCounter(stackId) {
 }
 
 function rotateChair(gridItem, isQuickClick) {
+    if (!gridItem) return;
     const chairContainer = gridItem.querySelector(".chair-container-in-grid");
     if (!chairContainer) return; // Exit if there's no chair container
 
@@ -259,6 +263,7 @@ document.addEventListener("keydown", function (event) {
 });
 
 function moveChair(gridItem) {
+    if (!gridItem) return;
     const chairContainer = gridItem.querySelector(".chair-container-in-grid");
     if (isMultiSelectEnabled) {
         if (
@@ -476,6 +481,7 @@ function moveSelectedChairs(direction) {
 }
 
 function deleteChair(gridItem) {
+    if (!gridItem) return;
     const chairContainer = gridItem.querySelector(".chair-container-in-grid");
     if (!chairContainer) return; // Skip if there is no chair
 
@@ -590,6 +596,7 @@ function deleteChair(gridItem) {
 }
 
 function addOrRemoveRobot(gridItem) {
+    if (!gridItem) return;
     if (gridItem.querySelector(".chair-container-in-grid")) return; // Skip if there's a chair
     if (gridItem.classList.contains("black")) return; // Skip if there's an obstacle
 
@@ -611,6 +618,7 @@ function addOrRemoveRobot(gridItem) {
 }
 
 function addOrRemoveObstacle(gridItem) {
+    if (!gridItem) return;
     if (gridItem.querySelector(".chair-container-in-grid")) return; // Skip if there's a chair
     if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
 
