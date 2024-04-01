@@ -18,7 +18,8 @@
 #define stepsPerRevolution 200
 double pythonInput;
 bool doneFlag;
-bool interruptFlag;
+
+int revolutionCounter = 0;
 
 // If no serial input is made, run the "default" case
 double num1 = 0;
@@ -47,7 +48,6 @@ void setup() {
   digitalWrite(enablePin, HIGH);  // Disable the driver
 
   doneFlag = false;
-  interruptFlag = false;
   
   Serial.begin(9600);  // Begin serial transmission
   Serial.setTimeout(5);
@@ -68,6 +68,7 @@ bool checkBottomHit(){
 void run(){
     // Run the motor one step at last set direction
     digitalWrite(stepPin, HIGH);
+    revolutionCounter += 1;
     delayMicroseconds(delay_length);
     digitalWrite(stepPin, LOW);
     delayMicroseconds(delay_length);
@@ -84,10 +85,6 @@ void runMotor(int n, int dir){
   // Run the motor
   for (int i = 0; i < stepsPerRevolution * n; i++) {
     run();
-    if (interruptFlag){
-      interruptFlag = false;
-      break;
-    }
   }
 
   // Disable the motor and wait
@@ -107,11 +104,9 @@ void runMotorHit(int dir){
   // Run the motor
   while (checkTopHit() == false || checkBottomHit() == false ){
     run();
-    if (interruptFlag){
-      interruptFlag = false;
-      break;
-    }
   }
+
+  revolutionCounter = 0;
 
   // Disable the motor and wait
   digitalWrite(enablePin, HIGH);
@@ -120,13 +115,6 @@ void runMotorHit(int dir){
 }
 
 void loop() {
-  // Potentially unecessary - if the driver overheats, it will give a fault but eventually turn on
-  // by itself when it cools down
-  if (digitalRead(faultPin) == LOW) {
-    digitalWrite(enablePin, HIGH);
-    delay(10000);  // Wait 10 seconds
-  }
-
     if (Serial.available()){
         String data = Serial.readStringUntil('\n');
         // Note that int values can overflow easily and inputs are not sanitised
@@ -172,11 +160,8 @@ void loop() {
               runMotor(num2, HIGH);
               break;
         
-            case 7: // Interrupt
+            case 7: // Interrupt, discontinued
               Serial.println("7");
-              if (!doneFlag){
-                interruptFlag = true;
-              }
               break;
             
             // If any other command is sent the python code shouldn't let that and something went wrong:
@@ -185,5 +170,7 @@ void loop() {
               // Do nothing
               break;
         }
+        Serial.print("Number of revolutions: ");
+        Serial.println(revolutionCounter);
     }
 }
