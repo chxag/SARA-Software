@@ -59,6 +59,10 @@ function greyOutChairs(isRoomStacked) {
     });
 }
 
+document
+    .getElementById("save-layout")
+    .addEventListener("click", saveCurrentLayout);
+
 function saveCurrentLayout() {
     const gridDataJson = generateGridDataJson();
 

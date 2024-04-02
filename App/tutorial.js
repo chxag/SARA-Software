@@ -90,7 +90,7 @@ const tutorialData = [
     },
     {
         title: "Grid Dimensions",
-        text: "Use the <strong>Empty Grid</strong> option in the New Room page (found at navigation bar at the top) to create a new grid with entered dimensions. Once generated, you can use the blue and red arrows around the grid to increase or decrease dimensions one at a time. You will be asked to confirm before removing a row or column if it is not empty.",
+        text: "Use the <strong>Empty Grid</strong> option in the <strong>New Room</strong> page (found at navigation bar at the top) to create a new grid with entered dimensions. Once generated, you can use the blue and red arrows around the grid to increase or decrease dimensions one at a time. You will be asked to confirm before removing a row or column if it is not empty.",
         images: ["Tutorial_Images/empty_grid.png", "Tutorial_Images/add.png"],
         buttonClass: "tutorial-button-blue",
     },
@@ -159,7 +159,7 @@ const tutorialData = [
     },
     {
         title: "PGM",
-        text: `PGM maps produced by LiDAR scan can be used to generate a corresponding layout in the app, automatically placing obstacles. Use the <strong>Upload Map as PGM</strong> option on the New Room page by uploading a PGM file, then rotate the map so it is positioned upright, with the bottom edge of the map along the bottom of the window. Finally, specify the width and height of the scanned area in cm. Once created, you can then adjust the layout like any other room.`,
+        text: `PGM maps produced by LiDAR scan can be used to generate a corresponding layout in the app, automatically placing obstacles. Use the <strong>Upload Map as PGM</strong> option on the <strong>New Room</strong> page by uploading a PGM file, then rotate the map so it is positioned upright, with the bottom edge of the map along the bottom of the window. Finally, specify the width and height of the scanned area in cm. Once created, you can then adjust the layout like any other room.`,
         images: ["Tutorial_Images/pgm_ui.png", "Tutorial_Images/pgm.png"],
         buttonClass: "tutorial-button-yellow",
     },
