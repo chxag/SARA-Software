@@ -78,6 +78,16 @@ document.addEventListener("DOMContentLoaded", function () {
                         key
                     );
                     if (newName && newName !== key) {
+                        if (localStorage.getItem(newName) !== null) {
+                            // Prompt the user to confirm overwriting the existing layout
+                            const overwrite = confirm(
+                                `The layout '${newName}' already exists. Do you want to overwrite it?`
+                            );
+                            if (!overwrite) {
+                                // If the user chooses not to overwrite, exit the function
+                                return;
+                            }
+                        }
                         localStorage.setItem(newName, value); // Save layout with new name
                         localStorage.removeItem(key); // Remove old layout
                         window.location.reload(); // Reload the page to reflect changes
