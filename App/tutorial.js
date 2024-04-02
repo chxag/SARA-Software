@@ -150,7 +150,7 @@ const tutorialData = [
     },
     {
         title: "Theatre-Style Layout",
-        text: `You can automatically create a <strong>Theatre-Style Layout</strong> in the New Room page. These layouts consist of one or more rows, made of groups of chairs next to each other ("sections") with gaps between each group ("aisles"). You can specify the number of these rows, chairs in each of their sections, and the number of aisles, as well as the size of aisles and the spacing between rows. The required stacks will be placed along the back. Once created, you can then adjust the layout like any other room.`,
+        text: `You can automatically create a <strong>Theatre-Style Layout</strong> in the <strong>New Room</strong> page. These layouts consist of one or more rows, made of groups of chairs next to each other ("sections") with gaps between each group ("aisles"). You can specify the number of these rows, chairs in each of their sections, and the number of aisles, as well as the size of aisles and the spacing between rows. The required stacks will be placed along the back. Once created, you can then adjust the layout like any other room.`,
         images: [
             "Tutorial_Images/theatre_ui.png",
             "Tutorial_Images/theatre.png",

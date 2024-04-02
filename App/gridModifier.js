@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000); // 1000 milliseconds = 1 second
 
     clearLayout();
-    if (layoutName) {
+    if (layoutName && localStorage.getItem(layoutName) !== null) {
         const gridDataJson = localStorage.getItem(
             decodeURIComponent(layoutName)
         );
