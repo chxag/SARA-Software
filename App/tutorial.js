@@ -90,7 +90,7 @@ const tutorialData = [
     },
     {
         title: "Grid Dimensions",
-        text: "Use the <strong>Empty Grid</strong> option in the New Room page (found at navigation bar) to create a new grid with entered dimensions. Once generated, you can use the blue and red arrows around the grid to increase or decrease dimensions one at a time. You will be asked to confirm before removing a row or column if it is not empty.",
+        text: "Use the <strong>Empty Grid</strong> option in the New Room page (found at navigation bar at the top) to create a new grid with entered dimensions. Once generated, you can use the blue and red arrows around the grid to increase or decrease dimensions one at a time. You will be asked to confirm before removing a row or column if it is not empty.",
         images: ["Tutorial_Images/empty_grid.png", "Tutorial_Images/add.png"],
         buttonClass: "tutorial-button-blue",
     },
@@ -144,7 +144,7 @@ const tutorialData = [
     },
     {
         title: "Viewing and Loading Saved Rooms",
-        text: `Access any saved room in the <strong>Room Data</strong> page (found at navigation bar). You will also be able to rename and delete rooms, as well as have the JSON data associated with the rooms there. The JSON data can be shared and used to regenerate rooms.`,
+        text: `Access any saved room in the <strong>Room Data</strong> page (found at navigation bar at the top). You will also be able to rename and delete rooms, as well as copy their JSON data as text. The JSON text represents rooms, which can be shared (e.g. through email) and pasted back into the app to regenerate rooms.`,
         images: ["Tutorial_Images/10.png"],
         buttonClass: "tutorial-button-yellow",
     },
