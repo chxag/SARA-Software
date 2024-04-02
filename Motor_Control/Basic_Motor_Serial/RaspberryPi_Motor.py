@@ -2,7 +2,7 @@ import serial
 import time
 
 # List of possible port names to try
-possible_ports = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/ttyACM2', '/dev/ttyACM3']
+possible_ports = ['/dev/ttyACM1', '/dev/ttyACM2', '/dev/ttyACM3']  # ttyACM0 is reserved
 
 # Try opening each port until one works
 for port in possible_ports:
@@ -18,24 +18,26 @@ if 'ser' in locals():
     try:
         while True:
             # Ask the user for a command
-            print()
-            command = input("Enter (1/2/3/4/5 n/6 n)")  # 7 to interrupt has been discontinued
+            command = raw_input("Enter (1/2/3/4/5 n/6 n)")  # 7 to interrupt has been discontinued
             if command == '1':
+                print("Sending 1")
                 ser.write(b'1\n')  # Send command '1' (as bytes)
             elif command == '2':
-                ser.write(b'2\n')  # Send command '2' (as bytes)
+                print("Sending 2")
+                ser.write(b'2\n')
             elif command == '3':
-                ser.write(b'3\n')  # Send command '3' (as bytes)
+                print("Sending 3")
+                ser.write(b'3\n')
             elif command == '4':
-                ser.write(b'4\n')  # Send command '4' (as bytes)
-            elif command[:2] == '5 ':	# Note: Doesn't validate the second integer
-                ser.write((command + "\n").encode())  # Send command (as bytes)
-            elif command[:2] == '6 ': # Note: Doesn't validate the second integer
-                ser.write((command + "\n").encode())  # Send command (as bytes)
-            elif command == '7':
-                ser.write(b'7\n')  # Send command '7' (as bytes)
-            else:
-                print("Invalid command! Please enter '1', '2', '3', '4', '5 n', '6 n' or '7'.")
+                print("Sending 4")
+                ser.write(b'4\n')
+            elif command[0] == '5':
+                print(str(command + '\n'))
+                ser.write(str(command + '\n'))
+            elif command[0] == '6':
+                print(str(command + '\n'))
+                ser.write(str(command + '\n'))
+                
 
     except KeyboardInterrupt:
         print("\nProgram stopped by user.")
