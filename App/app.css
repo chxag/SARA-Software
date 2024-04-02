@@ -99,7 +99,7 @@ button {
     outline: none;
 }
 
-button:hover {
+button:not(.tutorial-nav-button):hover {
     background-color: #ccc;
 }
 
@@ -341,6 +341,7 @@ button:hover {
 }
 
 #stack-counter p {
+    width: max-content;
     margin: 0;
 }
 
@@ -376,7 +377,7 @@ button:hover {
 
 #tutorial {
     width: 100%;
-    margin: auto auto 200px auto;
+    margin: auto auto 300px auto;
     text-align: center;
 }
 
@@ -483,21 +484,21 @@ button:hover {
 
 .tutorial-navigation {
     display: flex;
+    flex-wrap: wrap; /* Allow the buttons to wrap onto the next line */
     justify-content: center;
     flex-shrink: 1;
     width: 100%;
 }
 
 .tutorial-nav-button {
-    /* flex: 1; */
+    flex: 1;
+    color: white;
     max-width: 40px;
     width: 10%;
     white-space: nowrap;
     margin: 2px;
     padding: 5px 5px;
     cursor: pointer;
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
     border-radius: 5px;
     text-align: center;
     display: flex;
@@ -506,13 +507,35 @@ button:hover {
 }
 
 .tutorial-nav-button.active {
-    border-color: #048;
-    background-color: rgba(0, 68, 136, 0.7);
-    color: white;
+    border: 3px solid black;
+    color: black;
+    font-weight: bold;
+}
+
+.tutorial-button-blue {
+    background-color: #47a;
+}
+
+.tutorial-button-red {
+    background-color: #e67;
+}
+
+.tutorial-button-green {
+    background-color: #283;
+}
+
+.tutorial-button-yellow {
+    background-color: #cb4;
 }
 
 .hidden {
     display: none;
+}
+
+@media (max-width: 500px) {
+    .tutorial-nav-button {
+        flex: 1 0 10%;
+    }
 }
 
 /* For smaller screens */
@@ -533,7 +556,7 @@ button:hover {
     }
 }
 
-@media (max-width: 365px) {
+@media (max-width: 390px) {
     .zoom-controls {
         bottom: 70px;
     }
@@ -551,38 +574,63 @@ button:hover {
     justify-content: center;
     justify-items: center;
     align-items: center;
-    gap: 5px; /* Minimal gap for visual separation */
+    gap: 5px;
     z-index: 1000;
     background-color: white;
     border: 1px solid black;
     border-radius: 10px;
     padding: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    grid-template-columns: 1fr max-content 1fr;
+    grid-template-rows: auto max-content max-content max-content 1fr;
 }
 
-#toggleSelectMode {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
+#selectModeIndicator {
+    grid-column: 1 / -1;
+    grid-row: 1;
 }
 
-#moveUp {
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
+#selectionControls {
+    grid-column: 1 / -1;
+    grid-row: 6;
+    display: flex;
+    justify-content: space-evenly;
+    gap: 10px;
+    width: 100%;
 }
 
 #moveLeft {
-    grid-column: 1 / 2;
-    grid-row: 2 / 3;
+    grid-column: 1;
+    grid-row: 2 / 5;
+    width: 100%;
 }
 
 #moveRight {
-    grid-column: 3 / 4;
-    grid-row: 2 / 3;
+    grid-column: 3;
+    grid-row: 2 / 5;
+    width: 100%;
+}
+
+#moveUp {
+    grid-column: 2;
+    grid-row: 2;
+    width: 33%;
+}
+
+#toggleSelectMode {
+    grid-column: 2;
+    grid-row: 3;
 }
 
 #moveDown {
-    grid-column: 2 / 3;
-    grid-row: 3 / 4;
+    grid-column: 2;
+    grid-row: 4;
+    width: 33%;
+}
+
+#selectAll,
+#deselectAll {
+    width: 40%;
 }
 
 #imagePreview {
@@ -596,8 +644,8 @@ button:hover {
 }
 
 #uploadedImage {
-    height: 70%;
-    width: 70%;
+    width: 60%;
+    max-height: 60%;
 }
 
 #rotationControl {
@@ -679,4 +727,16 @@ svg {
     margin-top: 5px;
     height: 2em;
     width: 2em;
+}
+
+.down {
+    transform: rotate(180deg);
+}
+
+.left {
+    transform: rotate(-90deg);
+}
+
+.right {
+    transform: rotate(90deg);
 }

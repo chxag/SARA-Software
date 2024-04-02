@@ -21,6 +21,102 @@ def serve_static(filename):
 def index():
     return render_template('index.html')
 
+# @app.route('/upload', methods=['POST'])
+# def upload_file():
+#     global last_grid_data_filename
+#     file = request.files['file']
+
+#     if file:
+#         filename = file.filename
+#         file_path = os.path.join('Maps', filename)
+#         file.save(file_path)
+
+#         # Convert PGM to PNG
+#         png_path = file_path.replace('.pgm', '.png')
+#         pgm_to_png.convert_pgm_to_png(file_path, png_path)
+
+#         # Update last processed filename to the PNG path
+#         last_grid_data_filename = png_path
+
+#         # Return the path to the PNG file, without cropping
+#         return jsonify({'status': 'success', 'filename': os.path.basename(png_path), 'pngPath': os.path.join('Maps', os.path.basename(png_path))}), 200
+#     else:
+#         return jsonify({'error': 'No file uploaded'}), 400
+
+# @app.route('/process_and_generate_grid', methods=['POST'])
+# def process_and_generate_grid():
+#     global last_grid_data_filename
+#     data = request.get_json()
+#     pgmRows = int(data.get('pgmRows', 0))
+#     pgmColumns = int(data.get('pgmColumns', 0))
+#     rotationDegrees = int(data.get('rotationDegrees', 0))
+#     filename = data.get('filename')
+
+#     if not all([pgmRows, pgmColumns, filename]):
+#         return jsonify({'error': 'Missing dimensions, rotation, or filename'}), 400
+
+#     original_png_path = os.path.join('Maps', filename.replace('_cropped', ''))  # Use the original PNG before cropping
+
+#     try:
+#         # Rotate the original PNG, fill the background, and save as a new file
+#         rotated_png_path = apply_rotation(original_png_path, rotationDegrees)
+
+#         # Apply autocropping to the rotated and filled PNG
+#         cropped_png_path = rotated_png_path.replace('.png', '_cropped.png')
+#         autocrop.auto_cropper_png(rotated_png_path, cropped_png_path)
+
+#         # Generate grid from the cropped image
+#         grid_data_path = generate_grid_from_png(cropped_png_path, pgmRows, pgmColumns)
+        
+#         last_grid_data_filename = os.path.basename(grid_data_path)
+
+#         return jsonify({'status': 'success', 'gridDataPath': os.path.join('Maps', last_grid_data_filename)}), 200
+#     except Exception as e:
+#         print(f'Error processing PNG file: {e}')
+#         return jsonify({'error': 'Failed to process PNG file'}), 500
+
+# @app.route('/rotate_and_crop', methods=['POST'])
+# def rotate_and_crop():
+#     data = request.get_json()
+#     rotationDegrees = int(data.get('rotationDegrees', 0))
+#     original_filename = data.get('originalFilename')
+
+#     if original_filename:
+#         original_path = os.path.join('Maps', original_filename)
+#         rotated_png_path = apply_rotation(original_path, rotationDegrees)
+#         cropped_png_path = rotated_png_path.replace('.png', '_cropped.png')
+#         autocrop.auto_cropper_png(rotated_png_path, cropped_png_path)
+
+#         return jsonify({'status': 'success', 'croppedPngPath': os.path.join('Maps', os.path.basename(cropped_png_path))}), 200
+#     else:
+#         return jsonify({'error': 'Missing original filename or rotation degrees'}), 400
+    
+# def apply_rotation(png_path, degrees, fill_color=(255, 255, 255)):
+#     img = Image.open(png_path)
+#     if img.mode != 'RGBA':
+#         img = img.convert('RGBA')
+
+#     # Rotate the image with expand=True to get the full rotated image without cropping
+#     rotated_img = img.rotate(-degrees, expand=True)
+
+#     # Calculate the size of the rotated image
+#     rotated_width, rotated_height = rotated_img.size
+
+#     # Create a new image with the size of the rotated image and a specified background color
+#     background = Image.new('RGBA', (rotated_width, rotated_height), fill_color + (0,))
+
+#     # Paste the rotated image onto the background
+#     background.paste(rotated_img, (0, 0), rotated_img)
+
+#     # Convert back to RGB to drop the alpha channel
+#     background = background.convert('RGB')
+
+#     rotated_path = png_path.replace('.png', '_rotated.png')
+#     background.save(rotated_path)
+#     background.close()  # Explicitly close the file
+
+#     return rotated_path
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     global last_grid_data_filename
@@ -28,91 +124,71 @@ def upload_file():
 
     if file:
         filename = file.filename
-        file_path = os.path.join('Maps', filename)
-        file.save(file_path)
+        original_path = os.path.join('Maps', filename)  # Save original file
+        file.save(original_path)
 
         # Convert PGM to PNG
-        png_path = file_path.replace('.pgm', '.png')
-        pgm_to_png.convert_pgm_to_png(file_path, png_path)
+        png_path = original_path.replace('.pgm', '.png')
+        pgm_to_png.convert_pgm_to_png(original_path, png_path)
 
-        # Update last processed filename to the PNG path
-        last_grid_data_filename = png_path
+        # Crop the converted PNG for initial display
+        cropped_png_path = png_path.replace('.png', '_cropped.png')
+        autocrop.auto_cropper_png(png_path, cropped_png_path)
 
-        # Return the path to the PNG file, without cropping
-        return jsonify({'status': 'success', 'filename': os.path.basename(png_path), 'pngPath': os.path.join('Maps', os.path.basename(png_path))}), 200
+        last_grid_data_filename = cropped_png_path  # Store cropped path for initial display
+
+        return jsonify({'status': 'success', 'originalFilename': os.path.basename(png_path), 'croppedFilename': os.path.basename(cropped_png_path), 'croppedPngPath': os.path.join('Maps', os.path.basename(cropped_png_path))}), 200
     else:
         return jsonify({'error': 'No file uploaded'}), 400
-
-@app.route('/process_and_generate_grid', methods=['POST'])
-def process_and_generate_grid():
-    global last_grid_data_filename
-    data = request.get_json()
-    pgmRows = int(data.get('pgmRows', 0))
-    pgmColumns = int(data.get('pgmColumns', 0))
-    rotationDegrees = int(data.get('rotationDegrees', 0))
-    filename = data.get('filename')
-
-    if not all([pgmRows, pgmColumns, filename]):
-        return jsonify({'error': 'Missing dimensions, rotation, or filename'}), 400
-
-    original_png_path = os.path.join('Maps', filename.replace('_cropped', ''))  # Use the original PNG before cropping
-
-    try:
-        # Rotate the original PNG, fill the background, and save as a new file
-        rotated_png_path = apply_rotation(original_png_path, rotationDegrees)
-
-        # Apply autocropping to the rotated and filled PNG
-        cropped_png_path = rotated_png_path.replace('.png', '_cropped.png')
-        autocrop.auto_cropper_png(rotated_png_path, cropped_png_path)
-
-        # Generate grid from the cropped image
-        grid_data_path = generate_grid_from_png(cropped_png_path, pgmRows, pgmColumns)
-        
-        last_grid_data_filename = os.path.basename(grid_data_path)
-
-        return jsonify({'status': 'success', 'gridDataPath': os.path.join('Maps', last_grid_data_filename)}), 200
-    except Exception as e:
-        print(f'Error processing PNG file: {e}')
-        return jsonify({'error': 'Failed to process PNG file'}), 500
 
 def apply_rotation(png_path, degrees, fill_color=(255, 255, 255)):
     img = Image.open(png_path)
     if img.mode != 'RGBA':
         img = img.convert('RGBA')
 
-    # Rotate the image with expand=True to get the full rotated image without cropping
     rotated_img = img.rotate(-degrees, expand=True)
-
-    # Calculate the size of the rotated image
-    rotated_width, rotated_height = rotated_img.size
-
-    # Create a new image with the size of the rotated image and a specified background color
-    background = Image.new('RGBA', (rotated_width, rotated_height), fill_color + (0,))
-
-    # Paste the rotated image onto the background
+    background = Image.new('RGBA', rotated_img.size, fill_color + (0,))
     background.paste(rotated_img, (0, 0), rotated_img)
-
-    # Convert back to RGB to drop the alpha channel
     background = background.convert('RGB')
 
     rotated_path = png_path.replace('.png', '_rotated.png')
     background.save(rotated_path)
+    img.close()  # Ensure the original image is closed
+    background.close()  # Ensure the rotated image is closed
 
     return rotated_path
 
-def generate_grid_from_png(png_path, pgmRows, pgmColumns):
-    # Generate grid
-    grid_data_path = png_path.replace('.png', '_grid_data.json')
-    png_to_grid.create_grid(png_path, grid_data_path, pgmRows, pgmColumns)
+@app.route('/process_and_generate_grid', methods=['POST'])
+def process_and_generate_grid():
+    data = request.get_json()
+    pgmRows = int(data['pgmRows'])
+    pgmColumns = int(data['pgmColumns'])
+    originalFilename = data['originalFilename']
+    rotationDegrees = int(data['rotationDegrees'])
 
-    return grid_data_path
+    originalPath = os.path.join('Maps', originalFilename)
+
+    # Rotate the original image according to the rotation degrees
+    rotatedPath = apply_rotation(originalPath, rotationDegrees)
+
+    # Crop the rotated image
+    croppedPath = rotatedPath.replace('.png', '_cropped.png')
+    autocrop.auto_cropper_png(rotatedPath, croppedPath)
+
+    # Generate grid from the cropped image
+    gridDataPath = croppedPath.replace('.png', '_grid_data.json')
+    png_to_grid.create_grid(croppedPath, gridDataPath, pgmRows, pgmColumns)
+
+    global last_grid_data_filename
+    last_grid_data_filename = os.path.basename(gridDataPath)
+
+    return jsonify({'status': 'success', 'gridDataPath': os.path.join('Maps', last_grid_data_filename)}), 200
 
 
 @app.route('/latest_grid_data')
 def serve_latest_grid_data():
     global last_grid_data_filename
     if last_grid_data_filename:
-        # Assuming 'last_grid_data_filename' stores the name of the JSON file containing the grid data
         return send_from_directory('Maps', last_grid_data_filename)
     else:
         return jsonify({'error': 'No grid data available'}), 404

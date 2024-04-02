@@ -262,94 +262,6 @@ document.addEventListener("keydown", function (event) {
     }
 });
 
-function moveChair(gridItem) {
-    if (!gridItem) return;
-    const chairContainer = gridItem.querySelector(".chair-container-in-grid");
-    if (isMultiSelectEnabled) {
-        if (
-            chairContainer &&
-            !chairContainer.classList.contains("highlighted-yellow")
-        ) {
-            chairContainer.classList.add("highlighted-yellow");
-        } else if (
-            chairContainer &&
-            chairContainer.classList.contains("highlighted-yellow")
-        ) {
-            chairContainer.classList.remove("highlighted-yellow");
-        }
-    } else {
-        if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
-        if (gridItem.classList.contains("black")) return; // Skip if there's an obstacle
-
-        const chairContainer = gridItem.querySelector(
-            ".chair-container-in-grid"
-        );
-
-        // If there's a selected chair to move and the current grid item is empty
-        if (selectedMovingChair && !chairContainer) {
-            // Move the selected chair to the new grid item
-            gridItem.appendChild(selectedMovingChair);
-        } else if (chairContainer !== selectedMovingChair) {
-            if (selectedMovingChair) {
-                selectedMovingChair.classList.remove("highlighted-yellow");
-            }
-            chairContainer.classList.add("highlighted-yellow");
-            selectedMovingChair = chairContainer;
-        } else if (selectedMovingChair) {
-            selectedMovingChair.classList.remove("highlighted-yellow");
-            selectedMovingChair = null;
-        }
-    }
-}
-
-document.addEventListener("keydown", function (event) {
-    if (currentMode === "move") {
-        if (event.key.toLowerCase() === "e") toggleSelectMode();
-        if (event.key.toLowerCase() === "q") {
-            // Clear any multi-selection
-            const selectedChairs = Array.from(
-                document.querySelectorAll(".highlighted-yellow")
-            );
-            selectedChairs.forEach((chair) =>
-                chair.classList.remove("highlighted-yellow")
-            );
-            selectedMovingChair = null;
-
-            const existingPreview = document.querySelector(
-                ".preview-chair-container"
-            );
-            const existingRobotPreview = document.querySelector(
-                ".preview-robot-in-grid"
-            );
-            if (existingPreview) existingPreview.remove();
-            if (existingRobotPreview) existingRobotPreview.remove();
-        }
-    }
-});
-
-document
-    .getElementById("toggleSelectMode")
-    .addEventListener("click", toggleSelectMode);
-
-let isMultiSelectEnabled = false;
-
-function toggleSelectMode() {
-    isMultiSelectEnabled = !isMultiSelectEnabled;
-    document.getElementById("toggleSelectMode").textContent =
-        isMultiSelectEnabled
-            ? "Switch to Single-Select"
-            : "Switch to Multi-Select";
-    if (!isMultiSelectEnabled) {
-        // Clear any multi-selection
-        const selectedChairs = Array.from(
-            document.querySelectorAll(".highlighted-yellow")
-        );
-        selectedChairs.forEach((chair) =>
-            chair.classList.remove("highlighted-yellow")
-        );
-    }
-}
-
 document.addEventListener("keydown", function (event) {
     // Handling movement through keyboard inputs when in move mode and multi-select is enabled
     if (currentMode === "move") {
@@ -393,6 +305,121 @@ document
 document
     .getElementById("moveRight")
     .addEventListener("click", () => moveSelectedChairs("right"));
+
+document
+    .getElementById("toggleSelectMode")
+    .addEventListener("click", toggleSelectMode);
+
+function moveChair(gridItem) {
+    if (!gridItem) return;
+    const chairContainer = gridItem.querySelector(".chair-container-in-grid");
+    if (isMultiSelectEnabled) {
+        if (
+            chairContainer &&
+            !chairContainer.classList.contains("highlighted-yellow")
+        ) {
+            chairContainer.classList.add("highlighted-yellow");
+        } else if (
+            chairContainer &&
+            chairContainer.classList.contains("highlighted-yellow")
+        ) {
+            chairContainer.classList.remove("highlighted-yellow");
+        }
+    } else {
+        if (gridItem.querySelector(".robot-in-grid")) return; // Skip if there's a robot
+        if (gridItem.classList.contains("black")) return; // Skip if there's an obstacle
+
+        const chairContainer = gridItem.querySelector(
+            ".chair-container-in-grid"
+        );
+
+        // If there's a selected chair to move and the current grid item is empty
+        if (selectedMovingChair && !chairContainer) {
+            // Move the selected chair to the new grid item
+            gridItem.appendChild(selectedMovingChair);
+        } else if (chairContainer !== selectedMovingChair) {
+            if (selectedMovingChair) {
+                selectedMovingChair.classList.remove("highlighted-yellow");
+            }
+            chairContainer.classList.add("highlighted-yellow");
+            selectedMovingChair = chairContainer;
+        } else if (selectedMovingChair) {
+            selectedMovingChair.classList.remove("highlighted-yellow");
+            selectedMovingChair = null;
+        }
+    }
+}
+
+document.addEventListener("keydown", function (event) {
+    if (currentMode === "move") {
+        if (event.key.toLowerCase() === "f") toggleSelectMode();
+        if (event.key.toLowerCase() === "q") selectAllChairsAndStacks();
+        if (event.key.toLowerCase() === "e") clearMultiSelection();
+    }
+});
+
+document
+    .getElementById("selectAll")
+    .addEventListener("click", selectAllChairsAndStacks);
+document
+    .getElementById("deselectAll")
+    .addEventListener("click", clearMultiSelection);
+
+function clearMultiSelection() {
+    const selectedChairs = Array.from(
+        document.querySelectorAll(".highlighted-yellow")
+    );
+    selectedChairs.forEach((chair) =>
+        chair.classList.remove("highlighted-yellow")
+    );
+    selectedMovingChair = null;
+    removePreviewElements();
+}
+
+function removePreviewElements() {
+    const existingPreview = document.querySelector(".preview-chair-container");
+    const existingRobotPreview = document.querySelector(
+        ".preview-robot-in-grid"
+    );
+    if (existingPreview) existingPreview.remove();
+    if (existingRobotPreview) existingRobotPreview.remove();
+}
+
+let isMultiSelectEnabled = false;
+
+function toggleSelectMode() {
+    isMultiSelectEnabled = !isMultiSelectEnabled;
+    document.getElementById("toggleSelectMode").textContent =
+        isMultiSelectEnabled
+            ? "Switch to Single-Select"
+            : "Switch to Multi-Select";
+    document.getElementById("selectModeIndicator").textContent =
+        isMultiSelectEnabled ? "Multi-Select Mode" : "Single-Select Mode";
+    if (!isMultiSelectEnabled) {
+        clearMultiSelection();
+    }
+}
+
+function selectAllChairsAndStacks() {
+    if (!isMultiSelectEnabled) {
+        toggleSelectMode(); // Automatically switch to Multi-Select mode
+    }
+    const chairsAndStacks = document.querySelectorAll(
+        ".chair-container-in-grid, .stack-logo"
+    );
+    chairsAndStacks.forEach((element) =>
+        element.classList.add("highlighted-yellow")
+    );
+}
+
+function clearMultiSelection() {
+    const selectedElements = Array.from(
+        document.querySelectorAll(".highlighted-yellow")
+    );
+    selectedElements.forEach((element) =>
+        element.classList.remove("highlighted-yellow")
+    );
+}
 
 function moveSelectedChairs(direction) {
     const selectedChairs = Array.from(

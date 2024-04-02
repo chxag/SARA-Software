@@ -1,55 +1,91 @@
-document.getElementById("fileInput").addEventListener("change", function () {
-    const file = this.files[0];
+// document.getElementById("fileInput").addEventListener("change", function () {
+//     const file = this.files[0];
 
-    if (!file) {
-        alert("Please select a file.");
-        return;
-    }
+//     if (!file) {
+//         alert("Please select a file.");
+//         return;
+//     }
 
-    if (!file.name.toLowerCase().endsWith(".pgm")) {
-        alert("Please upload a PGM file.");
-        return;
-    }
+//     if (!file.name.toLowerCase().endsWith(".pgm")) {
+//         alert("Please upload a PGM file.");
+//         return;
+//     }
 
-    const formData = new FormData();
-    formData.append("file", file);
+//     const formData = new FormData();
+//     formData.append("file", file);
 
-    fetch("http://localhost:8082/upload", {
-        method: "POST",
-        body: formData,
-    })
-        .then((response) => response.json())
-        .then((result) => {
-            if (result.status === "success") {
-                // Ensure the path matches how your server serves static files
-                const imageUrl = `http://localhost:8082/${result.pngPath}`;
-                displayImageAndRotationControl(imageUrl);
-                sessionStorage.setItem("uploadedFilename", result.filename); // Save the filename for later use
-                // console.log(
-                //     "Stored filename:",
-                //     sessionStorage.getItem("uploadedFilename")
-                // );
-            } else {
-                alert("Error uploading file.");
-            }
-        })
-        .catch((error) => {
-            console.error("Error:", error);
-            alert("Error during server communication.");
-        });
-});
+//     fetch("http://localhost:8082/upload", {
+//         method: "POST",
+//         body: formData,
+//     })
+//         .then((response) => response.json())
+//         .then((result) => {
+//             if (result.status === "success") {
+//                 // Ensure the path matches how your server serves static files
+//                 const imageUrl = `http://localhost:8082/${result.pngPath}`;
+//                 displayImageAndRotationControl(imageUrl);
+//                 sessionStorage.setItem("uploadedFilename", result.filename); // Save the filename for later use
+//                 // console.log(
+//                 //     "Stored filename:",
+//                 //     sessionStorage.getItem("uploadedFilename")
+//                 // );
+//             } else {
+//                 alert("Error uploading file.");
+//             }
+//         })
+//         .catch((error) => {
+//             console.error("Error:", error);
+//             alert("Error during server communication.");
+//         });
+// });
+
+// document.getElementById("uploadData").addEventListener("click", function () {
+//     const pgmRows = parseInt(document.getElementById("pgmRows").value);
+//     const pgmColumns = parseInt(document.getElementById("pgmColumns").value);
+//     const filename = sessionStorage.getItem("uploadedFilename");
+//     const rotationDegrees = parseInt(
+//         document.getElementById("rotationRange").value
+//     );
+
+//     if (!pgmRows || !pgmColumns) {
+//         alert("Please enter dimensions.");
+//         return;
+//     }
+
+//     fetch("http://localhost:8082/process_and_generate_grid", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//             pgmRows: pgmRows,
+//             pgmColumns: pgmColumns,
+//             filename: filename,
+//             rotationDegrees: rotationDegrees, // Send the rotation degrees to the server
+//         }),
+//     })
+//         .then((response) => response.json())
+//         .then((result) => {
+//             if (result.status === "success") {
+//                 sessionStorage.setItem("pgmTransfer", true);
+//                 window.location.href = "index.html"; // Redirect to index.html
+//             } else {
+//                 alert("Error generating grid.");
+//             }
+//         })
+//         .catch((error) => {
+//             console.error("Error:", error);
+//             alert("Error during grid generation.");
+//         });
+// });
 
 function displayImageAndRotationControl(imageUrl) {
     const uploadedImage = document.getElementById("uploadedImage");
-    const rotationControl = document.getElementById("rotationControl");
-
-    // Set the image source; this triggers the loading and the onload event
     uploadedImage.src = imageUrl;
     uploadedImage.classList.remove("hidden");
 
-    // Show the rotation control
+    const rotationControl = document.getElementById("rotationControl");
     rotationControl.style.display = "block";
 
+    // Only rotate the image visually without affecting the source
     document
         .getElementById("rotationRange")
         .addEventListener("input", function () {
@@ -74,18 +110,67 @@ window.addEventListener("pageshow", function () {
     }
 });
 
+document.getElementById("fileInput").addEventListener("change", function () {
+    const file = this.files[0];
+
+    if (!file) {
+        alert("Please select a file.");
+        return;
+    }
+
+    if (!file.name.toLowerCase().endsWith(".pgm")) {
+        alert("Please upload a PGM file.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetch("http://localhost:8082/upload", {
+        method: "POST",
+        body: formData,
+    })
+        .then((response) => response.json())
+        .then((result) => {
+            if (result.status === "success") {
+                // Display the cropped image
+                const croppedImageUrl = `http://localhost:8082/${result.croppedPngPath}`;
+                displayImageAndRotationControl(croppedImageUrl);
+
+                // Save the original and cropped filenames for later use
+                sessionStorage.setItem(
+                    "originalFilename",
+                    result.originalFilename
+                );
+                sessionStorage.setItem(
+                    "croppedFilename",
+                    result.croppedFilename
+                );
+            } else {
+                alert("Error uploading file.");
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            alert("Error during server communication.");
+        });
+});
+
+document.getElementById("rotationRange").addEventListener("input", function () {
+    const rotationDegrees = this.value;
+    sessionStorage.setItem("rotationDegrees", rotationDegrees); // Store the rotation degrees
+
+    const uploadedImage = document.getElementById("uploadedImage");
+    if (uploadedImage) {
+        uploadedImage.style.transform = `rotate(${rotationDegrees}deg)`; // Rotate the image client-side
+    }
+});
+
 document.getElementById("uploadData").addEventListener("click", function () {
     const pgmRows = parseInt(document.getElementById("pgmRows").value);
     const pgmColumns = parseInt(document.getElementById("pgmColumns").value);
-    const filename = sessionStorage.getItem("uploadedFilename");
-    const rotationDegrees = parseInt(
-        document.getElementById("rotationRange").value
-    );
-
-    if (!pgmRows || !pgmColumns) {
-        alert("Please enter dimensions.");
-        return;
-    }
+    const originalFilename = sessionStorage.getItem("originalFilename");
+    const rotationDegrees = sessionStorage.getItem("rotationDegrees");
 
     fetch("http://localhost:8082/process_and_generate_grid", {
         method: "POST",
@@ -93,21 +178,21 @@ document.getElementById("uploadData").addEventListener("click", function () {
         body: JSON.stringify({
             pgmRows: pgmRows,
             pgmColumns: pgmColumns,
-            filename: filename,
-            rotationDegrees: rotationDegrees, // Send the rotation degrees to the server
+            originalFilename: originalFilename,
+            rotationDegrees: rotationDegrees,
         }),
     })
         .then((response) => response.json())
         .then((result) => {
             if (result.status === "success") {
                 sessionStorage.setItem("pgmTransfer", true);
-                window.location.href = "index.html"; // Redirect to index.html
+                window.location.href = "index.html"; // Redirect to display the grid
             } else {
                 alert("Error generating grid.");
             }
         })
         .catch((error) => {
-            console.error("Error:", error);
+            console.error("Error during grid generation:", error);
             alert("Error during grid generation.");
         });
 });

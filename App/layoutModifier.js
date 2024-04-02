@@ -29,6 +29,8 @@ function displayLayoutData() {
 
             initiateRobotButton.classList.remove("grey-out");
         } catch (e) {}
+    } else {
+        greyOutChairs(true);
     }
 }
 
@@ -115,35 +117,48 @@ function saveCurrentLayout() {
     }
 }
 
-// Assuming there's a button in your HTML for saving the layout
-document
-    .getElementById("save-layout")
-    .addEventListener("click", saveCurrentLayout);
+document.getElementById("clear-layout").addEventListener("click", () => {
+    const promptLayout = confirm("Are you sure you want to clear the layout?");
+    if (!promptLayout) {
+        return; // User cancels the layout clearing
+    }
+
+    clearLayout(); // Clears chairs and robots as before
+
+    // Check if there are obstacles present
+    const obstacles = document.querySelectorAll(".black");
+    if (obstacles.length > 0) {
+        // Ask for confirmation to clear obstacles
+        const promptObstacles = confirm(
+            "Do you also want to clear all obstacles?"
+        );
+        if (promptObstacles) {
+            // User confirms clearing obstacles
+            obstacles.forEach((obstacle) => obstacle.classList.remove("black"));
+        }
+    }
+});
 
 function clearLayout() {
-    if (currentMode != null) toggleMode(currentMode);
+    if (currentMode != null) toggleMode(currentMode); // Resets the current mode if any
+
+    // Remove chairs
     const chairContainers = document.querySelectorAll(
         ".chair-container-in-grid"
     );
     chairContainers.forEach((container) => container.remove());
 
+    // Remove robots
     const robots = document.querySelectorAll(".robot-in-grid");
     robots.forEach((robot) => robot.remove());
 
+    // Reset any other layout related states here
     allocatedNumbers.clear();
     defaultRotationDegree = 0;
     Object.keys(allocatedCNumbersByStack).forEach((key) => {
         delete allocatedCNumbersByStack[key];
     });
 }
-
-document.getElementById("clear-layout").addEventListener("click", () => {
-    const prompt = confirm("Are you sure you want to clear the layout?");
-    if (!prompt) {
-        return;
-    }
-    clearLayout();
-});
 
 document.getElementById("rotate-layout").addEventListener("click", () => {
     const prompt = confirm("Are you sure you want to rotate the layout?");

@@ -6,7 +6,6 @@ let rows;
 let columns;
 const parsedRows = parseInt(urlParams.get("rows"));
 const parsedColumns = parseInt(urlParams.get("columns"));
-const useTempLayout = urlParams.get("useTempLayout");
 let layoutName = urlParams.get("layoutName");
 const loadingText = document.getElementById("loading-text");
 if (loadingText) loadingText.classList.remove("hidden");
@@ -198,6 +197,7 @@ function createSavedGrid(gridDataJson) {
 
 document.addEventListener("DOMContentLoaded", function () {
     document.title = "SARA";
+    const useTempLayout = urlParams.get("useTempLayout");
 
     // Set a timeout of 1 second to check for image load completion
     setTimeout(() => {

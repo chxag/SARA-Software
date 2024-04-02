@@ -142,9 +142,8 @@
                         width="16"
                         height="16"
                         fill="currentColor"
-                        class="bi bi-triangle-fill remove"
+                        class="bi bi-triangle-fill remove down"
                         viewBox="0 0 16 16"
-                        transform="rotate(180)"
                     >
                         <path
                             fill-rule="evenodd"
@@ -164,9 +163,8 @@
                         width="16"
                         height="16"
                         fill="currentColor"
-                        class="bi bi-triangle-fill remove"
+                        class="bi bi-triangle-fill remove right"
                         viewBox="0 0 16 16"
-                        transform="rotate(90)"
                     >
                         <path
                             fill-rule="evenodd"
@@ -180,9 +178,8 @@
                         width="16"
                         height="16"
                         fill="currentColor"
-                        class="bi bi-triangle-fill add"
+                        class="bi bi-triangle-fill add left"
                         viewBox="0 0 16 16"
-                        transform="rotate(-90)"
                     >
                         <path
                             fill-rule="evenodd"
@@ -203,9 +200,8 @@
                         width="16"
                         height="16"
                         fill="currentColor"
-                        class="bi bi-triangle-fill add"
+                        class="bi bi-triangle-fill add right"
                         viewBox="0 0 16 16"
-                        transform="rotate(90)"
                     >
                         <path
                             fill-rule="evenodd"
@@ -223,9 +219,8 @@
                         width="16"
                         height="16"
                         fill="currentColor"
-                        class="bi bi-triangle-fill remove"
+                        class="bi bi-triangle-fill remove left"
                         viewBox="0 0 16 16"
-                        transform="rotate(-90)"
                     >
                         <path
                             fill-rule="evenodd"
@@ -260,9 +255,8 @@
                         width="16"
                         height="16"
                         fill="currentColor"
-                        class="bi bi-triangle-fill add"
+                        class="bi bi-triangle-fill add down"
                         viewBox="0 0 16 16"
-                        transform="rotate(180)"
                     >
                         <path
                             fill-rule="evenodd"
@@ -297,11 +291,16 @@
         </div>
 
         <div id="moveControls" class="hidden">
+            <h4 id="selectModeIndicator">Single-Select Mode</h4>
             <button id="moveUp">Up</button>
             <button id="moveLeft">Left</button>
             <button id="toggleSelectMode">Switch to Multi-Select</button>
             <button id="moveRight">Right</button>
             <button id="moveDown">Down</button>
+            <div id="selectionControls">
+                <button id="selectAll">Select All</button>
+                <button id="deselectAll">Deselect All</button>
+            </div>
         </div>
 
         <div id="buttons-div">
